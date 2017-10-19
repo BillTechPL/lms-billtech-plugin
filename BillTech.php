@@ -30,7 +30,7 @@
  * @author Michał Kaciuba <michal@billtech.pl>
  */
 class BillTech extends LMSPlugin {
-    const plugin_directory_name = 'BillTech';
+    const PLUGIN_DIRECTORY_NAME = 'BillTech';
 	const PLUGIN_NAME = 'BillTech';
 	const PLUGIN_DESCRIPTION = 'BillTech';
 	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
@@ -38,9 +38,21 @@ class BillTech extends LMSPlugin {
     public function registerHandlers()
     {
         $this->handlers = array(
+            'smarty_initialized' => array(
+                'class' => 'BillTechInitHandler',
+                'method' => 'smartyBillTech'
+            ),
+            'userpanel_smarty_initialized' => array(
+                'class' => 'BillTechInitHandler',
+                'method' => 'smartyBillTech'
+            ),
             'invoice_email_before_send' => array(
                 'class' => 'InvoiceEmailHandler',
                 'method' => 'billtech_process_email_body'
+            ),
+            'userpanel_finances_main_before_module_display' => array(
+                'class' => 'UserPanelFinancesDisplayHandler',
+                'method' => 'handle_add_billtech_buttons'
             )
         );
     }

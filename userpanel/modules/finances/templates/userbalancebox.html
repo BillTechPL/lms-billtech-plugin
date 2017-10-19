@@ -1,0 +1,79 @@
+<!--// $Id$ //-->
+{box title="Your balance"}
+{$disable_invoices = ConfigHelper::checkConfig('userpanel.disable_invoices')}
+<form name="invoices" action="?m=finances&f=invoice" method="POST" target="_blank">
+<table style="width: 100%;" cellpadding="3">
+	<tr class="darkest">
+		<td width="1%">{trans("Date:")}</td>
+		<td width="1%" align="right">{trans("Value:")}</td>
+		<td width="1%" align="center">&raquo;</td>
+		<td width="1%" align="right">{trans("After:")}</td>
+		<td width="95%">{trans("Description:")}</td>
+		{if !$disable_invoices}
+		<td width="1%" align="right"></td>
+		{/if}
+        {if $billtech_enabled}
+        <td width="1%" align="center" class="nobr"></td>
+        {/if}
+	</tr>
+	{section name=balancelist loop=$balancelist.list step=-1}
+	{$item=$balancelist.list[balancelist]}
+	<tr class="dark">
+		<td width="1%" class="nobr">{$item.date}</td>
+		<td width="1%" align="right" class="nobr">{if $item.value > 0 && $item.type != 4}+{/if}{if $item.type == 4}-{/if}{$item.value|money_format}</td>
+		<td width="1%" align="center">&raquo;</td>
+		<td width="1%" align="right" class="nobr">{if $item.after < 0}<font color="red">{/if}{$item.after|money_format}{if $item.after < 0}</font>{/if}</td>
+		<td width="95%">{$item.comment}</td>
+		{if !$disable_invoices}
+		<td width="1%" class="nobr">
+			{foreach $item.customlinks as $link}
+			<a {if isset($link.url)}href="{$link.url}"{/if} target="_blank" {if isset($link.onclick)}onclick="{$link.onclick}"{/if}>{if isset($link.icon)}{img src="`$link.icon`" alt="[ `$link.label` ]" text=$link.tip}{else}{$link.label}{/if}</a>
+			{if isset($link.extra)}{$link.extra}{/if}
+			{/foreach}
+			{if $item.doctype == 1 || $item.doctype == 3}
+			<a href="?m=finances&amp;f=invoice&amp;id={$item.docid}" target="_blank">{img src="print.gif" alt="[ Print ]" text=$item.number}</a><input style="vertical-align: middle" type="checkbox" name="inv[{$item.docid}]" value="1" />
+			{else}
+			&nbsp;
+			{/if}
+		</td>
+		{/if}
+        {if $billtech_enabled}
+        <td width="1%" align="center" class="nobr">
+            {if $item.closed == 0 && $item.type == 0}
+            {$billtech_row_buttons[$smarty.section.balancelist.index]}
+            {/if}
+        </td>
+        {/if}
+	</tr>
+	{sectionelse}
+	<tr>
+		<td align="center" width="100%" colspan="6">
+			<p>&nbsp;</p>
+			<p><b>{trans("No such transactions on your account.")}</b></p>
+			<p>&nbsp;</p>
+		</td>
+	</tr>
+	{/section}
+	{if !$disable_invoices}
+	<tr class="darkest">
+        {if $billtech_enabled}
+        <td colspan="7" width="100%">
+        {else}
+		<td colspan="6" width="100%">
+        {/if}
+			<table width="100%" cellpadding="0" cellspacing="0">
+			    <tr>
+				<td width="50%">
+				{img src="print.gif" alt="[ Print ]"} <a href="javascript:document.invoices.submit()">{trans("Print selected")}</a>
+				</td>
+				<td width="50%" align="right">
+				<label for="allbox">{trans("Check all")}</label><input style="vertical-align: middle" type="checkbox" name="allbox" id="allbox" onchange="CheckAll('invoices', this)" value="1" />
+				</td>
+			    </tr>
+			</table>
+		</td>
+	</tr>
+	{/if}
+</table>
+</form>
+{/box}

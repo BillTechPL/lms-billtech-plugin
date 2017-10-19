@@ -33,8 +33,10 @@ class InvoiceEmailHandler
 {
     public function billtech_process_email_body(array $hook_data = array())
     {
+		$ispId = ConfigHelper::getConfig('billtech.isp_id');
+		$link = BillTechLinkGenerator::create_payment_link($hook_data['doc']['id'], $hook_data['doc']['customerid'], $ispId);
         $hook_data['body'] = preg_replace('/%billtech_btn/',
-            $this->get_email_button($hook_data['mail_format']),
+            $this->get_email_button($hook_data['mail_format'], $this->get_email_button($hook_data['mail_format'], $link)),
             $hook_data['body']);
 
         $hook_data['headers'] = $this->fill_headers($hook_data['doc'], $hook_data['headers']);
@@ -71,22 +73,15 @@ class InvoiceEmailHandler
         return $headers;
     }
 
-    function get_email_button($mail_format)
+    function get_email_button($mail_format, $link)
     {
-        $ispId = ConfigHelper::getConfig('billtech.isp_id');
         if (isset($mail_format) && $mail_format == 'html') {
             global $SMARTY;
 
-            $SMARTY->assign('ispId', $ispId);
-            return $SMARTY->fetch($plugin_templates = PLUGINS_DIR .
-                DIRECTORY_SEPARATOR .
-                BillTech::plugin_directory_name .
-                DIRECTORY_SEPARATOR .
-                'templates' .
-                DIRECTORY_SEPARATOR .
-                'billtechbutton.html');
+            $SMARTY->assign('link', $link);
+            return $SMARTY->fetch('billtechemailbutton.html');
         } else {
-            return 'Opłać teraz: https://billtech.pl/' . $ispId;
+            return 'Opłać teraz: ' . $link;
         }
     }
 }
