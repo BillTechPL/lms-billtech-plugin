@@ -27,7 +27,7 @@ class BillTechLinkGenerator
 
 		$nrb = bankaccount($userinfo['id'], null);
 
-		$companyId = $isp_id;
+		$providerCode = $isp_id;
 		$externalId = $userinfo['id'];
 		$clientName = $userinfo['name'];
 		$clientSurname = $userinfo['lastname'];
@@ -37,9 +37,25 @@ class BillTechLinkGenerator
 		$account = $nrb;
 		$paymentDue = $paymentDue->format('Ymd');
 
+		$data = $providerCode .
+			$externalId .
+			$invoiceNumber .
+			$clientName .
+			$clientSurname .
+			$email .
+			$amount .
+			$account .
+			$paymentDue;
+
+		error_log($data);
+
+		$privateKey = ConfigHelper::getConfig('billtech.private_key');
 		$signature = '';
+		openssl_sign($data, $signature, $privateKey, 'SHA256');
+		$signature = urlencode(base64_encode($signature));
+
 		return ConfigHelper::getConfig('billtech.payment_url') .
-			'?providerCode=' . $companyId .
+			'?providerCode=' . $providerCode .
 			'&externalId=' . $externalId .
 			'&clientName=' . $clientName .
 			'&clientSurname=' . $clientSurname .
@@ -47,6 +63,7 @@ class BillTechLinkGenerator
 			'&account=' . $account .
 			'&invoiceNumber=' . $invoiceNumber .
 			'&amount=' . $amount .
-			'&paymentDue=' . $paymentDue;
+			'&paymentDue=' . $paymentDue .
+			'&signature=' . $signature;
 	}
 }

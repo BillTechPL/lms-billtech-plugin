@@ -11,5 +11,7 @@ It injects payment details into mail headers and a button/link to a new invoice 
 * Add payment button to your *new invoice* template - insert `%billtech_btn` placeholder for the button.
 
 ## Configuration
-* Create new configuration entry billtech.isp_id. Use your *isp_id* provided by BillTech <michal(at)billtech.pl>
-* Create new configuration entry billtech.payment_url. Use your *payment_url* provided by BillTech <michal(at)billtech.pl>
+* *install.sh* generates a pair of keys (*lms.pem* and *lms.pub*). Send ONLY lms.pub to BillTech via email <michal(at)billtech.pl>. 
+* Create new configuration entry `billtech.private_key`. Paste contents of *lms.pem* as a value.
+* Create new configuration entry `billtech.isp_id`. Use your *isp_id* provided by BillTech <michal(at)billtech.pl>
+* Create new configuration entry `billtech.payment_url`. Use your *payment_url* provided by BillTech <michal(at)billtech.pl>
