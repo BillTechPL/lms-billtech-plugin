@@ -61,9 +61,9 @@
 							{/if}
                                 {if $billtech_enabled}
                                 <td align="center" class="nobr">
-                                    {if $item.closed == 0 && $item.type == 0}
-                                    {$billtech_row_buttons[$smarty.section.balancelist.index]}
-                                    {/if}
+                                    {if $item.closed == 0 && $item.docid && $item.value < 0}
+                                    	{$billtech_row_buttons[$smarty.section.balancelist.index]}
+									{/if}
                                 </td>
                                 {/if}
 						</tr>
