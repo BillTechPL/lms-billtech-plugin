@@ -1,0 +1,163 @@
+{extends file="layout.html"}
+{block name=title}::: LMS :{$layout.pagetitle|striphtml} :::{/block}
+{block name=module_content}
+<!--// $Id$ //-->
+<H1>{$layout.pagetitle}</H1>
+<SCRIPT type="text/javascript">
+	<!--
+	function pays()
+	{
+		if (!confirm('Jesteś pewien, że chcesz zaznaczyć/odznaczyć wybrane płatności jako potwierdzone?'))
+			return;
+		document.page.action="?m=billtechpaymentconfirmed";
+		document.page.target="";
+		document.page.submit();
+	}
+
+	function filter()
+	{
+		document.page.action="?m=billtechpaymentlist";
+		document.page.target="";
+		document.page.submit();
+	}
+
+	{if ConfigHelper::checkConfig('phpui.short_pagescroller')}
+	function pagechange1()
+	{
+		document.page.action="?m=billtechpaymentlist&page=" + document.forms['page'].elements['page1'].value;
+		document.page.target="";
+		document.page.submit();
+	}
+	function pagechange2()
+	{
+		document.page.action="?m=billtechpaymentlist&page=" + document.forms['page'].elements['page2'].value;
+		document.page.target="";
+		document.page.submit();
+	}
+	{/if}
+	//-->
+</SCRIPT>
+<FORM METHOD="POST" NAME="page">
+	<INPUT type="submit" class="hiddenbtn">
+	<TABLE class="lmsbox">
+		<COLGROUP>
+			<COL style="width: 1%" span="5">
+			<COL style="width: 94%">
+			<COL style="width: 1%">
+		</COLGROUP>
+		<THEAD>
+		<TR>
+			<TD class="nobr">
+				<A href="?m=billtechpaymentlist&amp;o=id{if $listdata.direction == "asc" && $listdata.order == "id"},desc{/if}">ID:</A> {if $listdata.order == "id"}<IMG src="img/{if $listdata.direction == "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}
+			</TD>
+			<TD class="nobr">
+				<A href="?m=billtechpaymentlist&amp;o=cdate{if $listdata.direction == "asc" && $listdata.order == "cdate"},desc{/if}">Data:</A> {if $listdata.order == "cdate"}<IMG src="img/{if $listdata.direction == "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}
+			</TD>
+			<TD class="nobr">
+				<A href="?m=billtechpaymentlist&amp;o=reference_number{if $listdata.direction == "asc" && $listdata.order == "cdate"},desc{/if}">Numer referencyjny:</A> {if $listdata.order == "cdate"}<IMG src="img/{if $listdata.direction == "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}
+			</TD>
+			<TD class="nobr">
+				<A href="?m=billtechpaymentlist&amp;o=title{if $listdata.direction == "asc" && $listdata.order == "value"},desc{/if}">Tytułem:</A> {if $listdata.order == "value"}<IMG src="img/{if $listdata.direction == "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}
+			</TD>
+			<TD class="nobr">
+				<A href="?m=billtechpaymentlist&amp;o=value{if $listdata.direction == "asc" && $listdata.order == "value"},desc{/if}">Wartość:</A> {if $listdata.order == "value"}<IMG src="img/{if $listdata.direction == "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}
+			</TD>
+			<TD class="nobr">
+				<A href="?m=billtechpaymentlist&amp;o=name{if $listdata.direction == "asc" && $listdata.order == "name"},desc{/if}">Od:</A> {if $listdata.order == "name"}<IMG src="img/{if $listdata.direction == "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}
+			</TD>
+			<TD>
+				&nbsp;
+			</TD>
+		</TR>
+		<TR>
+			<TD colspan="7">
+				<B>{trans("Filter:")} </B>
+				<INPUT type="text" name="search" value="{$listdata.search}" size="15" {tip text="Enter value of searching data and select category"}>&nbsp;
+				<SELECT size="1" name="cat">
+					<OPTION value=""{if $listdata.cat == ""} SELECTED{/if}>{trans("- select filter category -")}</OPTION>
+					<OPTION value="cdate"{if $listdata.cat == "cdate"} SELECTED{/if}>{trans("day (YYYY/MM/DD)")}</OPTION>
+					<OPTION value="month"{if $listdata.cat == "month"} SELECTED{/if}>{trans("month (YYYY/MM)")}</OPTION>
+					<OPTION value="document_number"{if $listdata.cat == "document_number"} SELECTED{/if}>Numer dokumentu</OPTION>
+					<OPTION value="reference_number"{if $listdata.cat == "reference_number"} SELECTED{/if}>Numer referencyjny</OPTION>
+					<OPTION value="amount"{if $listdata.cat == "amount"} SELECTED{/if}>Wartość</OPTION>
+					<OPTION value="name"{if $listdata.cat == "name"} SELECTED{/if}>{trans("customer name")}</OPTION>
+					<OPTION value="customerid"{if $listdata.cat == "customerid"} SELECTED{/if}>{trans("customer ID")}</OPTION>
+					<OPTION value="address"{if $listdata.cat == "address"} SELECTED{/if}>{trans("address")}</OPTION>
+					<OPTION value="cnotes"{if $listdata.cat == "cnotes"} SELECTED{/if}>{trans("show only credit notes")}</OPTION>
+				</SELECT>&nbsp;
+				&nbsp;<A href="javascript:filter();">&raquo;&raquo;&raquo;</A>
+			</TD>
+		</TR>
+		{if $listdata.total != 0}
+		<TR>
+			<TD class="pagination" COLSPAN="7">
+				{include file="scroller.html" loop=$paymentlist scrollerno=1}
+			</TD>
+		</TR>
+		{/if}
+		</THEAD>
+		<TBODY class="lms-ui-multi-check">
+		{cycle values="light,lucid" print=false}
+		{section name=paymentlist loop=$paymentlist start=$start max=$pagelimit}
+		{assign var=payment value=$paymentlist[paymentlist]}
+		{assign var=paymentid value=$payment.id}
+		<TR class="highlight {cycle}{if $payment.closed} blend {elseif $payment.cancelled} cancel{/if}">
+			<TD>
+				{$payment.id|string_format:"%06d"}
+			</TD>
+			<TD class="nobr">
+				{$payment.cdate|date_format:"%Y/%m/%d %H:%M"}
+			</TD>
+			<TD class="text-center nobr">
+				{$payment.reference_number}
+			</TD>
+			<TD class="text-right nobr">
+				{$payment.title}
+			</TD>
+			<TD class="text-right nobr">
+				{$payment.amount|money_format}
+			</TD>
+			<TD>
+				<A HREF="?m=customerinfo&id={$payment.customerid}"{if $payment.closed} class="blend"{/if}>{$payment.name}</A>
+			</TD>
+			<TD class="text-right nobr">
+				<INPUT TYPE="checkbox" NAME="marks[{$payment.id}]" VALUE="{$payment.id}" class="lms-ui-multi-check"{if $marks.$paymentid} checked{/if}>
+			</TD>
+		</TR>
+		{sectionelse}
+		<TR>
+			<TD class="empty-table" COLSPAN="7">
+				<P>Brak płatności BillTech w bazie danych</P>
+			</TD>
+		</TR>
+		{/section}
+		</TBODY>
+		<TFOOT>
+		{if $listdata.total != 0}
+		<TR>
+			<TD class="pagination" COLSPAN="7">
+				{include file="scroller.html" loop=$paymentlist scrollerno=2}
+			</TD>
+		</TR>
+		{/if}
+		<TR>
+			<TD COLSPAN="7">
+				<TABLE WIDTH="100%">
+					<TR>
+						<TD class="text-left nobr">
+							<A HREF="javascript:pays();">{trans("Check/Uncheck as accounted")} <IMG SRC="img/pay.gif" ALT=""></A>&nbsp;
+						</TD>
+						<TD class="text-right nobr">
+							<label>
+								{trans("Check All")}
+								<INPUT TYPE="checkbox" NAME="allbox" class="lms-ui-multi-check-all" VALUE="1">
+							</label>
+						</TD>
+					</TR>
+				</TABLE>
+			</TD>
+		</TR>
+		</TFOOT>
+	</TABLE>
+</FORM>
+{/block}
