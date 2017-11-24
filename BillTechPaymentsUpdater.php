@@ -94,7 +94,7 @@ class BillTechPaymentsUpdater
 
 				$LMS->AddBalance($addbalance);
 				$cashid = $DB->GetLastInsertID('cash');
-				$ten = $payment->ten ? $payment->ten : '';
+				$ten = $payment->companyTaxId ? $payment->companyTaxId : '';
 				$title = $payment->title ? $payment->title : '';
 
 				$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed) "
