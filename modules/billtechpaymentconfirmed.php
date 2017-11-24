@@ -36,7 +36,12 @@ if (sizeof($ids)) {
 		}
 	}
 
-	$DB->CommitTrans();
+	if (sizeof($DB->GetErrors())) {
+		$DB->RollbackTrans();
+		throw new Exception("Error writing to database");
+	} else {
+		$DB->CommitTrans();
+	}
 }
 
 $SESSION->redirect('?' . $SESSION->get('backto'));
