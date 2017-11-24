@@ -14,6 +14,7 @@ class BillTechPaymentsUpdater
 	public function checkForUpdate()
 	{
 		global $DB;
+		ob_start();
 		$force_sync = $_SERVER['HTTP_X_BILLTECH_FORCE_SYNC'];
 		$now = time();
 
@@ -74,8 +75,6 @@ class BillTechPaymentsUpdater
 			return;
 		}
 
-		$errors = array();
-
 		$DB->BeginTrans();
 
 		$customers = array();
@@ -100,7 +99,6 @@ class BillTechPaymentsUpdater
 				$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed) "
 					. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)",
 					array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $payment->amount, $title, $payment->paymentReferenceNumber, $payment->paymentDate));
-				$errors = array_merge($errors, $DB->GetErrors());
 
 				$customers[$payment->userId] = $payment->userId;
 			}
@@ -112,7 +110,7 @@ class BillTechPaymentsUpdater
 
 		$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype='last_sync'", array($current_sync));
 
-		if (sizeof($errors)) {
+		if (sizeof($DB->GetErrors())) {
 			$DB->RollbackTrans();
 			throw new Exception("Error writing to database");
 		} else {
