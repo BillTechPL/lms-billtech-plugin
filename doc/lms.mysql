@@ -2,7 +2,7 @@
 # $Id$
 # --------------------------------------------------------
 
-SET SESSION sql_mode   = '';
+SET SESSION sql_mode = '';
 DROP TABLE IF EXISTS billtech_payments;
 DROP TABLE IF EXISTS billtech_info;
 
@@ -22,7 +22,8 @@ CREATE TABLE billtech_payments
 	FOREIGN KEY (customerid) REFERENCES customers (id),
 	CONSTRAINT billtech_payments_cash_id_fk
 	FOREIGN KEY (cashid) REFERENCES cash (id)
-) ENGINE = InnoDB;
+)
+	ENGINE = InnoDB;
 
 CREATE INDEX billtech_payments_customers_id_fk
 	ON billtech_payments (customerid);
@@ -31,10 +32,19 @@ CREATE TABLE billtech_info
 (
 	keytype  VARCHAR(255) PRIMARY KEY,
 	keyvalue VARCHAR(255)
-) ENGINE = InnoDB;
+)
+	ENGINE = InnoDB;
+
+CREATE TABLE billtech_log
+(
+	cdate       INT DEFAULT 0           NOT NULL,
+	type   VARCHAR(255) DEFAULT '' NOT NULL,
+	description TEXT                    NOT NULL
+)
+	ENGINE = InnoDB;
 
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_expiration', 5);
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'private_key', 'plugins/BillTech/lms.pem');
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('last_sync', 0);
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('current_sync', 0);
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2017110600');
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2017112400');

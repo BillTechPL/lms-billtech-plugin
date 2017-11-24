@@ -31,7 +31,7 @@
  */
 class BillTech extends LMSPlugin
 {
-	const PLUGIN_DBVERSION = 2017110600;
+	const PLUGIN_DBVERSION = 2017112400;
 	const PLUGIN_DIRECTORY_NAME = 'BillTech';
 	const PLUGIN_NAME = 'BillTech';
 	const PLUGIN_DESCRIPTION = 'BillTech';

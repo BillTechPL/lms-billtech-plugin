@@ -33,6 +33,13 @@ CREATE TABLE billtech_info
 	keyvalue VARCHAR(255)
 );
 
+CREATE TABLE billtech_log
+(
+	cdate       INT DEFAULT 0           NOT NULL,
+	type   VARCHAR(255) DEFAULT '' NOT NULL,
+	description TEXT                    NOT NULL
+);
+
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_expiration', 5);
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'private_key', 'plugins/BillTech/lms.pem');
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('last_sync', 0);

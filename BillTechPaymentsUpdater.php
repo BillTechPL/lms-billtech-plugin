@@ -32,12 +32,9 @@ class BillTechPaymentsUpdater
 
 		if ($now - $last_sync > $this->rate && $now - $current_sync > $this->timeout) {
 			$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype = 'current_sync'", array($now));
-			try {
-				$this->update($now, $last_sync);
-				header('X-BillTech-Synced: true');
-			} catch (Exception $e) {
-				$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype='current_sync'", array($last_sync));
-			}
+
+			$this->update($now, $last_sync);
+			header('X-BillTech-Synced: true');
 		}
 	}
 
@@ -65,15 +62,18 @@ class BillTechPaymentsUpdater
 		curl_close($curl);
 
 		if (!$response) {
-			throw new Exception("No response from server");
+			$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', 'No response from BillTech server'));
+			return;
 		}
 
 		$response = json_decode($response);
 
 		if ($response->status == 'ERROR') {
-			//TODO: do something
+			$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', json_encode($response)));
 			return;
 		}
+
+		$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('SYNC_SUCCESS', ''));
 
 		$DB->BeginTrans();
 
