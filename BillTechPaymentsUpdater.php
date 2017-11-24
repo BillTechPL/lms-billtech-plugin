@@ -81,8 +81,6 @@ class BillTechPaymentsUpdater
 		$customers = array();
 
 		foreach ($response as $payment) {
-			$ten = $payment->ten;
-			$division_id = $ten ? $DB->GetOne("SELECT id FROM divisions WHERE ten = ?", array($ten)) : null;
 
 			$id = $DB->GetOne("SELECT id FROM billtech_payments WHERE reference_number=?", array($payment->paymentReferenceNumber));
 			if (!$id) {
@@ -96,10 +94,12 @@ class BillTechPaymentsUpdater
 
 				$LMS->AddBalance($addbalance);
 				$cashid = $DB->GetLastInsertID('cash');
+				$ten = $payment->ten ? $payment->ten : '';
+				$title = $payment->title ? $payment->title : '';
 
 				$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed) "
 					. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)",
-					array($cashid, $division_id, $payment->invoiceNumber, $payment->userId, $payment->amount, $payment->title, $payment->paymentReferenceNumber, $payment->paymentDate));
+					array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $payment->amount, $title, $payment->paymentReferenceNumber, $payment->paymentDate));
 				$errors = array_merge($errors, $DB->GetErrors());
 
 				$customers[$payment->userId] = $payment->userId;
@@ -110,13 +110,14 @@ class BillTechPaymentsUpdater
 			$this->checkCutoff($customerid);
 		}
 
-		if (sizeof($errors)) {
-			throw new Exception("Error writing to database");
-		}
-
 		$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype='last_sync'", array($current_sync));
 
-		$DB->CommitTrans();
+		if (sizeof($errors)) {
+			$DB->RollbackTrans();
+			throw new Exception("Error writing to database");
+		} else {
+			$DB->CommitTrans();
+		}
 	}
 
 	private function checkCutoff($customerid)
