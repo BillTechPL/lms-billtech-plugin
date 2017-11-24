@@ -10,6 +10,7 @@ function GetBillTtechPaymentsList($search = NULL, $cat = NULL, $hideclosed = NUL
 	list($order, $direction) = sscanf($order, '%[^,],%s');
 	($direction == 'desc') ? $direction = 'desc' : $direction = 'asc';
 
+	$sqlord = '';
 	switch ($order) {
 		case 'id':
 			$sqlord = ' ORDER BY p.id';
@@ -35,9 +36,6 @@ function GetBillTtechPaymentsList($search = NULL, $cat = NULL, $hideclosed = NUL
 
 	if ($search != '' && $cat) {
 		switch ($cat) {
-			case 'document_number':
-				$where = ' AND p.document_number ?LIKE? ' . $DB->Escape('%' . $search . '%');
-				break;
 			case 'reference_number':
 				$where = ' AND p.reference_number ?LIKE? ' . $DB->Escape('%' . $search . '%');
 				break;
@@ -53,9 +51,6 @@ function GetBillTtechPaymentsList($search = NULL, $cat = NULL, $hideclosed = NUL
 				break;
 			case 'name':
 				$where = ' AND UPPER(name) ?LIKE? UPPER(' . $DB->Escape('%' . $search . '%') . ')';
-				break;
-			case 'address':
-				$where = ' AND UPPER(address) ?LIKE? UPPER(' . $DB->Escape('%' . $search . '%') . ')';
 				break;
 			case 'amount':
 				$where = ' AND p.amount = ' . str_replace(',', '.', f_round($search));

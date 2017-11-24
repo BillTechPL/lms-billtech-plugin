@@ -77,14 +77,12 @@
 					<OPTION value=""{if $listdata.cat == ""} SELECTED{/if}>{trans("- select filter category -")}</OPTION>
 					<OPTION value="cdate"{if $listdata.cat == "cdate"} SELECTED{/if}>{trans("day (YYYY/MM/DD)")}</OPTION>
 					<OPTION value="month"{if $listdata.cat == "month"} SELECTED{/if}>{trans("month (YYYY/MM)")}</OPTION>
-					<OPTION value="document_number"{if $listdata.cat == "document_number"} SELECTED{/if}>Numer dokumentu</OPTION>
 					<OPTION value="reference_number"{if $listdata.cat == "reference_number"} SELECTED{/if}>Numer referencyjny</OPTION>
 					<OPTION value="amount"{if $listdata.cat == "amount"} SELECTED{/if}>Wartość</OPTION>
 					<OPTION value="name"{if $listdata.cat == "name"} SELECTED{/if}>{trans("customer name")}</OPTION>
 					<OPTION value="customerid"{if $listdata.cat == "customerid"} SELECTED{/if}>{trans("customer ID")}</OPTION>
-					<OPTION value="address"{if $listdata.cat == "address"} SELECTED{/if}>{trans("address")}</OPTION>
-					<OPTION value="cnotes"{if $listdata.cat == "cnotes"} SELECTED{/if}>{trans("show only credit notes")}</OPTION>
 				</SELECT>&nbsp;
+				<INPUT type="checkbox" name="hideclosed" id="hideclosed"{if $listdata.hideclosed} CHECKED{/if}><label for="hideclosed">{trans("hide accounted<!plural>")}</label>
 				&nbsp;<A href="javascript:filter();">&raquo;&raquo;&raquo;</A>
 			</TD>
 		</TR>
