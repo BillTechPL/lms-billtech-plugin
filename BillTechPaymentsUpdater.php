@@ -18,6 +18,10 @@ class BillTechPaymentsUpdater
 		$force_sync = $_SERVER['HTTP_X_BILLTECH_FORCE_SYNC'];
 		$now = time();
 
+		if (!ConfigHelper::getConfig('billtech.api_secret')) {
+			return;
+		}
+
 		if ($force_sync) {
 			$last_sync = $current_sync = 0;
 		} else {
@@ -112,7 +116,6 @@ class BillTechPaymentsUpdater
 
 		if (sizeof($DB->GetErrors())) {
 			$DB->RollbackTrans();
-			throw new Exception("Error writing to database");
 		} else {
 			$DB->CommitTrans();
 		}

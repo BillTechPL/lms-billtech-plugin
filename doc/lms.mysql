@@ -38,11 +38,16 @@ CREATE TABLE billtech_info
 CREATE TABLE billtech_log
 (
 	cdate       INT DEFAULT 0           NOT NULL,
-	type   VARCHAR(255) DEFAULT '' NOT NULL,
+	type        VARCHAR(255) DEFAULT '' NOT NULL,
 	description TEXT                    NOT NULL
 )
 	ENGINE = InnoDB;
 
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'isp_id', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_url', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_url', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_key', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_secret', '');
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_expiration', 5);
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'private_key', 'plugins/BillTech/lms.pem');
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('last_sync', 0);

@@ -40,9 +40,14 @@ CREATE TABLE billtech_log
 	description TEXT                    NOT NULL
 );
 
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'isp_id', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_url', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_url', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_key', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_secret', '');
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_expiration', 5);
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'private_key', 'plugins/BillTech/lms.pem');
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('last_sync', 0);
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('current_sync', 0);
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2017110600');
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2017112400');
 COMMIT;

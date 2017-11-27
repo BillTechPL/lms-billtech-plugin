@@ -32,10 +32,7 @@ switch ($action) {
 			$api_secret = json_decode($result)->data->apiSecret;
 
 			if ($api_secret) {
-				$DB->Execute("INSERT INTO uiconfig(section, var, value)
-								VALUES ('billtech', 'api_secret', ?)
-									ON DUPLICATE KEY UPDATE value = VALUES(value)",
-					array($api_secret));
+				$DB->Execute("UPDATE uiconfig SET value = ? WHERE section = 'billtech' AND var = 'api_secret'", array($api_secret));
 			}
 		}
 
@@ -44,13 +41,10 @@ switch ($action) {
 		$payment_url = $_POST['payment_url'];
 		$api_url = $_POST['api_url'];
 		$api_key = $_POST['api_key'];
-		$DB->Execute("INSERT INTO uiconfig(section, var, value) 
-								VALUES('billtech', 'isp_id', ?),
-									('billtech', 'payment_url', ?),
-									('billtech', 'api_url', ?),
-									('billtech', 'api_key', ?)
-									ON DUPLICATE KEY UPDATE value = VALUES(value)",
-			array($isp_id, $payment_url, $api_url, $api_key));
+		$DB->Execute("UPDATE uiconfig SET value = ? WHERE section = 'billtech' AND var = 'isp_id'", array($isp_id));
+		$DB->Execute("UPDATE uiconfig SET value = ? WHERE section = 'billtech' AND var = 'payment_url'", array($payment_url));
+		$DB->Execute("UPDATE uiconfig SET value = ? WHERE section = 'billtech' AND var = 'api_url'", array($api_url));
+		$DB->Execute("UPDATE uiconfig SET value = ? WHERE section = 'billtech' AND var = 'api_key'", array($api_key));
 }
 
 $SMARTY->assign('isp_id', $isp_id);

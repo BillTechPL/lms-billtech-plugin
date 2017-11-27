@@ -77,7 +77,7 @@ class BillTechButtonInsertHandler
 
 		if ($balancelist['balance'] >= 0) return;
 
-		$style = ConfigHelper::getConfig('userpanel.style', '');
+		$style = ConfigHelper::getConfig('userpanel.style', 'default');
 		$customerid = $userinfo['id'];
 
 		$billtech_payments = $DB->GetAll("SELECT id, ten, amount, document_number, closed FROM billtech_payments WHERE customerid = ?", array($customerid));
@@ -123,6 +123,7 @@ class BillTechButtonInsertHandler
 				}
 			};
 		}
+		$smarty->assign('balancelist', $balancelist);
 		$smarty->assign('billtech_balance_link', BillTechLinkGenerator::createPaymentLink('balance', $SESSION->id));
 		$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechbalancebutton.html');
 		$smarty->assign('custom_content', $smarty->getTemplateVars('custom_content') . $billtech_balance_button);
