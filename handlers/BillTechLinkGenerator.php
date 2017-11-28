@@ -25,7 +25,7 @@ class BillTechLinkGenerator
 			$amount = $doc_content['value'];
 		}
 
-		str_replace(',', '.', $amount);
+		$amount = str_replace(',', '.', $amount);
 
 		$nrb = bankaccount($customer_id, null);
 

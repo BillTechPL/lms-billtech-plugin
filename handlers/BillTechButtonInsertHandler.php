@@ -75,7 +75,7 @@ class BillTechButtonInsertHandler
 		$userinfo = $smarty->getTemplateVars('userinfo');
 		$balancelist = $smarty->getTemplateVars('balancelist');
 
-		if ($balancelist['balance'] >= 0) return;
+		if ($userinfo['balance'] >= 0 && ConfigHelper::getConfig('billtech.positive_balance_disables_btns', true)) return;
 
 		$style = ConfigHelper::getConfig('userpanel.style', 'default');
 		$customerid = $userinfo['id'];
@@ -98,17 +98,22 @@ class BillTechButtonInsertHandler
 
 		if (isset($balancelist)) {
 			foreach ($balancelist['list'] as &$item) {
-				$document = $DB->GetRow("SELECT number, template, cdate FROM documents WHERE id = ?", array($item['docid']));
-				$fullnumber = docnumber(array(
-					'number' => $document['number'],
-					'template' => $document['template'],
-					'cdate' => $document['cdate'],
-					'customerid' => $customerid,
-				));
+
+				$fullnumber = $DB->GetOne("SELECT fullnumber FROM documents WHERE id =?", array($item['docid']));
+
+				if(!$fullnumber){
+					$document = $DB->GetRow("SELECT number, template, cdate FROM documents WHERE id = ?", array($item['docid']));
+					$fullnumber = docnumber(array(
+						'number' => $document['number'],
+						'template' => $document['template'],
+						'cdate' => $document['cdate'],
+						'customerid' => $customerid,
+					));
+				}
 
 				$billtech_payment = $number_to_payment[$fullnumber];
 
-				$closed = $billtech_payment['amount'] + $item['value'] == 0;
+				$closed = $billtech_payment['amount'] + $item['value'] == 0 && $billtech_payment['closed'] == 0;
 
 				if (!$closed && $item['docid'] && $item['value'] < 0) {
 					$customlinks = $item['customlinks'];

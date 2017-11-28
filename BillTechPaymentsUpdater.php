@@ -100,9 +100,11 @@ class BillTechPaymentsUpdater
 				$ten = $payment->companyTaxId ? $payment->companyTaxId : '';
 				$title = $payment->title ? $payment->title : '';
 
+				$amount = str_replace(',', '.', $payment->amount);
+
 				$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed) "
 					. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)",
-					array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $payment->amount, $title, $payment->paymentReferenceNumber, $payment->paymentDate));
+					array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->paymentReferenceNumber, $payment->paymentDate));
 
 				$customers[$payment->userId] = $payment->userId;
 			}
