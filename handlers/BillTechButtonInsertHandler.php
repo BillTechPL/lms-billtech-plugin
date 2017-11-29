@@ -10,7 +10,7 @@ class BillTechButtonInsertHandler
 {
 	public function addButtonToInvoiceEmail(array $hook_data = array())
 	{
-		$link = BillTechLinkGenerator::createPaymentLink($hook_data['doc']['id'], $hook_data['doc']['customerid']);
+		$link = BillTechLinkGenerator::createPaymentLink($hook_data['doc']['id'], $hook_data['doc']['customerid'] . '&utm_medium=email');
 		$hook_data['body'] = preg_replace('/%billtech_btn/',
 			$this->createEmailButton($hook_data['mail_format'], $link),
 			$hook_data['body']);
@@ -24,7 +24,7 @@ class BillTechButtonInsertHandler
 	{
 		$data = $hook_data['data'];
 		$customerid = $hook_data['customer']['id'];
-		$link = BillTechLinkGenerator::createPaymentLink('balance', $customerid);
+		$link = BillTechLinkGenerator::createPaymentLink('balance', $customerid) . '&utm_medium=email';
 
 		$hook_data['data'] = preg_replace('/%billtech_btn/',
 			$this->createEmailButton('html', $link), $data);
@@ -41,7 +41,7 @@ class BillTechButtonInsertHandler
 		$customerinfo = $LMS->GetCustomer($customerid);
 		if ($customerinfo['balance'] < 0) {
 			$smarty->assign('billtech_balance_link', BillTechLinkGenerator::createPaymentLink('balance', $customerid));
-			$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'customerbilltechbutton.html');
+			$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'customerbilltechbutton.html' . '&utm_medium=cutoffpage');
 		} else {
 			$billtech_balance_button = '';
 		}
@@ -58,7 +58,7 @@ class BillTechButtonInsertHandler
 
 		$customerinfo = $LMS->GetCustomer($customerid);
 		if ($customerinfo['balance'] < 0) {
-			$smarty->assign('billtech_balance_link', BillTechLinkGenerator::createPaymentLink('balance', $customerid));
+			$smarty->assign('billtech_balance_link', BillTechLinkGenerator::createPaymentLink('balance', $customerid) . '&utm_medium=cutoffpage');
 			$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'customerotheripbilltechbutton.html');
 		} else {
 			$billtech_balance_button = '';
@@ -113,7 +113,7 @@ class BillTechButtonInsertHandler
 
 				$billtech_payment = $number_to_payment[$fullnumber];
 
-				$closed = $billtech_payment['amount'] + $item['value'] == 0 && $billtech_payment['closed'] == 0;
+				$closed = $item['closed'] || ($billtech_payment['amount'] + $item['value'] == 0 && $billtech_payment['closed'] == 0);
 
 				if (!$closed && $item['docid'] && $item['value'] < 0) {
 					$customlinks = $item['customlinks'];
@@ -129,7 +129,7 @@ class BillTechButtonInsertHandler
 			};
 		}
 		$smarty->assign('balancelist', $balancelist);
-		$smarty->assign('billtech_balance_link', BillTechLinkGenerator::createPaymentLink('balance', $SESSION->id));
+		$smarty->assign('billtech_balance_link', BillTechLinkGenerator::createPaymentLink('balance', $SESSION->id) . '&utm_medium=userpanel');
 		$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechbalancebutton.html');
 		$smarty->assign('custom_content', $smarty->getTemplateVars('custom_content') . $billtech_balance_button);
 		return $hook_data;
@@ -166,7 +166,7 @@ class BillTechButtonInsertHandler
 
 	private function createRowButton(Smarty $smarty, $docid, $userid, $style = 'default')
 	{
-		$link = BillTechLinkGenerator::createPaymentLink($docid, $userid);
+		$link = BillTechLinkGenerator::createPaymentLink($docid, $userid) . '&utm_medium=userpanel';
 		$smarty->assign('link', $link);
 		return $smarty->fetch('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechrowbutton.html');
 	}
