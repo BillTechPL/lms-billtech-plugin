@@ -52,8 +52,6 @@ class BillTechLinkGenerator
 			$account .
 			$paymentDue;
 
-		error_log($data);
-
 		$privateKey = ConfigHelper::getConfig('billtech.private_key');
 		if (!is_null($privateKey)) {
 			if ($privateKey[0] == DIRECTORY_SEPARATOR && is_readable($privateKey)) {
