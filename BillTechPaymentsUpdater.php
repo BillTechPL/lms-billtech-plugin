@@ -110,8 +110,10 @@ class BillTechPaymentsUpdater
 			}
 		}
 
-		foreach ($customers as $customerid) {
-			$this->checkCutoff($customerid);
+		if (ConfigHelper::getConfig('billtech.manage_cutoff', true)) {
+			foreach ($customers as $customerid) {
+				$this->checkCutoff($customerid);
+			}
 		}
 
 		$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype='last_sync'", array($current_sync));
