@@ -79,6 +79,6 @@ class BillTechLinkGenerator
 			'&paymentDue=' . $paymentDue .
 			'&signature=' . $signature .
 			'&utm_content=' . $providerCode .
-			'&utm_cource=isp';
+			'&utm_source=isp';
 	}
 }
