@@ -17,31 +17,21 @@ CREATE TABLE billtech_payments
 	reference_number VARCHAR(255)            NULL,
 	cdate            INT DEFAULT 0           NOT NULL,
 	closed           INT(1) DEFAULT 0        NOT NULL,
-	cashid           INT                     NULL,
-	CONSTRAINT billtech_payments_customers_id_fk
-	FOREIGN KEY (customerid) REFERENCES customers (id),
-	CONSTRAINT billtech_payments_cash_id_fk
-	FOREIGN KEY (cashid) REFERENCES cash (id)
-)
-	ENGINE = InnoDB;
-
-CREATE INDEX billtech_payments_customers_id_fk
-	ON billtech_payments (customerid);
+	cashid           INT(11)                 NULL
+);
 
 CREATE TABLE billtech_info
 (
 	keytype  VARCHAR(255) PRIMARY KEY,
 	keyvalue VARCHAR(255)
-)
-	ENGINE = InnoDB;
+);
 
 CREATE TABLE billtech_log
 (
 	cdate       INT DEFAULT 0           NOT NULL,
 	type        VARCHAR(255) DEFAULT '' NOT NULL,
 	description TEXT                    NOT NULL
-)
-	ENGINE = InnoDB;
+);
 
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'isp_id', '');
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_url', '');

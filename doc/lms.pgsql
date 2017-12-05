@@ -17,15 +17,8 @@ CREATE TABLE billtech_payments
 	reference_number VARCHAR(255) DEFAULT '',
 	cdate            INTEGER DEFAULT 0                                           NOT NULL,
 	closed           SMALLINT DEFAULT 0                                          NOT NULL,
-	cashid           INTEGER                                                     NULL,
-	CONSTRAINT billtech_payments_customers_id_fk
-	FOREIGN KEY (customerid) REFERENCES customers (id),
-	CONSTRAINT billtech_payments_cash_id_fk
-	FOREIGN KEY (cashid) REFERENCES cash (id)
+	cashid           INTEGER                                                     NULL
 );
-
-CREATE INDEX billtech_payments_customers_id_fk
-	ON billtech_payments (customerid);
 
 CREATE TABLE billtech_info
 (
