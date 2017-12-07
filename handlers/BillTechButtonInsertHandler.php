@@ -40,8 +40,8 @@ class BillTechButtonInsertHandler
 
 		$customerinfo = $LMS->GetCustomer($customerid);
 		if ($customerinfo['balance'] < 0) {
-			$smarty->assign('billtech_balance_link', BillTechLinkGenerator::createPaymentLink('balance', $customerid));
-			$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'customerbilltechbutton.html' . '&utm_medium=cutoffpage');
+			$smarty->assign('billtech_balance_link', BillTechLinkGenerator::createPaymentLink('balance', $customerid) . '&utm_medium=cutoffpage');
+			$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'customerbilltechbutton.html');
 		} else {
 			$billtech_balance_button = '';
 		}
