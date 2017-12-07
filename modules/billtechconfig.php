@@ -45,6 +45,7 @@ switch ($action) {
 		$DB->Execute("UPDATE uiconfig SET value = ? WHERE section = 'billtech' AND var = 'payment_url'", array($payment_url));
 		$DB->Execute("UPDATE uiconfig SET value = ? WHERE section = 'billtech' AND var = 'api_url'", array($api_url));
 		$DB->Execute("UPDATE uiconfig SET value = ? WHERE section = 'billtech' AND var = 'api_key'", array($api_key));
+		$SESSION->redirect('?m=billtechconfig');
 }
 
 $SMARTY->assign('isp_id', $isp_id);
