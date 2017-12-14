@@ -67,7 +67,7 @@ class BillTechLinkGenerator
 		openssl_sign($data, $signature, $privateKey, 'SHA256');
 		$signature = urlencode(base64_encode($signature));
 
-		return ConfigHelper::getConfig('billtech.payment_url') .
+		return urlencode(ConfigHelper::getConfig('billtech.payment_url') .
 			'?providerCode=' . $providerCode .
 			'&externalId=' . $externalId .
 			'&clientName=' . $clientName .
@@ -79,6 +79,6 @@ class BillTechLinkGenerator
 			'&paymentDue=' . $paymentDue .
 			'&signature=' . $signature .
 			'&utm_content=' . $providerCode .
-			'&utm_source=isp';
+			'&utm_source=isp');
 	}
 }
