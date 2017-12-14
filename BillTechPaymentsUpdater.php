@@ -30,9 +30,7 @@ class BillTechPaymentsUpdater
 			$current_sync = $billTechInfo['current_sync'];
 		}
 
-		$expiration = ConfigHelper::getConfig('billtech.payment_expiration', 5);
-		$DB->Execute("UPDATE billtech_payments SET closed = 1 WHERE ?NOW? > cdate + $expiration * 86400");
-
+		$this->checkExpired();
 
 		if ($now - $last_sync > $this->rate && $now - $current_sync > $this->timeout) {
 			$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype = 'current_sync'", array($now));
@@ -42,7 +40,38 @@ class BillTechPaymentsUpdater
 		}
 	}
 
-	private function update($current_sync, $last_sync)
+	private function checkExpired()
+	{
+		global $DB, $LMS;
+
+		$expiration = ConfigHelper::getConfig('billtech.payment_expiration', 5);
+		$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, closed, cashid FROM billtech_payments WHERE closed = 0 AND ?NOW? > cdate + $expiration * 86400");
+
+		if (sizeof($payments)) {
+			foreach ($payments as $payment) {
+				if ($payment['closed']) {
+					$addbalance = array(
+						'value' => $payment['amount'],
+						'type' => 100,
+						'customerid' => $payment['customerid'],
+						'comment' => 'BillTech Payments',
+						'time' => $payment['cdate']
+					);
+
+					$LMS->AddBalance($addbalance);
+					$cashid = $DB->GetLastInsertID('cash');
+
+					$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
+				} else {
+					$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
+					$LMS->DelBalance($payment['cashid']);
+				}
+			}
+		}
+	}
+
+	private
+	function update($current_sync, $last_sync)
 	{
 		global $DB, $LMS;
 		$url = ConfigHelper::getConfig("billtech.api_url") . "/api/service-provider/payments";
@@ -125,7 +154,8 @@ class BillTechPaymentsUpdater
 		}
 	}
 
-	private function checkCutoff($customerid)
+	private
+	function checkCutoff($customerid)
 	{
 		global $DB, $LMS;
 		$excluded_customergroups = ConfigHelper::getConfig('cutoff.excluded_customergroups', '');
@@ -170,7 +200,8 @@ class BillTechPaymentsUpdater
 
 	}
 
-	private function getCustomerDueBalance($customerid, $extend_deadline)
+	private
+	function getCustomerDueBalance($customerid, $extend_deadline)
 	{
 		global $DB;
 		$filter = "((d.paytime > 0 AND cdate + ((d.paytime + $extend_deadline) * 86400) < ?NOW?)
@@ -182,7 +213,8 @@ class BillTechPaymentsUpdater
 												WHERE $filter AND c.customerid = ?", array($customerid));
 	}
 
-	private function readBillTechInfo()
+	private
+	function readBillTechInfo()
 	{
 		global $DB;
 		$billTechInfo = array();
