@@ -34,7 +34,7 @@
 		document.page.target="";
 		document.page.submit();
 	}
-	{/if}
+	{/if};
 	//-->
 </SCRIPT>
 <FORM METHOD="POST" NAME="page">
@@ -148,7 +148,7 @@
 						<TD class="text-right nobr">
 							<label>
 								{trans("Check All")}
-								<INPUT TYPE="checkbox" NAME="allbox" class="lms-ui-multi-check-all" VALUE="1">
+								<INPUT TYPE="checkbox" NAME="allbox" id="allbox" onchange="CheckAll('page', this, ['original', 'duplicate', 'copy', 'groupexclude', 'hideclosed'])" VALUE="1">
 							</label>
 						</TD>
 					</TR>
