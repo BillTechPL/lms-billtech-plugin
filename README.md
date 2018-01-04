@@ -16,7 +16,7 @@ z wprowadzeniem odpowiednich zmian również do innych wersji LMS.
 
 ## Instalacja
 * Umieść zawartość tego repozytorium w katalogu *plugins/BillTech* w katalogu instalacyjnym LMSa.
-* Przejdź do katalogu *plugins/Billtech*
+* Przejdź do katalogu *plugins/BillTech*
 * Uruchom skrypt `install.sh`,
 * Zaloguj się do panelu admina LMS
 * Przejdź do zakładki *Konfiguracja -> Wtyczki*
