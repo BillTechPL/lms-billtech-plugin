@@ -36,7 +36,9 @@ class BillTechPaymentsUpdater
 			$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype = 'current_sync'", array($now));
 
 			$this->update($now, $last_sync);
-			header('X-BillTech-Synced: true');
+			if(!headers_sent()) {
+                header('X-BillTech-Synced: true');
+            }
 		}
 	}
 
