@@ -21,7 +21,7 @@ class BillTechLinkGenerator
 		} else {
 			$doc_content = $LMS->GetInvoiceContent($doc);
 			$paymentDue = new DateTime('@' . ($doc_content['pdate'] == '' ? time() : $doc_content['pdate']));
-			$invoiceNumber = docnumber($doc_content['number']);
+			$invoiceNumber = docnumber($doc_content['number'], $doc_content['template'], $doc_content['cdate'], $doc_content['customerid']);
 			$amount = $doc_content['value'];
 		}
 
