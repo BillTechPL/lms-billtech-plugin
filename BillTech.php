@@ -31,10 +31,11 @@
  */
 class BillTech extends LMSPlugin
 {
+	const PLUGIN_VERSION = '20180208';
 	const PLUGIN_DBVERSION = 2017112400;
 	const PLUGIN_DIRECTORY_NAME = 'BillTech';
 	const PLUGIN_NAME = 'BillTech';
-	const PLUGIN_DESCRIPTION = 'BillTech';
+	const PLUGIN_DESCRIPTION = 'BillTech - wersja: ' . BillTech::PLUGIN_VERSION;
 	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
 
 	public function __construct()
@@ -83,7 +84,11 @@ class BillTech extends LMSPlugin
 			'userpanel_finances_main_before_module_display' => array(
 				'class' => 'BillTechButtonInsertHandler',
 				'method' => 'addButtonsToFinancesView'
-			)
+			),
+            'cashimport_before_commit' => array (
+                'class' => 'BillTechPaymentCashImportHandler',
+                'method' => 'processCashImport'
+            )
 		);
 	}
 }

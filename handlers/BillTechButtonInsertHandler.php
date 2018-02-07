@@ -10,7 +10,7 @@ class BillTechButtonInsertHandler
 {
     public function addButtonToInvoiceEmail(array $hook_data = array())
     {
-        $link = BillTechLinkGenerator::createPaymentLink($hook_data['doc']['id'], $hook_data['doc']['customerid'] . '&utm_medium=email');
+        $link = BillTechLinkGenerator::createPaymentLink($hook_data['doc']['id'], $hook_data['doc']['customerid']) . '&utm_medium=email';
         $hook_data['body'] = preg_replace('/%billtech_btn/',
             $this->createEmailButton($hook_data['mail_format'], $link),
             $hook_data['body']);
