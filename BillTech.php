@@ -31,11 +31,10 @@
  */
 class BillTech extends LMSPlugin
 {
-	const PLUGIN_VERSION = '20180208';
 	const PLUGIN_DBVERSION = 2017112400;
 	const PLUGIN_DIRECTORY_NAME = 'BillTech';
 	const PLUGIN_NAME = 'BillTech';
-	const PLUGIN_DESCRIPTION = 'BillTech - wersja: ' . BillTech::PLUGIN_VERSION;
+	const PLUGIN_DESCRIPTION = 'BillTech - wersja: 20180208 10:13';
 	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
 
 	public function __construct()
