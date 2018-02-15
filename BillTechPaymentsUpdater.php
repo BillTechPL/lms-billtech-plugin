@@ -47,6 +47,9 @@ class BillTechPaymentsUpdater
 		global $DB, $LMS;
 
 		$expiration = ConfigHelper::getConfig('billtech.payment_expiration', 5);
+		
+		if($expiration == 'never') return;
+
 		$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, closed, cashid FROM billtech_payments WHERE closed = 0 AND ?NOW? > cdate + $expiration * 86400");
 
 		if (sizeof($payments)) {
