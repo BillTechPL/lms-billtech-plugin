@@ -12,7 +12,7 @@ class BillTechPaymentCashImportHandler
         global $DB, $LMS;
         $description = $import['description'];
 
-        if ($description) {
+        if (ConfigHelper::getConfig('billtech.cashimport_enabled', false) && $description) {
             preg_match('/ref:(\d{8}-\d{6})/', $description, $matches);
             if (isset($matches[1])) {
                 $reference_number = $matches[1];
