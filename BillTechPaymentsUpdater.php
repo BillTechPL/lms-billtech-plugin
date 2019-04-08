@@ -36,9 +36,9 @@ class BillTechPaymentsUpdater
 			$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype = 'current_sync'", array($now));
 
 			$this->update($now, $last_sync);
-			if(!headers_sent()) {
-                header('X-BillTech-Synced: true');
-            }
+			if (!headers_sent()) {
+				header('X-BillTech-Synced: true');
+			}
 		}
 
 		$DB->Execute("DELETE FROM billtech_log WHERE type='SYNC_SUCCESS' AND cdate<(UNIX_TIMESTAMP(NOW())-?);",
@@ -50,8 +50,8 @@ class BillTechPaymentsUpdater
 		global $DB, $LMS;
 
 		$expiration = ConfigHelper::getConfig('billtech.payment_expiration', 5);
-		
-		if($expiration == 'never') return;
+
+		if ($expiration == 'never') return;
 
 		$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, closed, cashid FROM billtech_payments WHERE closed = 0 AND ?NOW? > cdate + $expiration * 86400");
 
