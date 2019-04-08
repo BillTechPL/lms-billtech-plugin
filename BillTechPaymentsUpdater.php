@@ -84,7 +84,7 @@ class BillTechPaymentsUpdater
 		global $DB, $LMS;
 		$url = ConfigHelper::getConfig("billtech.api_url") . "/api/service-provider/payments";
 
-		$url .= "?fromDate=" . $last_sync;
+		$url .= "?fromDate=" . (ConfigHelper::getConfig("billtech.debug") ? 0 : $last_sync);
 
 		$curl = curl_init();
 
@@ -99,6 +99,10 @@ class BillTechPaymentsUpdater
 		}
 
 		$response = curl_exec($curl);
+
+		if (ConfigHelper::getConfig("billtech.debug")) {
+			file_put_contents('/var/tmp/billtech_debug.txt', print_r($response, true));
+		}
 
 		curl_close($curl);
 
