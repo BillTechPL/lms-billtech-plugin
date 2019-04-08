@@ -170,7 +170,7 @@ unset($paymentlist['page']);
 unset($paymentlist['order']);
 unset($paymentlist['direction']);
 
-$listdata['total'] = sizeof($paymentlist);
+$listdata['total'] = is_array($paymentlist) ? sizeof($paymentlist) : 0;
 
 $hook_data = $LMS->ExecuteHook('billtechpaymentlist_before_display',
 	array(

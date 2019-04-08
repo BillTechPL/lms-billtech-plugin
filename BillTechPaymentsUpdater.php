@@ -52,7 +52,7 @@ class BillTechPaymentsUpdater
 
 		$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, closed, cashid FROM billtech_payments WHERE closed = 0 AND ?NOW? > cdate + $expiration * 86400");
 
-		if (sizeof($payments)) {
+		if (is_array($payments) && sizeof($payments)) {
 			foreach ($payments as $payment) {
 				if ($payment['closed']) {
 					$addbalance = array(
@@ -153,7 +153,7 @@ class BillTechPaymentsUpdater
 
 		$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype='last_sync'", array($current_sync));
 
-		if (sizeof($DB->GetErrors())) {
+		if (is_array($DB->GetErrors()) && sizeof($DB->GetErrors())) {
 			$DB->RollbackTrans();
 		} else {
 			$DB->CommitTrans();

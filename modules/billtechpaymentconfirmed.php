@@ -3,15 +3,15 @@
 $SESSION->restore('bplm', $bplm);
 $SESSION->remove('bplm');
 
-if (sizeof($_POST['marks']))
+if (is_array($_POST['marks']) && sizeof($_POST['marks']))
 	foreach ($_POST['marks'] as $id => $mark)
 		$bplm[$id] = $mark;
 
-if (sizeof($bplm))
+if (is_array($bplm) && sizeof($bplm))
 	foreach ($bplm as $mark)
 		$ids[] = $mark;
 
-if (sizeof($ids)) {
+if (is_array($ids) && sizeof($ids)) {
 	$DB->BeginTrans();
 
 	$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, closed, cashid FROM billtech_payments WHERE id IN (" . implode(',', $ids) . ")", array($ids));
@@ -36,7 +36,7 @@ if (sizeof($ids)) {
 		}
 	}
 
-	if (sizeof($DB->GetErrors())) {
+	if (is_array($DB->GetErrors()) && sizeof($DB->GetErrors())) {
 		$DB->RollbackTrans();
 		throw new Exception("Error writing to database");
 	} else {
