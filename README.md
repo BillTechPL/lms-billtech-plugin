@@ -26,9 +26,9 @@ w miejscu, w którym chcesz umieścić przycisk
 
 ## Konfiguracja
 * Skrypt *install.sh* generuje parę kluczy (*lms.pem* oraz *lms.pub*). Wyślij TYLKO plik *lms.pub*
-e-mailem do BillTech <michal@billtech.pl>
-* W panelu admina wejdź w zakładkę *Konfiguracja -> BillTech* i wpisz wartości otrzymane od <michal@billtech.pl>	
+e-mailem do BillTech <admin@billtech.pl>
+* W panelu admina wejdź w zakładkę *Konfiguracja -> BillTech* i wpisz wartości otrzymane od <admin@billtech.pl>	
 
 
 ###
-Jeżeli chciałbyś przetestować wtyczkę, zobaczyć jak wygląda proces płatności, rozpocząć współpracę lub dowiedzieć się więcej prosimy o wiadomość na <wspolpraca@billtech.pl>
+Jeżeli chciałbyś przetestować wtyczkę, zobaczyć jak wygląda proces płatności, rozpocząć współpracę lub dowiedzieć się więcej prosimy o wiadomość na <kontakt@billtech.pl>
