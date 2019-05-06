@@ -41,7 +41,7 @@ class BillTechPaymentsUpdater
 			}
 		}
 
-		$DB->Execute("DELETE FROM billtech_log WHERE type='SYNC_SUCCESS' AND cdate<(UNIX_TIMESTAMP(NOW())-?);",
+		$DB->Execute("DELETE FROM billtech_log WHERE type='SYNC_SUCCESS' AND cdate<(?NOW? - ?);",
 			array(ConfigHelper::getConfig('billtech.log_retention_days', 7) * 24 * 3600));
 	}
 
