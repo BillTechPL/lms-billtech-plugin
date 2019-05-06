@@ -125,6 +125,10 @@ class BillTechPaymentsUpdater
 		$customers = array();
 
 		foreach ($response as $payment) {
+			if(!$payment->userId) {
+				$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', json_encode($payment)));
+				continue;
+			}
 
 			$id = $DB->GetOne("SELECT id FROM billtech_payments WHERE reference_number=?", array($payment->paymentReferenceNumber));
 			if (!$id) {
