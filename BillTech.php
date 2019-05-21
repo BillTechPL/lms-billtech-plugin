@@ -84,7 +84,7 @@ class BillTech extends LMSPlugin
 				'class' => 'BillTechButtonInsertHandler',
 				'method' => 'addButtonsToFinancesView'
 			),
-            'cashimport_before_commit' => array (
+            'cashimport_after_commit' => array (
                 'class' => 'BillTechPaymentCashImportHandler',
                 'method' => 'processCashImport'
             )

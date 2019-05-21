@@ -134,7 +134,6 @@ class BillTechPaymentsUpdater
 			if (!$id) {
 				$addbalance = array(
 					'value' => $payment->amount,
-					'userid' => 0,
 					'type' => 100,
 					'customerid' => $payment->userId,
 					'comment' => 'BillTech Payments',
