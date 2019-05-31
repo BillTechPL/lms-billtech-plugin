@@ -7,11 +7,11 @@
 
 class BillTechPaymentCashImportHandler
 {
-	function processCashImport($cashimports)
+	function processCashImport(array $hookdata = array())
 	{
 		global $DB, $LMS;
 
-		foreach ($cashimports as $import) {
+		foreach ($hookdata['cashimports'] as $import) {
 			$description = $import['comment'];
 
 			if (ConfigHelper::getConfig('billtech.cashimport_enabled', false) && $description) {
@@ -26,6 +26,6 @@ class BillTechPaymentCashImportHandler
 				}
 			}
 		}
-		return $cashimports;
+		return $hookdata;
 	}
 }
