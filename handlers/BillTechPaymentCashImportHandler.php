@@ -15,7 +15,8 @@ class BillTechPaymentCashImportHandler
 			$description = $import['description'];
 
 			if (ConfigHelper::getConfig('billtech.cashimport_enabled', false) && $description) {
-				preg_match('/ref:(\d{8}-\d{6})/', preg_replace('[,|]', '', $description), $matches);
+				$description = preg_replace('(,|\|)', '', $description);
+				preg_match('/ref:(\d{8}-\d{6})/', $description, $matches);
 				if (isset($matches[1])) {
 					$reference_number = $matches[1];
 					$payment = $DB->GetRow("SELECT id, amount, closed, cashid FROM billtech_payments WHERE reference_number=? AND closed=0", array($reference_number));
