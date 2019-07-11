@@ -15,7 +15,7 @@ class BillTechPaymentCashImportHandler
 			$description = $import['description'];
 
 			if (ConfigHelper::getConfig('billtech.cashimport_enabled', false) && $description) {
-				$description = preg_replace('(,|\|)', '', $description);
+				$description = preg_replace('/[,|]/', '', $description);
 				preg_match('/ref:(\d{8}-\d{6})/', $description, $matches);
 				if (isset($matches[1])) {
 					$reference_number = $matches[1];
