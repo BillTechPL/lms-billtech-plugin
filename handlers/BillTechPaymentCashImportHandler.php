@@ -12,7 +12,7 @@ class BillTechPaymentCashImportHandler
 		global $DB, $LMS;
 
 		foreach ($hookdata['cashimports'] as $import) {
-			$description = $import['comment'];
+			$description = $import['description'];
 
 			if (ConfigHelper::getConfig('billtech.cashimport_enabled', false) && $description) {
 				preg_match('/ref:(\d{8}-\d{6})/', preg_replace('[,|]', '', $description), $matches);
