@@ -53,6 +53,7 @@ class BillTechPaymentsUpdater
 
 		if ($expiration == 'never') return;
 
+		$DB->BeginTrans();
 		$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, closed, cashid FROM billtech_payments WHERE closed = 0 AND ?NOW? > cdate + $expiration * 86400");
 
 		if (is_array($payments) && sizeof($payments)) {
@@ -75,6 +76,11 @@ class BillTechPaymentsUpdater
 					$LMS->DelBalance($payment['cashid']);
 				}
 			}
+		}
+		if (is_array($DB->GetErrors()) && sizeof($DB->GetErrors())) {
+			$DB->RollbackTrans();
+		} else {
+			$DB->CommitTrans();
 		}
 	}
 
