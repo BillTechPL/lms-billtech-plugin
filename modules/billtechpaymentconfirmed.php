@@ -26,10 +26,10 @@ if (is_array($ids) && sizeof($ids)) {
 				'time' => $payment['cdate']
 			);
 
-			$LMS->AddBalance($addbalance);
-			$cashid = $DB->GetLastInsertID('cash');
-
-			$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
+			$cashid = $LMS->AddBalance($addbalance);
+			if ($cashid) {
+				$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
+			}
 		} else {
 			$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
 			$LMS->DelBalance($payment['cashid']);
