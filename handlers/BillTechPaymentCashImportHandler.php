@@ -21,8 +21,11 @@ class BillTechPaymentCashImportHandler
 					$reference_number = $matches[1];
 					$payment = $DB->GetRow("SELECT id, amount, closed, cashid FROM billtech_payments WHERE reference_number=? AND closed=0", array($reference_number));
 					if ($payment) {
-						$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
-						$LMS->DelBalance($payment['cashid']);
+						$cash = $LMS->GetCashByID($payment['cashid']);
+						if ($cash && $cash['comment'] == BillTech::CASH_COMMENT) {
+							$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
+							$LMS->DelBalance($payment['cashid']);
+						}
 					}
 				}
 			}

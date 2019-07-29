@@ -63,7 +63,7 @@ class BillTechPaymentsUpdater
 						'value' => $payment['amount'],
 						'type' => 100,
 						'customerid' => $payment['customerid'],
-						'comment' => 'BillTech Payments',
+						'comment' => BillTech::CASH_COMMENT,
 						'time' => $payment['cdate']
 					);
 
@@ -72,8 +72,11 @@ class BillTechPaymentsUpdater
 						$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
 					}
 				} else {
-					$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
-					$LMS->DelBalance($payment['cashid']);
+					$cash = $LMS->GetCashByID($payment['cashid']);
+					if ($cash && $cash['comment'] == BillTech::CASH_COMMENT) {
+						$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
+						$LMS->DelBalance($payment['cashid']);
+					}
 				}
 			}
 		}
