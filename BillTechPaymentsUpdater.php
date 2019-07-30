@@ -53,6 +53,7 @@ class BillTechPaymentsUpdater
 
 		if ($expiration == 'never') return;
 
+		$DB->BeginTrans();
 		$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, closed, cashid FROM billtech_payments WHERE closed = 0 AND ?NOW? > cdate + $expiration * 86400");
 
 		if (is_array($payments) && sizeof($payments)) {
@@ -62,19 +63,27 @@ class BillTechPaymentsUpdater
 						'value' => $payment['amount'],
 						'type' => 100,
 						'customerid' => $payment['customerid'],
-						'comment' => 'BillTech Payments',
+						'comment' => BillTech::CASH_COMMENT,
 						'time' => $payment['cdate']
 					);
 
-					$LMS->AddBalance($addbalance);
-					$cashid = $DB->GetLastInsertID('cash');
-
-					$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
+					$cashid = $LMS->AddBalance($addbalance);
+					if ($cashid) {
+						$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
+					}
 				} else {
-					$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
-					$LMS->DelBalance($payment['cashid']);
+					$cash = $LMS->GetCashByID($payment['cashid']);
+					if ($cash && $cash['comment'] == BillTech::CASH_COMMENT) {
+						$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
+						$LMS->DelBalance($payment['cashid']);
+					}
 				}
 			}
+		}
+		if (is_array($DB->GetErrors()) && sizeof($DB->GetErrors())) {
+			$DB->RollbackTrans();
+		} else {
+			$DB->CommitTrans();
 		}
 	}
 
@@ -125,7 +134,7 @@ class BillTechPaymentsUpdater
 		$customers = array();
 
 		foreach ($response as $payment) {
-			if(!$payment->userId) {
+			if (!$payment->userId) {
 				$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', json_encode($payment)));
 				continue;
 			}
@@ -140,18 +149,19 @@ class BillTechPaymentsUpdater
 					'time' => $payment->paymentDate
 				);
 
-				$LMS->AddBalance($addbalance);
-				$cashid = $DB->GetLastInsertID('cash');
-				$ten = $payment->companyTaxId ? $payment->companyTaxId : '';
-				$title = $payment->title ? $payment->title : '';
+				$cashid = $LMS->AddBalance($addbalance);
+				if ($cashid) {
+					$ten = $payment->companyTaxId ? $payment->companyTaxId : '';
+					$title = $payment->title ? $payment->title : '';
 
-				$amount = str_replace(',', '.', $payment->amount);
+					$amount = str_replace(',', '.', $payment->amount);
 
-				$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed) "
-					. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)",
-					array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->paymentReferenceNumber, $payment->paymentDate));
+					$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed) "
+						. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)",
+						array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->paymentReferenceNumber, $payment->paymentDate));
 
-				$customers[$payment->userId] = $payment->userId;
+					$customers[$payment->userId] = $payment->userId;
+				}
 			}
 		}
 
