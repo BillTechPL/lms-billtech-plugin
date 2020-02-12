@@ -36,6 +36,7 @@ class BillTech extends LMSPlugin
 	const PLUGIN_NAME = 'BillTech';
 	const PLUGIN_DESCRIPTION = 'BillTech - wersja: 20180215';
 	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
+	const CASH_COMMENT = 'BillTech Payments';
 
 	public function __construct()
 	{
@@ -84,10 +85,10 @@ class BillTech extends LMSPlugin
 				'class' => 'BillTechButtonInsertHandler',
 				'method' => 'addButtonsToFinancesView'
 			),
-            'cashimport_before_commit' => array (
-                'class' => 'BillTechPaymentCashImportHandler',
-                'method' => 'processCashImport'
-            )
+			'cashimport_after_commit' => array(
+				'class' => 'BillTechPaymentCashImportHandler',
+				'method' => 'processCashImport'
+			)
 		);
 	}
 }
