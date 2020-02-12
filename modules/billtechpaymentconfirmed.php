@@ -14,7 +14,7 @@ if (is_array($bplm) && sizeof($bplm))
 if (is_array($ids) && sizeof($ids)) {
 	$DB->BeginTrans();
 
-	$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, closed, cashid FROM billtech_payments WHERE id IN (" . implode(',', $ids) . ")", array($ids));
+	$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, closed, cashid FROM billtech_payments WHERE id IN (" . implode(',', $ids) . ")");
 
 	foreach ($payments as $payment) {
 		if ($payment['closed']) {
