@@ -133,6 +133,10 @@ class BillTechPaymentsUpdater
 
 		$customers = array();
 
+		if (!is_array($response)) {
+			return;
+		}
+
 		foreach ($response as $payment) {
 			if (!$payment->userId) {
 				$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', json_encode($payment)));
