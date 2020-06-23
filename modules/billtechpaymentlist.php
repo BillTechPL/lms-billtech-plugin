@@ -62,7 +62,7 @@ function GetBillTtechPaymentsList($search = NULL, $cat = NULL, $hideclosed = NUL
 		$where .= ' AND closed = 0';
 
 	if ($res = $DB->Exec("SELECT p.id, p.customerid as customerid, p.amount, p.title, p.document_number, p.reference_number, p.cdate, p.closed,  
-				CONCAT(c.lastname, ' ', c.name) as name
+				" . $DB->Concat('c.lastname', "' '", 'c.name') . " as name
 			FROM billtech_payments p LEFT JOIN customers c ON c.id = p.customerid 
 			LEFT JOIN (
 				SELECT DISTINCT a.customerid FROM customerassignments a
