@@ -37,7 +37,8 @@ class BillTechLinkGenerator
 		if ($userinfo['emails']) {
 			$emails = $userinfo['emails'];
 			$emails = array_reverse($emails);
-			$email = array_pop($emails)['email'];
+			$email = array_pop($emails);
+			$email = $email['email'];
 		}
 		$account = $nrb;
 		$paymentDue = $paymentDue->format('Ymd');
