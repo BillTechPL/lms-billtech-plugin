@@ -148,6 +148,7 @@ class BillTechPaymentsUpdater
 				$addbalance = array(
 					'value' => $payment->amount,
 					'type' => 100,
+					'userid' => null,
 					'customerid' => $payment->userId,
 					'comment' => 'BillTech Payments',
 					'time' => $payment->paymentDate
