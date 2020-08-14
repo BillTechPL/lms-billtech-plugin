@@ -7,6 +7,42 @@
 
 class BillTechLinkGenerator
 {
+	public static function generatePaymentLink($cashId)
+	{
+		global $LMS;
+
+		$client = BillTechApiClient::getClient();
+
+		$cash = $LMS->GetCashByID($cashId);
+		$userinfo = $LMS->GetCustomer($cash['customerid']);
+
+		$paymentDue = (new DateTime('@' . time()))->format('Y-m-d');
+		$title = $cash['comment'];
+
+		if ($cash['docid']) {
+			$document = $LMS->GetDocumentFullContents($cash['docid']);
+			$title = $document['fullnumber'];
+			$paymentDue = (new DateTime('@' . $document['pdate']))->format('YYYY-mm-dd');
+		}
+
+		$response = $client->post('/api/payments', [
+			'json' => [
+				'providerCode' => ConfigHelper::getConfig('billtech.isp_id'),
+				'payments' => [
+					[
+						'userId' => $userinfo['id'],
+						'amount' => -$cash['value'],
+						'nrb' => bankaccount($cash['customerid'], null),
+						'paymentDue' => $paymentDue,
+						'title' => $title
+					]
+				]
+			]
+		]);
+
+		print_r((string)$response->getBody());
+	}
+
 	public static function createPaymentLink($doc, $customer_id)
 	{
 		global $LMS;
