@@ -99,7 +99,8 @@
 		{section name=paymentlist loop=$paymentlist start=$start max=$pagelimit}
 		{assign var=payment value=$paymentlist[paymentlist]}
 		{assign var=paymentid value=$payment.id}
-		<TR class="highlight {cycle}{if $payment.closed} blend {elseif $payment.cancelled} cancel{/if}">
+		<TR class="highlight {cycle}{if $payment.closed} blend {elseif $payment.cancelled} cancel{/if}
+				{if $payment.expired } lms-ui-important-box {/if}">
 			<TD>
 				{$payment.id|string_format:"%06d"}
 			</TD>
