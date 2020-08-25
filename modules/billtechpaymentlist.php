@@ -79,6 +79,7 @@ function GetBillTtechPaymentsList($search = NULL, $cat = NULL, $hideclosed = NUL
 
 		while ($row = $DB->FetchRow($res)) {
 			$row['customlinks'] = array();
+			$row['expired'] = !$row['closed'] && isExpired($row['cdate']);
 			$result[$id] = $row;
 			// free memory for rows which will not be displayed
 			if ($page > 0) {
@@ -99,39 +100,44 @@ function GetBillTtechPaymentsList($search = NULL, $cat = NULL, $hideclosed = NUL
 	return $result;
 }
 
+function isExpired($date)
+{
+	return $date < time() - ConfigHelper::getConfig('billtech.payment_expiration_warning', 7) * 86400;
+}
+
+global $SESSION, $LMS, $SMARTY;
+
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 
 $SESSION->restore('bplm', $marks);
-if(isset($_POST['marks']))
-	foreach($_POST['marks'] as $id => $mark)
+if (isset($_POST['marks']))
+	foreach ($_POST['marks'] as $id => $mark)
 		$marks[$id] = $mark;
 $SESSION->save('bplm', $marks);
 
-if(isset($_POST['search']))
+if (isset($_POST['search']))
 	$s = $_POST['search'];
 else
 	$SESSION->restore('bpls', $s);
-if(!isset($s))
-{
-	$year=date("Y", time());
-	$month=date("m", time());
-	$s = $year.'/'.$month;
+if (!isset($s)) {
+	$year = date("Y", time());
+	$month = date("m", time());
+	$s = $year . '/' . $month;
 }
 $SESSION->save('bpls', $s);
 
-if(isset($_GET['o']))
+if (isset($_GET['o']))
 	$o = $_GET['o'];
 else
 	$SESSION->restore('bplo', $o);
 $SESSION->save('bplo', $o);
 
-if(isset($_POST['cat']))
+if (isset($_POST['cat']))
 	$c = $_POST['cat'];
 else
 	$SESSION->restore('bplc', $c);
-if (!isset($c))
-{
-	$c="month";
+if (!isset($c)) {
+	$c = "month";
 }
 $SESSION->save('bplc', $c);
 
@@ -141,15 +147,12 @@ elseif (($h = $SESSION->get('bplh')) === NULL)
 	$h = ConfigHelper::checkConfig('billtech.hide_closed_payments');
 $SESSION->save('bplh', $h);
 
-if($c == 'cdate' && $s && preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/', $s))
-{
+if ($c == 'cdate' && $s && preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/', $s)) {
 	list($year, $month, $day) = explode('/', $s);
-	$s = mktime(0,0,0, $month, $day, $year);
-}
-elseif($c == 'month' && $s && preg_match('/^[0-9]{4}\/[0-9]{2}$/', $s))
-{
+	$s = mktime(0, 0, 0, $month, $day, $year);
+} elseif ($c == 'month' && $s && preg_match('/^[0-9]{4}\/[0-9]{2}$/', $s)) {
 	list($year, $month) = explode('/', $s);
-	$s = mktime(0,0,0, $month, 1, $year);
+	$s = mktime(0, 0, 0, $month, 1, $year);
 }
 
 $pagelimit = ConfigHelper::getConfig('phpui.billtechpaymentlist_pagelimit', 100);
