@@ -141,8 +141,11 @@ class BillTechButtonInsertHandler
 
         if (!ConfigHelper::checkConfig('billtech.balance_button_disabled')) {
             $smarty->assign('billtech_balance_link', BillTechLinkGenerator::createPaymentLink('balance', $SESSION->id) . '&utm_medium=userpanel');
-            $billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechbalancebutton.html');
-
+            if (file_exists(PLUGIN_DIR . DIRECTORY_SEPARATOR . BillTech::PLUGIN_DIRECTORY_NAME . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechbalancebutton.html')) {
+          		$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechbalancebutton.html');
+			} else {
+          		$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'billtechbalancebutton.html');
+			}
             $smarty->assign('custom_content', $smarty->getTemplateVars('custom_content') . $billtech_balance_button);
         }
         return $hook_data;
@@ -181,7 +184,11 @@ class BillTechButtonInsertHandler
     {
         $link = BillTechLinkGenerator::createPaymentLink($docid, $userid) . '&utm_medium=userpanel';
         $smarty->assign('link', $link);
-        return $smarty->fetch('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechrowbutton.html');
+        if (file_exists(PLUGIN_DIR . DIRECTORY_SEPARATOR . BillTech::PLUGIN_DIRECTORY_NAME . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechrowbutton.html')) {
+      		return $smarty->fetch('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechrowbutton.html');
+      	} else {
+      		return $smarty->fetch('button' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'billtechrowbutton.html');
+      	}
     }
 
     function createEmailButton($mail_format, $link)
