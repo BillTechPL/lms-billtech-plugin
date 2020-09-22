@@ -42,5 +42,29 @@ INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_expirati
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'private_key', 'plugins/BillTech/lms.pem');
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('last_sync', 0);
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('current_sync', 0);
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2017112400');
+
+
+create table billtech_payment_links (
+    id serial primary key,
+    customer_id integer not null references customers(id) on delete cascade,
+    src_cash_id integer not null references cash(id) on delete cascade,
+    type varchar(255) not null,
+    link varchar(2000) not null,
+    token varchar(1000) not null,
+    amount numeric(9,2) not null
+);
+
+create index on billtech_payment_links (customer_id);
+create index on billtech_payment_links (src_cash_id);
+create index on billtech_payment_links (token);
+
+
+alter table billtech_payments add column token varchar(1000);
+
+create index on billtech_payments(reference_number);
+create index on billtech_payments(closed, cdate);
+create index on billtech_payments(token);
+
+
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2020091900');
 COMMIT;

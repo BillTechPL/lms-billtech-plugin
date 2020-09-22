@@ -91,53 +91,29 @@ class BillTechPaymentsUpdater
 	function update($current_sync, $last_sync)
 	{
 		global $DB, $LMS;
-		$url = ConfigHelper::getConfig("billtech.api_url") . "/api/service-provider/payments";
+		$client = BillTechApiClient::getClient();
+		$path = "/api/payments/search" . "?fromDate=" . (ConfigHelper::getConfig("billtech.debug") ? 0 : $last_sync);
 
-		$url .= "?fromDate=" . (ConfigHelper::getConfig("billtech.debug") ? 0 : $last_sync);
+		$response = $client->get($path);
 
-		$curl = curl_init();
-
-		curl_setopt_array($curl, array(
-			CURLOPT_URL => $url,
-			CURLOPT_RETURNTRANSFER => TRUE,
-			CURLOPT_USERPWD => ConfigHelper::getConfig('billtech.api_key') . ':' . ConfigHelper::getConfig('billtech.api_secret')
-		));
-
-		if (ConfigHelper::getConfig('billtech.dev')) {
-			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+		if ($response->getStatusCode() != 200) {
+			$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', "/api/payments returned code " . $response->getStatusCode() . "\n" . $response->getBody()));
+			return;
 		}
-
-		$response = curl_exec($curl);
-
 		if (ConfigHelper::getConfig("billtech.debug")) {
-			file_put_contents('/var/tmp/billtech_debug.txt', print_r($response, true));
+			file_put_contents('/var/tmp/billtech_debug.txt', print_r($response->getBody(), true));
 		}
 
-		curl_close($curl);
-
-		if (!$response) {
-			$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', 'No response from BillTech server'));
-			return;
-		}
-
-		$response = json_decode($response);
-
-		if ($response->status == 'ERROR') {
-			$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', json_encode($response)));
-			return;
-		}
-
+		$payments = json_decode($response->GetBody());
 		$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('SYNC_SUCCESS', ''));
-
 		$DB->BeginTrans();
-
 		$customers = array();
 
-		if (!is_array($response)) {
+		if (!is_array($payments)) {
 			return;
 		}
 
-		foreach ($response as $payment) {
+		foreach ($payments as $payment) {
 			if (!$payment->userId) {
 				$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', json_encode($payment)));
 				continue;
@@ -150,7 +126,7 @@ class BillTechPaymentsUpdater
 					'type' => 100,
 					'userid' => null,
 					'customerid' => $payment->userId,
-					'comment' => 'BillTech Payments',
+					'comment' => 'Wpłata',
 					'time' => $payment->paymentDate
 				);
 
@@ -161,9 +137,9 @@ class BillTechPaymentsUpdater
 
 					$amount = str_replace(',', '.', $payment->amount);
 
-					$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed) "
-						. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)",
-						array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->paymentReferenceNumber, $payment->paymentDate));
+					$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed, token) "
+						. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)",
+						array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->paymentReferenceNumber, $payment->paymentDate, $payment->token));
 
 					$customers[$payment->userId] = $payment->userId;
 				}
@@ -250,6 +226,11 @@ class BillTechPaymentsUpdater
 		global $DB;
 		$billTechInfo = array();
 		$rows = $DB->GetAll("SELECT keytype, keyvalue FROM billtech_info");
+
+		if (!is_array($rows)) {
+			return array();
+		}
+
 		foreach ($rows as $row) {
 			$billTechInfo[$row['keytype']] = $row['keyvalue'];
 		}

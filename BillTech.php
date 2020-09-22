@@ -31,7 +31,7 @@
  */
 class BillTech extends LMSPlugin
 {
-	const PLUGIN_DBVERSION = 2018042300;
+	const PLUGIN_DBVERSION = 2020091914;
 	const PLUGIN_DIRECTORY_NAME = 'BillTech';
 	const PLUGIN_NAME = 'BillTech';
 	const PLUGIN_DESCRIPTION = 'BillTech - wersja: 20180215';
@@ -44,6 +44,7 @@ class BillTech extends LMSPlugin
 
 		$updater = new BillTechPaymentsUpdater();
 		$updater->checkForUpdate();
+		$manager = new BillTechLinksManager();
 	}
 
 	public function registerHandlers()
@@ -90,5 +91,14 @@ class BillTech extends LMSPlugin
 				'method' => 'processCashImport'
 			)
 		);
+	}
+
+	public static function toMap($callback, array $array)
+	{
+		$map = array();
+		foreach ($array as $item) {
+			$map[$callback($item)] = $item;
+		}
+		return $map;
 	}
 }
