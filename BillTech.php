@@ -43,7 +43,7 @@ class BillTech extends LMSPlugin
 		parent::__construct();
 
 		$updater = new BillTechPaymentsUpdater();
-		$updater->checkForUpdate();
+//		$updater->checkForUpdate();
 		$manager = new BillTechLinksManager();
 	}
 

@@ -18,20 +18,16 @@ class BillTechButtonInsertHandler
 		return $this->linksManager;
 	}
 
-	private function getPaymentLink($doc)
+	private function getPaymentLink($doc, $customerId)
 	{
 		global $LMS, $DB;
 
 		if ($doc == 'balance') {
-			($this->getLinksManager())->GetBalanceLink($doc);
-			return "balance";
+			return ($this->getLinksManager())->GetBalanceLink($customerId)->link;
 		} else {
 			$doc_content = $LMS->GetInvoiceContent($doc);
 			$cashId = $DB->GetOne("select id from cash where docid = ?", array($doc_content['id']));
-
-			$cash = $LMS->GetCashByID($cashId);
-//			($this->getLinksManager())->UpdateCustomerBalance($cash['customerid']);
-			return BillTechLinkApiService::generatePaymentLink($cashId)->link;
+			return ($this->getLinksManager())->GetCashLink($cashId)->link;
 		}
 	}
 

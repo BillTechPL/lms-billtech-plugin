@@ -11,43 +11,29 @@ use GuzzleHttp\Exception\ClientException;
 class BillTechLinkApiService
 {
 	/**
-	 * @param $cashId
-	 * @param float $amount
-	 * @return GeneratedBilltechLink
+	 * @param $linkDataList
+	 * @param array $config
+	 * @return GeneratedBilltechLink[]
 	 * @throws Exception
 	 */
-	public static function generatePaymentLink($cashId, $amount = null)
+	public static function generatePaymentLink($linkDataList)
 	{
-		global $LMS;
 		$isp_id = ConfigHelper::getConfig('billtech.isp_id');
 		$client = BillTechApiClient::getClient();
 
-		$cashInfo = self::getCashInfo($cashId);
+		$cashInfos = array();
+		$paymentLinkRequests = array();
 
-		if (!$cashInfo) {
-			throw new Exception("Could not load customer " . $cashInfo['customerid']);
-		}
-
-		$paymentDue = (new DateTime('@' . time()))->format('Y-m-d');
-		$title = $cashInfo['comment'];
-
-		if ($cashInfo['pdate']) {
-			$paymentDue = (new DateTime('@' . $cashInfo['pdate']))->format('Y-m-d');
+		foreach ($linkDataList as $linkData) {
+			array_push($cashInfos, $cashInfo = self::getCashInfo($linkData['cashId']));
+			array_push($paymentLinkRequests, self::createPaymentLinkRequest($cashInfo, $linkData['amount']));
 		}
 
 		try {
 			$response = $client->post('/api/payments', [
 				'json' => [
 					'providerCode' => ConfigHelper::getConfig('billtech.isp_id'),
-					'payments' => [
-						[
-							'userId' => $cashInfo['customerid'],
-							'amount' => isset($amount) ? $amount : -$cashInfo['value'],
-							'nrb' => bankaccount($cashInfo['customerid'], null),
-							'paymentDue' => $paymentDue,
-							'title' => $title
-						]
-					]
+					'payments' => $paymentLinkRequests
 				]
 			]);
 		} catch (ClientException $e) {
@@ -64,14 +50,20 @@ class BillTechLinkApiService
 		}
 
 		$json = json_decode($response->getBody());
-		$result = $json[0];
-		$baseLink = $result->link;
-		$result->link = $baseLink .
-			'?email=' . $cashInfo['email'] .
-			'&name=' . $cashInfo['name'] .
-			'&surname=' . $cashInfo['lastname'] .
-			'&utm_content=' . urlencode($isp_id) .
-			'&utm_source=isp';
+
+		$result = array();
+
+		foreach ($json as $idx => $link) {
+			$cashInfo = $cashInfos[$idx];
+			$link->link = $link->link .
+				'?email=' . $cashInfo['email'] .
+				'&name=' . $cashInfo['name'] .
+				'&surname=' . $cashInfo['lastname'] .
+				'&utm_content=' . urlencode($isp_id) .
+				'&utm_source=isp';
+			array_push($result, $link);
+		}
+
 
 		return $result;
 	}
@@ -122,6 +114,34 @@ class BillTechLinkApiService
 		$message = "/api/payments returned code " . $response->getStatusCode() . "\n" . $response->getBody();
 		echo $message;
 		throw new Exception($message);
+	}
+
+	/**
+	 * @param $cashInfo
+	 * @param $amount
+	 * @return array
+	 * @throws Exception
+	 */
+	private static function createPaymentLinkRequest($cashInfo, $amount)
+	{
+		if (!$cashInfo) {
+			throw new Exception("Could not load customer " . $cashInfo['customerid']);
+		}
+
+		$paymentDue = (new DateTime('@' . time()))->format('Y-m-d');
+		$title = $cashInfo['comment'];
+
+		if ($cashInfo['pdate']) {
+			$paymentDue = (new DateTime('@' . $cashInfo['pdate']))->format('Y-m-d');
+		}
+
+		return array(
+			'userId' => $cashInfo['customerid'],
+			'amount' => isset($amount) ? $amount : -$cashInfo['value'],
+			'nrb' => bankaccount($cashInfo['customerid'], null),
+			'paymentDue' => $paymentDue,
+			'title' => $title
+		);
 	}
 }
 
