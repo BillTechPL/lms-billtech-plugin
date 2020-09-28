@@ -2,15 +2,6 @@
 
 class BillTechLinksManager
 {
-
-	function __construct()
-	{
-		$start = microtime(true);
-		$this->UpdateForAll();
-		$time_elapsed_secs = microtime(true) - $start;
-		echo "Update took " . $time_elapsed_secs . " s";
-	}
-
 	/** @return BillTechLink[]
 	 * @var string $customerId
 	 */
@@ -74,12 +65,12 @@ class BillTechLinksManager
 	public function UpdateCustomerBalance($customerId)
 	{
 		global $DB;
+		$DB->BeginTrans();
 		if ($this->checkLastUpdate($customerId)) {
-			$DB->BeginTrans();
 			$actions = $this->getCustomerUpdateBalanceActions($customerId);
 			$this->performActions($actions);
-			$DB->CommitTrans();
 		}
+		$DB->CommitTrans();
 	}
 
 	/**
@@ -130,14 +121,14 @@ class BillTechLinksManager
 		$valuesList = array();
 		foreach ($generatedLinks as $idx => $generatedLink) {
 			$link = $links[$idx];
-			return "(" . implode(",", array(
+			array_push($valuesList, "(" . implode(",", array(
 					$link->customerId,
 					$link->srcCashId,
 					"'" . $link->type . "'",
 					"'" . $generatedLink->link . "'",
 					"'" . $generatedLink->token . "'",
 					$link->amount
-				)) . ")";
+				)) . ")");
 		}
 
 		$values = implode(",", $valuesList);

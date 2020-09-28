@@ -38,15 +38,6 @@ class BillTech extends LMSPlugin
 	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
 	const CASH_COMMENT = 'BillTech Payments';
 
-	public function __construct()
-	{
-		parent::__construct();
-
-		$updater = new BillTechPaymentsUpdater();
-//		$updater->checkForUpdate();
-		$manager = new BillTechLinksManager();
-	}
-
 	public function registerHandlers()
 	{
 		$this->handlers = array(

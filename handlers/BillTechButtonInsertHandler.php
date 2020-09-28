@@ -36,11 +36,13 @@ class BillTechButtonInsertHandler
 		global $DB;
 		$this->getLinksManager()->UpdateCustomerBalance($hook_data['doc']['customerid']);
 		$cashId = $DB->GetOne("select id from cash where docid = ?;", array($hook_data['doc']['id']));
-		$link = $this->getLinksManager()->GetCashLink($cashId)->link . '&utm_medium=email';
-		$btnCode = $this->createEmailButton($hook_data['mail_format'], $link);
-		$btnCode = preg_replace('/\r?\n/', ' ', $btnCode);
+		$cashLink = $this->getLinksManager()->GetCashLink($cashId)->link . '&utm_medium=email';
+		$balanceLink = $this->getLinksManager()->GetBalanceLink($hook_data['doc']['customerid'])->link . '&utm_medium=email';
+		$cashBtnCode = $this->getBtnCode($hook_data['mail_format'], $cashLink);
+		$balanceBtnCode = $this->getBtnCode($hook_data['mail_format'], $balanceLink);
 
-		$hook_data['body'] = preg_replace('/%billtech_btn/', $btnCode, $hook_data['body']);
+		$hook_data['body'] = preg_replace('/%billtech_btn/', $cashBtnCode, $hook_data['body']);
+		$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $balanceBtnCode, $hook_data['body']);
 
 		$hook_data['headers'] = $this->fillEmailHeaders($hook_data['doc'], $hook_data['headers']);
 
@@ -189,5 +191,17 @@ class BillTechButtonInsertHandler
 		} else {
 			return 'Opłać teraz: ' . $link;
 		}
+	}
+
+	/**
+	 * @param $mail_format
+	 * @param $cashLink
+	 * @return string|string[]|null
+	 */
+	private function getBtnCode($mail_format, $cashLink)
+	{
+		$btnCode = $this->createEmailButton($mail_format, $cashLink);
+		$btnCode = preg_replace('/\r?\n/', ' ', $btnCode);
+		return $btnCode;
 	}
 }
