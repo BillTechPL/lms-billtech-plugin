@@ -38,6 +38,26 @@ class BillTech extends LMSPlugin
 	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
 	const CASH_COMMENT = 'BillTech Payments';
 
+	/**
+	 * @param string $str
+	 * @param int $repeatCount
+	 * @return string
+	 */
+	public static function repeatWithSeparator($str, $repeatCount)
+    {
+        return implode(',', array_fill(0, $repeatCount, $str));
+    }
+
+	/**
+	 * @param int $rowCount
+	 * @param int $valuesCount
+	 * @return string
+	 */
+	public static function prepareMultiInsertPlaceholders($rowCount, $valuesCount)
+	{
+		return BillTech::repeatWithSeparator("(" . BillTech::repeatWithSeparator("?", $valuesCount) . ")", $rowCount);
+	}
+
 	public function registerHandlers()
 	{
 		$this->handlers = array(

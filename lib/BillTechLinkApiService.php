@@ -10,6 +10,8 @@ use GuzzleHttp\Exception\ClientException;
 
 class BillTechLinkApiService
 {
+	const BASE_PATH = '/pay/v1/payments';
+
 	/**
 	 * @param $linkDataList
 	 * @param array $config
@@ -19,7 +21,7 @@ class BillTechLinkApiService
 	public static function generatePaymentLink($linkDataList)
 	{
 		$isp_id = ConfigHelper::getConfig('billtech.isp_id');
-		$client = BillTechApiClient::getClient();
+		$client = BillTechApiClientFactory::getClient();
 
 		$cashInfos = array();
 		$paymentLinkRequests = array();
@@ -30,7 +32,7 @@ class BillTechLinkApiService
 		}
 
 		try {
-			$response = $client->post('/api/payments', [
+			$response = $client->post(self::BASE_PATH, [
 				'json' => [
 					'providerCode' => ConfigHelper::getConfig('billtech.isp_id'),
 					'payments' => $paymentLinkRequests
@@ -39,14 +41,14 @@ class BillTechLinkApiService
 		} catch (ClientException $e) {
 			$response = $e->GetResponse();
 			if ($response) {
-				self::handleBadResponse($response);
+				self::handleBadResponse($response, self::BASE_PATH);
 			} else {
 				throw $e;
 			}
 		}
 
 		if ($response->getStatusCode() != 201) {
-			self::handleBadResponse($response);
+			self::handleBadResponse($response, self::BASE_PATH);
 		}
 
 		$json = json_decode($response->getBody());
@@ -74,15 +76,16 @@ class BillTechLinkApiService
 	 */
 	public static function cancelPaymentLink($token, $resolution = "CANCELLED")
 	{
-		$client = BillTechApiClient::getClient();
-		$response = $client->post('/api/payments/' . $token . '/cancel', [
+		$client = BillTechApiClientFactory::getClient();
+		$path = self::BASE_PATH . '/' . $token . '/cancel';
+		$response = $client->post($path, [
 			"json" => [
 				"resolution" => $resolution
 			]
 		]);
 
-		if ($response->getStatusCode() != 202) {
-			throw new Exception("/api/payments/" . $token . "/cancel returned code " . $response->getStatusCode() . "\n" . $response->getBody());
+		if ($response->getStatusCode() != 204) {
+			throw new Exception($path . " returned code " . $response->getStatusCode() . "\n" . $response->getBody());
 		}
 	}
 
@@ -109,9 +112,9 @@ class BillTechLinkApiService
 	 * @param $response
 	 * @throws Exception
 	 */
-	public static function handleBadResponse($response)
+	public static function handleBadResponse($response, $path)
 	{
-		$message = "/api/payments returned code " . $response->getStatusCode() . "\n" . $response->getBody();
+		$message = $path . " returned code " . $response->getStatusCode() . "\n" . $response->getBody();
 		echo $message;
 		throw new Exception($message);
 	}

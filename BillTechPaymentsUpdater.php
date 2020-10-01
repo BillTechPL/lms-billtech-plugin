@@ -91,13 +91,13 @@ class BillTechPaymentsUpdater
 	function update($current_sync, $last_sync)
 	{
 		global $DB, $LMS;
-		$client = BillTechApiClient::getClient();
-		$path = "/api/payments/search" . "?fromDate=" . (ConfigHelper::getConfig("billtech.debug") ? 0 : $last_sync);
+		$client = BillTechApiClientFactory::getClient();
+		$path = "/pay/v1/payments/search" . "?fromDate=" . (ConfigHelper::getConfig("billtech.debug") ? 0 : $last_sync);
 
 		$response = $client->get($path);
 
 		if ($response->getStatusCode() != 200) {
-			$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', "/api/payments returned code " . $response->getStatusCode() . "\n" . $response->getBody()));
+			$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', "/pay/v1/payments returned code " . $response->getStatusCode() . "\n" . $response->getBody()));
 			return;
 		}
 		if (ConfigHelper::getConfig("billtech.debug")) {
@@ -114,6 +114,8 @@ class BillTechPaymentsUpdater
 		}
 
 		foreach ($payments as $payment) {
+			$payment->paidAt = strtotime($payment->paidAt);
+
 			if (!$payment->userId) {
 				$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', json_encode($payment)));
 				continue;
@@ -127,7 +129,7 @@ class BillTechPaymentsUpdater
 					'userid' => null,
 					'customerid' => $payment->userId,
 					'comment' => 'Wpłata',
-					'time' => $payment->paymentDate
+					'time' => $payment->paidAt
 				);
 
 				$cashid = $LMS->AddBalance($addbalance);
@@ -139,7 +141,7 @@ class BillTechPaymentsUpdater
 
 					$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed, token) "
 						. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)",
-						array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->paymentReferenceNumber, $payment->paymentDate, $payment->token));
+						array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->referenceNumber, $payment->paidAt, $payment->token));
 
 					$customers[$payment->userId] = $payment->userId;
 				}

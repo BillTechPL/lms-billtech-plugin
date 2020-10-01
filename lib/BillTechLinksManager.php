@@ -118,23 +118,22 @@ class BillTechLinksManager
 		}, $links);
 
 		$generatedLinks = BillTechLinkApiService::generatePaymentLink($linkDataList);
-		$valuesList = array();
+		$values = array();
 		foreach ($generatedLinks as $idx => $generatedLink) {
 			$link = $links[$idx];
-			array_push($valuesList, "(" . implode(",", array(
-					$link->customerId,
-					$link->srcCashId,
-					"'" . $link->type . "'",
-					"'" . $generatedLink->link . "'",
-					"'" . $generatedLink->token . "'",
-					$link->amount
-				)) . ")");
+			array_push($values,
+				$link->customerId,
+				$link->srcCashId,
+				$link->type,
+				$generatedLink->link,
+				$generatedLink->token,
+				$link->amount
+			);
 		}
 
-		$values = implode(",", $valuesList);
-
-		$sql = "insert into billtech_payment_links(customer_id, src_cash_id, type, link, token, amount) values " . $values . ";";
-		$DB->Execute($sql);
+		$sql = "insert into billtech_payment_links(customer_id, src_cash_id, type, link, token, amount) values " .
+			BillTech::prepareMultiInsertPlaceholders(count($generatedLinks), 6) . ";";
+		$DB->Execute($sql, $values);
 	}
 
 	/* @throws Exception
@@ -147,8 +146,10 @@ class BillTechLinksManager
 			BillTechLinkApiService::cancelPaymentLink($link->token);
 		}
 		$linkDataList = array(
-			'cashId' => $link->srcCashId,
-			'amount' => $link->amount
+			array(
+				'cashId' => $link->srcCashId,
+				'amount' => $link->amount
+			)
 		);
 		$generatedLink = BillTechLinkApiService::generatePaymentLink($linkDataList)[0];
 		$DB->Execute("update billtech_payment_links set amount = ?, link = ?, token = ? where id = ?",
@@ -260,7 +261,6 @@ class BillTechLinksManager
 			return $customerInfo['last_cash_time'] > $customerInfo['balance_update_time'];
 		} else {
 			$DB->Exec("insert into billtech_customer_info (customer_id, balance_update_time) values (?, ?NOW?)", array($customerId));
-
 			return true;
 		}
 	}
