@@ -131,7 +131,7 @@ class BillTechButtonInsertHandler
 						));
 						$item['customlinks'] = $customlinks;
 					}
-				};
+				}
 			}
 			$smarty->assign('balancelist', $balancelist);
 

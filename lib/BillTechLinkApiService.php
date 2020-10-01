@@ -153,7 +153,7 @@ class BillTechLinkApiService
 	 */
 	private static function getTitle($title)
 	{
-		return preg_replace("/[^A-Za-z0-9\-'\",.\s\x{00c0}-\x{02c0}]/u", " ",$title);
+		return preg_replace("/[^ A-Za-z0-9#&_\-',.\\/\x{00c0}-\x{02c0}]/u", " ",$title);
 	}
 }
 
