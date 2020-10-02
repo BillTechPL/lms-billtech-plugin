@@ -40,13 +40,14 @@ class BillTech extends LMSPlugin
 
 	/**
 	 * @param string $str
+	 * @param $separator
 	 * @param int $repeatCount
 	 * @return string
 	 */
-	public static function repeatWithSeparator($str, $repeatCount)
-    {
-        return implode(',', array_fill(0, $repeatCount, $str));
-    }
+	public static function repeatWithSeparator($str, $separator, $repeatCount)
+	{
+		return implode($separator, array_fill(0, $repeatCount, $str));
+	}
 
 	/**
 	 * @param int $rowCount
@@ -55,7 +56,7 @@ class BillTech extends LMSPlugin
 	 */
 	public static function prepareMultiInsertPlaceholders($rowCount, $valuesCount)
 	{
-		return BillTech::repeatWithSeparator("(" . BillTech::repeatWithSeparator("?", $valuesCount) . ")", $rowCount);
+		return BillTech::repeatWithSeparator("(" . BillTech::repeatWithSeparator("?", ",", $valuesCount) . ")", ',', $rowCount);
 	}
 
 	public function registerHandlers()

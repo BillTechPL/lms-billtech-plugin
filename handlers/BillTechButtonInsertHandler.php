@@ -111,7 +111,7 @@ class BillTechButtonInsertHandler
 			$balancelist = $smarty->getTemplateVars('balancelist');
 
 			if (isset($balancelist) && isset($balancelist['list'])) {
-				$paymentLinks = $linksManager->GetCustomerPaymentLinks($customerId);
+				$paymentLinks = $linksManager->prepareCustomerPaymentLinks($customerId);
 				$paymentLinksMap = BillTech::toMap(function ($link) {
 					/* @var $link BillTechLink */
 					return $link->srcCashId;
