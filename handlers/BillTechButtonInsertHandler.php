@@ -23,21 +23,21 @@ class BillTechButtonInsertHandler
 		global $LMS, $DB;
 
 		if ($doc == 'balance') {
-			return ($this->getLinksManager())->GetBalanceLink($customerId)->link;
+			return ($this->getLinksManager())->getBalanceLink($customerId)->link;
 		} else {
 			$doc_content = $LMS->GetInvoiceContent($doc);
 			$cashId = $DB->GetOne("select id from cash where docid = ?", array($doc_content['id']));
-			return ($this->getLinksManager())->GetCashLink($cashId)->link;
+			return ($this->getLinksManager())->getCashLink($cashId)->link;
 		}
 	}
 
 	public function addButtonToInvoiceEmail(array $hook_data = array())
 	{
 		global $DB;
-		$this->getLinksManager()->UpdateCustomerBalance($hook_data['doc']['customerid']);
+		$this->getLinksManager()->updateCustomerBalance($hook_data['doc']['customerid']);
 		$cashId = $DB->GetOne("select id from cash where docid = ?;", array($hook_data['doc']['id']));
-		$cashLink = $this->getLinksManager()->GetCashLink($cashId)->link . '&utm_medium=email';
-		$balanceLink = $this->getLinksManager()->GetBalanceLink($hook_data['doc']['customerid'])->link . '&utm_medium=email';
+		$cashLink = $this->getLinksManager()->getCashLink($cashId)->link . '&utm_medium=email';
+		$balanceLink = $this->getLinksManager()->getBalanceLink($hook_data['doc']['customerid'])->link . '&utm_medium=email';
 		$cashBtnCode = $this->getBtnCode($hook_data['mail_format'], $cashLink);
 		$balanceBtnCode = $this->getBtnCode($hook_data['mail_format'], $balanceLink);
 
@@ -103,7 +103,7 @@ class BillTechButtonInsertHandler
 		$smarty = $hook_data['smarty'];
 		$userinfo = $smarty->getTemplateVars('userinfo');
 		$customerId = $userinfo['id'];
-		$linksManager->UpdateCustomerBalance($customerId);
+		$linksManager->updateCustomerBalance($customerId);
 
 		$style = ConfigHelper::getConfig('userpanel.style', 'default');
 
@@ -138,7 +138,7 @@ class BillTechButtonInsertHandler
 		}
 
 		if (!ConfigHelper::checkConfig('billtech.balance_button_disabled')) {
-			$balanceLink = $linksManager->GetBalanceLink($customerId)->link . '&utm_medium=userpanel';
+			$balanceLink = $linksManager->getBalanceLink($customerId)->link . '&utm_medium=userpanel';
 			$smarty->assign('billtech_balance_link', $balanceLink);
 			$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechbalancebutton.html');
 

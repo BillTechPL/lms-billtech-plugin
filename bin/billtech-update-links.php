@@ -161,12 +161,8 @@ $LMS = new LMS($DB, $AUTH, $SYSLOG);
 $plugin_manager = new LMSPluginManager();
 $LMS->setPluginManager($plugin_manager);
 
-$linksManager = new BillTechLinksManager();
-$linksManager->verbose = !$quiet;
+$linksManager = new BillTechLinksManager(!$quiet);
 
-$start = microtime(true);
-$linksManager->UpdateForAll();
-$time_elapsed_secs = microtime(true) - $start;
-if (!$quiet) {
-	echo "Update took " . $time_elapsed_secs . " s\n";
-}
+BillTech::measureTime(function () use ($linksManager) {
+	$linksManager->updateForAll();
+}, !$quiet);

@@ -1,0 +1,1 @@
+* * * * * bash -lc /var/www/html/plugins/BillTech/bin/billtech-update-payments.php | /var/www/html/plugins/BillTech/bin/timestamp.sh >> /var/log/billtech/`date +\%Y\%m\%d`-update-payments.log 2>&1

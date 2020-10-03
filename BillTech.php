@@ -38,27 +38,6 @@ class BillTech extends LMSPlugin
 	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
 	const CASH_COMMENT = 'BillTech Payments';
 
-	/**
-	 * @param string $str
-	 * @param $separator
-	 * @param int $repeatCount
-	 * @return string
-	 */
-	public static function repeatWithSeparator($str, $separator, $repeatCount)
-	{
-		return implode($separator, array_fill(0, $repeatCount, $str));
-	}
-
-	/**
-	 * @param int $rowCount
-	 * @param int $valuesCount
-	 * @return string
-	 */
-	public static function prepareMultiInsertPlaceholders($rowCount, $valuesCount)
-	{
-		return BillTech::repeatWithSeparator("(" . BillTech::repeatWithSeparator("?", ",", $valuesCount) . ")", ',', $rowCount);
-	}
-
 	public function registerHandlers()
 	{
 		$this->handlers = array(
@@ -112,5 +91,36 @@ class BillTech extends LMSPlugin
 			$map[$callback($item)] = $item;
 		}
 		return $map;
+	}
+
+	/**
+	 * @param string $str
+	 * @param $separator
+	 * @param int $repeatCount
+	 * @return string
+	 */
+	public static function repeatWithSeparator($str, $separator, $repeatCount)
+	{
+		return implode($separator, array_fill(0, $repeatCount, $str));
+	}
+
+	/**
+	 * @param int $rowCount
+	 * @param int $valuesCount
+	 * @return string
+	 */
+	public static function prepareMultiInsertPlaceholders($rowCount, $valuesCount)
+	{
+		return BillTech::repeatWithSeparator("(" . BillTech::repeatWithSeparator("?", ",", $valuesCount) . ")", ',', $rowCount);
+	}
+
+	public static function measureTime($callback, $verbose)
+	{
+		$start = microtime(true);
+		$callback();
+		$time_elapsed_secs = microtime(true) - $start;
+		if ($verbose) {
+			echo "Update took " . $time_elapsed_secs . " s\n";
+		}
 	}
 }

@@ -2,8 +2,13 @@
 
 class BillTechLinksManager
 {
-	public $batchSize = 100;
-	public $verbose = false;
+	private $batchSize = 100;
+	private $verbose = false;
+
+	public function __construct($verbose = false)
+	{
+		$this->verbose = $verbose;
+	}
 
 	/** @return BillTechLink[]
 	 * @var string $customerId
@@ -20,7 +25,7 @@ class BillTechLinksManager
 		}, $rows);
 	}
 
-	public function GetCashLink($cashId)
+	public function getCashLink($cashId)
 	{
 		global $DB;
 		$row = $DB->GetRow("select l.* from billtech_payment_links l
@@ -29,7 +34,7 @@ class BillTechLinksManager
 		return $row ? BillTechLink::fromRow($row) : null;
 	}
 
-	public function GetBalanceLink($customerId)
+	public function getBalanceLink($customerId)
 	{
 		global $DB;
 		$row = $DB->GetRow("select l.* from billtech_payment_links l
@@ -45,7 +50,7 @@ class BillTechLinksManager
 		}
 	}
 
-	public function UpdateForAll()
+	public function updateForAll()
 	{
 		global $DB;
 		$DB->BeginTrans();
@@ -56,6 +61,10 @@ class BillTechLinksManager
 		);
 		$this->addMissingCustomerInfo();
 		$customerIds = $this->getCustomerIdsForUpdate();
+
+		var_dump($customerIds);
+		var_dump($DB->GetErrors());
+		var_dump($DB->GetRow("select * from billtech_customer_info where customer_id = 8947;"));
 
 		if ($this->verbose) {
 			echo "Found " . count($customerIds) . " customers to update\n";
@@ -83,7 +92,7 @@ class BillTechLinksManager
 		$DB->CommitTrans();
 	}
 
-	public function UpdateCustomerBalance($customerId)
+	public function updateCustomerBalance($customerId)
 	{
 		global $DB;
 		$DB->BeginTrans();
@@ -127,7 +136,7 @@ class BillTechLinksManager
 	/* @throws Exception
 	 * @var $links BillTechLink[]
 	 */
-	private function AddPayments($links)
+	private function addPayments($links)
 	{
 		global $DB;
 
@@ -160,7 +169,7 @@ class BillTechLinksManager
 	/* @throws Exception
 	 * @var $link BillTechLink
 	 */
-	private function UpdatePaymentAmount(BillTechLink $link)
+	private function updatePaymentAmount(BillTechLink $link)
 	{
 		global $DB;
 		if (self::shouldCancelLink($link)) {
@@ -180,7 +189,7 @@ class BillTechLinksManager
 	/* @throws Exception
 	 * @var $link BillTechLink
 	 */
-	private function ClosePayment(BillTechLink $link)
+	private function closePayment(BillTechLink $link)
 	{
 		global $DB;
 		if (self::shouldCancelLink($link)) {
@@ -214,17 +223,17 @@ class BillTechLinksManager
 		$addBatches = array_chunk($actions['add'], $this->batchSize);
 		foreach ($addBatches as $idx => $links) {
 			echo "Adding batch " . ($idx + 1) . " of " . count($addBatches) . "\n";
-			$this->AddPayments($links);
+			$this->addPayments($links);
 		}
 
 		foreach ($actions['update'] as $idx => $link) {
 			echo "Updating link " . ($idx + 1) . " of " . count($actions['update']) . "\n";
-			$this->UpdatePaymentAmount($link);
+			$this->updatePaymentAmount($link);
 		}
 
 		foreach ($actions['close'] as $idx => $link) {
 			echo "Closing link " . ($idx + 1) . " of " . count($actions['close']) . "\n";
-			$this->ClosePayment($link);
+			$this->closePayment($link);
 		}
 	}
 
@@ -298,9 +307,7 @@ class BillTechLinksManager
 					select cu.id, 0
 					from customers cu
 							 left join billtech_customer_info bci on bci.customer_id = cu.id
-							 left join cash ca on ca.customerid = cu.id
-					group by cu.id
-					having coalesce(max(bci.balance_update_time), 0) <= coalesce(max(ca.time), 0);");
+					where bci.customer_id is null;");
 	}
 
 	/**
@@ -309,12 +316,12 @@ class BillTechLinksManager
 	private function getCustomerIdsForUpdate()
 	{
 		global $DB;
-		return $DB->GetCol("select cu.id
+		return $DB->GetCol("select bci.customer_id
 										from customers cu
 												 left join billtech_customer_info bci on bci.customer_id = cu.id
 												 left join cash ca on ca.customerid = cu.id
-										group by cu.id
-										having coalesce(max(bci.balance_update_time), 0) <= coalesce(max(ca.time), 0);");
+										group by bci.customer_id, bci.balance_update_time
+										having bci.balance_update_time <= coalesce(max(ca.time), 0);");
 	}
 
 	/**

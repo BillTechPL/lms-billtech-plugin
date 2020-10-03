@@ -161,4 +161,8 @@ $LMS = new LMS($DB, $AUTH, $SYSLOG);
 $plugin_manager = new LMSPluginManager();
 $LMS->setPluginManager($plugin_manager);
 
-(new BillTechPaymentsUpdater())->checkForUpdate();
+$paymentsUpdater = new BillTechPaymentsUpdater(!$quiet);
+
+BillTech::measureTime(function () use ($paymentsUpdater) {
+	$paymentsUpdater->checkForUpdate();
+}, !$quiet);

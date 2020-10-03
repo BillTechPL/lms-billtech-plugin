@@ -2,59 +2,46 @@
 
 class BillTechPaymentsUpdater
 {
-	private $rate;
-	private $timeout;
+	private $linksManager;
+	public $verbose;
 
-	public function __construct($rate = 60, $timeout = 10)
+	public function __construct($verbose = false)
 	{
-		$this->rate = $rate;
-		$this->timeout = $timeout;
+		$this->linksManager = new BillTechLinksManager($verbose);
+		$this->verbose = $verbose;
 	}
 
 	public function checkForUpdate()
 	{
-		global $DB;
-		ob_start();
-		$force_sync = $_SERVER['HTTP_X_BILLTECH_FORCE_SYNC'];
-		$now = time();
-
 		if (!ConfigHelper::getConfig('billtech.api_secret')) {
+			if ($this->verbose) {
+				echo "Missing api_secret\n";
+			}
 			return;
 		}
 
-		if ($force_sync) {
-			$last_sync = $current_sync = 0;
-		} else {
-			$billTechInfo = $this->readBillTechInfo();
-			$last_sync = $billTechInfo['last_sync'];
-			$current_sync = $billTechInfo['current_sync'];
-		}
-
 		$this->checkExpired();
-
-		if ($now - $last_sync > $this->rate && $now - $current_sync > $this->timeout) {
-			$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype = 'current_sync'", array($now));
-
-			$this->update($now, $last_sync);
-			if (!headers_sent()) {
-				header('X-BillTech-Synced: true');
-			}
-		}
-
-		$DB->Execute("DELETE FROM billtech_log WHERE type='SYNC_SUCCESS' AND cdate<(?NOW? - ?);",
-			array(ConfigHelper::getConfig('billtech.log_retention_days', 7) * 24 * 3600));
+		$this->updatePayments();
+		$this->clearOldLogs();
 	}
 
 	private function checkExpired()
 	{
 		global $DB, $LMS;
-
 		$expiration = ConfigHelper::getConfig('billtech.payment_expiration', 5);
 
 		if ($expiration == 'never') return;
 
+		if ($this->verbose) {
+			echo "Checking expired payments\n";
+		}
+
 		$DB->BeginTrans();
 		$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, cashid FROM billtech_payments WHERE closed = 0 AND ?NOW? > cdate + $expiration * 86400");
+
+		if ($this->verbose) {
+			echo "Closing " . count($payments) . " expired payments\n";
+		}
 
 		if (is_array($payments) && sizeof($payments)) {
 			foreach ($payments as $payment) {
@@ -88,9 +75,17 @@ class BillTechPaymentsUpdater
 	}
 
 	private
-	function update($current_sync, $last_sync)
+	function updatePayments()
 	{
 		global $DB, $LMS;
+
+		if ($this->verbose) {
+			echo "Updating payments\n";
+		}
+
+		$now = time();
+		$last_sync = $this->getLastSync();
+
 		$client = BillTechApiClientFactory::getClient();
 		$path = "/pay/v1/payments/search" . "?fromDate=" . (ConfigHelper::getConfig("billtech.debug") ? 0 : $last_sync);
 
@@ -107,7 +102,12 @@ class BillTechPaymentsUpdater
 		$payments = json_decode($response->GetBody());
 		$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('SYNC_SUCCESS', ''));
 		$DB->BeginTrans();
+		$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype = 'current_sync'", array($now));
 		$customers = array();
+
+		if ($this->verbose) {
+			echo "Found " . count($payments) . " new payments\n";
+		}
 
 		if (!is_array($payments)) {
 			return;
@@ -121,7 +121,7 @@ class BillTechPaymentsUpdater
 				continue;
 			}
 
-			$id = $DB->GetOne("SELECT id FROM billtech_payments WHERE reference_number=?", array($payment->paymentReferenceNumber));
+			$id = $DB->GetOne("SELECT id FROM billtech_payments WHERE reference_number=?", array($payment->referenceNumber));
 			if (!$id) {
 				$addbalance = array(
 					'value' => $payment->amount,
@@ -134,27 +134,33 @@ class BillTechPaymentsUpdater
 
 				$cashid = $LMS->AddBalance($addbalance);
 				if ($cashid) {
-					$ten = $payment->companyTaxId ? $payment->companyTaxId : '';
 					$title = $payment->title ? $payment->title : '';
 
 					$amount = str_replace(',', '.', $payment->amount);
 
 					$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed, token) "
 						. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)",
-						array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->referenceNumber, $payment->paidAt, $payment->token));
+						array($cashid, '', $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->referenceNumber, $payment->paidAt, $payment->token));
 
 					$customers[$payment->userId] = $payment->userId;
 				}
 			}
 		}
 
-		if (ConfigHelper::getConfig('billtech.manage_cutoff', true)) {
-			foreach ($customers as $customerid) {
-				$this->checkCutoff($customerid);
-			}
+		if ($this->verbose) {
+			echo "Updating " . count($customers) . " customers\n";
 		}
 
-		$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype='last_sync'", array($current_sync));
+		foreach ($customers as $customerid) {
+			if (ConfigHelper::getConfig('billtech.manage_cutoff', true)) {
+				$this->checkCutoff($customerid);
+			}
+
+			$this->linksManager->updateCustomerBalance($customerid);
+		}
+
+
+		$DB->Execute("UPDATE billtech_info SET keyvalue = ? WHERE keytype='last_sync'", array($now));
 
 		if (is_array($DB->GetErrors()) && sizeof($DB->GetErrors())) {
 			$DB->RollbackTrans();
@@ -237,5 +243,26 @@ class BillTechPaymentsUpdater
 			$billTechInfo[$row['keytype']] = $row['keyvalue'];
 		}
 		return $billTechInfo;
+	}
+
+	private function clearOldLogs()
+	{
+		global $DB;
+
+		if ($this->verbose) {
+			echo "Clearing old logs\n";
+		}
+
+		$DB->Execute("DELETE FROM billtech_log WHERE type='SYNC_SUCCESS' AND cdate<(?NOW? - ?);",
+			array(ConfigHelper::getConfig('billtech.log_retention_days', 7) * 24 * 3600));
+	}
+
+	/**
+	 * @return mixed
+	 */
+	private function getLastSync()
+	{
+		$billTechInfo = $this->readBillTechInfo();
+		return $billTechInfo['last_sync'];
 	}
 }
