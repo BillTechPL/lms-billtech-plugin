@@ -128,7 +128,7 @@ class BillTechPaymentsUpdater
 					'type' => 100,
 					'userid' => null,
 					'customerid' => $payment->userId,
-					'comment' => 'Wpłata',
+					'comment' => BillTech::CASH_COMMENT,
 					'time' => $payment->paidAt
 				);
 

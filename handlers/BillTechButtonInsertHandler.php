@@ -20,13 +20,12 @@ class BillTechButtonInsertHandler
 
 	private function getPaymentLink($doc, $customerId)
 	{
-		global $LMS, $DB;
+		global $DB;
 
 		if ($doc == 'balance') {
 			return ($this->getLinksManager())->getBalanceLink($customerId)->link;
 		} else {
-			$doc_content = $LMS->GetInvoiceContent($doc);
-			$cashId = $DB->GetOne("select id from cash where docid = ?", array($doc_content['id']));
+			$cashId = $DB->GetOne("select id from cash where docid = ?", array($doc));
 			return ($this->getLinksManager())->getCashLink($cashId)->link;
 		}
 	}
@@ -99,9 +98,10 @@ class BillTechButtonInsertHandler
 
 	public function addButtonsToFinancesView(array $hook_data = array())
 	{
+		global $LMS, $SESSION;
 		$linksManager = $this->getLinksManager();
 		$smarty = $hook_data['smarty'];
-		$userinfo = $smarty->getTemplateVars('userinfo');
+		$userinfo = $LMS->GetCustomer($SESSION->id);
 		$customerId = $userinfo['id'];
 		$linksManager->updateCustomerBalance($customerId);
 
@@ -111,7 +111,7 @@ class BillTechButtonInsertHandler
 			$balancelist = $smarty->getTemplateVars('balancelist');
 
 			if (isset($balancelist) && isset($balancelist['list'])) {
-				$paymentLinks = $linksManager->prepareCustomerPaymentLinks($customerId);
+				$paymentLinks = $linksManager->getCustomerPaymentLinks($customerId);
 				$paymentLinksMap = BillTech::toMap(function ($link) {
 					/* @var $link BillTechLink */
 					return $link->srcCashId;
