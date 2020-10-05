@@ -54,16 +54,24 @@ create table billtech_payment_links (
     amount numeric(9,2) not null
 );
 
-create index on billtech_payment_links (customer_id);
-create index on billtech_payment_links (src_cash_id);
-create index on billtech_payment_links (token);
+create index billtech_payment_links__customer_id on billtech_payment_links (customer_id);
+create index billtech_payment_links__src_cash_id on billtech_payment_links (src_cash_id);
+create index billtech_payment_links__token on billtech_payment_links (token);
 
 
 alter table billtech_payments add column token varchar(1000);
 
-create index on billtech_payments(reference_number);
-create index on billtech_payments(closed, cdate);
-create index on billtech_payments(token);
+create index billtech_payments__reference_number on billtech_payments(reference_number);
+create index billtech_payments__closed_cdate on billtech_payments(closed, cdate);
+create index billtech_payments__token on billtech_payments(token);
+
+create table billtech_customer_info
+(
+    customer_id     	int    primary key,
+    balance_update_time int
+);
+
+create index billtech_customer_info__customer_id on billtech_customer_info (customer_id);
 
 
 INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2020091900');

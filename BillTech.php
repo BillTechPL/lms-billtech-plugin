@@ -36,7 +36,7 @@ class BillTech extends LMSPlugin
 	const PLUGIN_NAME = 'BillTech';
 	const PLUGIN_DESCRIPTION = 'BillTech - wersja: 20180215';
 	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
-	const CASH_COMMENT = 'BillTech Payments';
+	const CASH_COMMENT = 'Wpłata online';
 
 	public function registerHandlers()
 	{

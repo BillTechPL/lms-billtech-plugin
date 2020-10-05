@@ -58,9 +58,9 @@ class BillTechLinkApiService
 		foreach ($json as $idx => $link) {
 			$cashInfo = $cashInfos[$idx];
 			$link->link = $link->link .
-				'?email=' . $cashInfo['email'] .
-				'&name=' . $cashInfo['name'] .
-				'&surname=' . $cashInfo['lastname'] .
+				'?email=' . urlencode($cashInfo['email']) .
+				'&name=' . urlencode($cashInfo['name']) .
+				'&surname=' . urlencode($cashInfo['lastname']) .
 				'&utm_content=' . urlencode($isp_id) .
 				'&utm_source=isp';
 			array_push($result, $link);
@@ -153,7 +153,7 @@ class BillTechLinkApiService
 	 */
 	private static function getTitle($title)
 	{
-		return preg_replace("/[^ A-Za-z0-9#&_\-',.\\/\x{00c0}-\x{02c0}]/u", " ",$title);
+		return substr(preg_replace("/[^ A-Za-z0-9#&_\-',.\\/\x{00c0}-\x{02c0}]/u", " ", $title), 0, 105);
 	}
 }
 

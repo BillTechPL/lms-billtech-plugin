@@ -13,7 +13,7 @@ class BillTechLinksManager
 	/** @return BillTechLink[]
 	 * @var string $customerId
 	 */
-	public function prepareCustomerPaymentLinks($customerId)
+	public function getCustomerPaymentLinks($customerId)
 	{
 		global $DB;
 		$rows = $DB->GetAll("select * from billtech_payment_links where customer_id = ?", array($customerId));
@@ -206,12 +206,12 @@ class BillTechLinksManager
 
 	public static function moneyToInt($value)
 	{
-		return intval(round($value * 10));
+		return intval(round($value * 100));
 	}
 
 	public static function intToMoney($value)
 	{
-		return $value / 10.0;
+		return $value / 100.0;
 	}
 
 	/**
@@ -255,7 +255,7 @@ class BillTechLinksManager
 		}
 
 		$liabilities = $this->getLiabilities($cashItems);
-		$links = $this->prepareCustomerPaymentLinks($customerId);
+		$links = $this->getCustomerPaymentLinks($customerId);
 		$paymentMap = BillTech::toMap(function ($payment) {
 			/* @var $payment BillTechLink */
 			return $payment->srcCashId;
