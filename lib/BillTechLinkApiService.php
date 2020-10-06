@@ -10,155 +10,154 @@ use GuzzleHttp\Exception\ClientException;
 
 class BillTechLinkApiService
 {
-	const BASE_PATH = '/pay/v1/payments';
+    const BASE_PATH = '/pay/v1/payments';
 
-	/**
-	 * @param $linkDataList
-	 * @param array $config
-	 * @return GeneratedBilltechLink[]
-	 * @throws Exception
-	 */
-	public static function generatePaymentLink($linkDataList)
-	{
-		$isp_id = ConfigHelper::getConfig('billtech.isp_id');
-		$client = BillTechApiClientFactory::getClient();
+    /**
+     * @param $linkDataList
+     * @param array $config
+     * @return GeneratedBilltechLink[]
+     * @throws Exception
+     */
+    public static function generatePaymentLink($linkDataList)
+    {
+        $isp_id = BillTech::getConfig('billtech.isp_id');
+        $client = BillTechApiClientFactory::getClient();
 
-		$cashInfos = array();
-		$paymentLinkRequests = array();
+        $cashInfos = array();
+        $paymentLinkRequests = array();
 
-		foreach ($linkDataList as $linkData) {
-			array_push($cashInfos, $cashInfo = self::getCashInfo($linkData['cashId']));
-			array_push($paymentLinkRequests, self::createPaymentLinkRequest($cashInfo, $linkData['amount']));
-		}
+        foreach ($linkDataList as $linkData) {
+            array_push($cashInfos, $cashInfo = self::getCashInfo($linkData['cashId']));
+            array_push($paymentLinkRequests, self::createPaymentLinkRequest($cashInfo, $linkData['amount']));
+        }
 
-		try {
-			$response = $client->post(self::BASE_PATH, [
-				'json' => [
-					'providerCode' => ConfigHelper::getConfig('billtech.isp_id'),
-					'payments' => $paymentLinkRequests
-				]
-			]);
-		} catch (ClientException $e) {
-			$response = $e->GetResponse();
-			if ($response) {
-				self::handleBadResponse($response, self::BASE_PATH);
-			} else {
-				throw $e;
-			}
-		}
+        try {
+            $response = $client->post(self::BASE_PATH, [
+                'json' => [
+                    'providerCode' => BillTech::getConfig('billtech.isp_id'),
+                    'payments' => $paymentLinkRequests
+                ]
+            ]);
+        } catch (ClientException $e) {
+            $response = $e->GetResponse();
+            if ($response) {
+                self::handleBadResponse($response, self::BASE_PATH);
+            } else {
+                throw $e;
+            }
+        }
 
-		if ($response->getStatusCode() != 201) {
-			self::handleBadResponse($response, self::BASE_PATH);
-		}
+        if ($response->getStatusCode() != 201) {
+            self::handleBadResponse($response, self::BASE_PATH);
+        }
 
-		$json = json_decode($response->getBody());
+        $json = json_decode($response->getBody());
 
-		$result = array();
+        $result = array();
 
-		foreach ($json as $idx => $link) {
-			$cashInfo = $cashInfos[$idx];
-			$link->link = $link->link .
-				'?email=' . urlencode($cashInfo['email']) .
-				'&name=' . urlencode($cashInfo['name']) .
-				'&surname=' . urlencode($cashInfo['lastname']) .
-				'&utm_content=' . urlencode($isp_id) .
-				'&utm_source=isp';
-			array_push($result, $link);
-		}
+        foreach ($json as $idx => $link) {
+            $cashInfo = $cashInfos[$idx];
+            $link->link = $link->link .
+                '?email=' . urlencode($cashInfo['email']) .
+                '&name=' . urlencode($cashInfo['name']) .
+                '&surname=' . urlencode($cashInfo['lastname']) .
+                '&utm_content=' . urlencode($isp_id) .
+                '&utm_source=isp';
+            array_push($result, $link);
+        }
 
 
-		return $result;
-	}
+        return $result;
+    }
 
-	/** @throws Exception
-	 * @var string $token
-	 * @var string $resolution
-	 */
-	public static function cancelPaymentLink($token, $resolution = "CANCELLED")
-	{
-		$client = BillTechApiClientFactory::getClient();
-		$path = self::BASE_PATH . '/' . $token . '/cancel';
-		$response = $client->post($path, [
-			"json" => [
-				"resolution" => $resolution
-			]
-		]);
+    /** @throws Exception
+     * @var string $token
+     * @var string $resolution
+     */
+    public static function cancelPaymentLink($token, $resolution = "CANCELLED")
+    {
+        $client = BillTechApiClientFactory::getClient();
+        $path = self::BASE_PATH . '/' . $token . '/cancel';
+        $response = $client->post($path, [
+            "json" => [
+                "resolution" => $resolution
+            ]
+        ]);
 
-		if ($response->getStatusCode() != 204) {
-			throw new Exception($path . " returned code " . $response->getStatusCode() . "\n" . $response->getBody());
-		}
-	}
+        if ($response->getStatusCode() != 204) {
+            throw new Exception($path . " returned code " . $response->getStatusCode() . "\n" . $response->getBody());
+        }
+    }
 
-	/**
-	 * @param $cashId
-	 * @return array|bool
-	 */
-	public static function getCashInfo($cashId)
-	{
-		global $DB;
-		$cashInfo = $DB->GetRow("select ca.customerid, ca.value, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, cc.contact as email from cash ca
+    /**
+     * @param $cashId
+     * @return array|bool
+     */
+    public static function getCashInfo($cashId)
+    {
+        global $DB;
+        $cashInfo = $DB->GetRow("select ca.customerid, ca.value, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, cu.email from cash ca
 										left join customers cu on ca.customerid = cu.id 
 										left join documents d on d.id = ca.docid
-										left join customercontacts cc on cu.id = cc.customerid and cc.type = ?
-										where ca.id = ?", array(CONTACT_EMAIL, $cashId));
-		if (!$cashInfo) {
-			throw new Exception("Could not fetch cash info cashid: " . $cashId);
-		}
-		$cashInfo['pdate'] = $cashInfo['cdate'] + ($cashInfo['paytime'] * 86400);
-		return $cashInfo;
-	}
+										where ca.id = ?", array($cashId));
+        if (!$cashInfo) {
+            throw new Exception("Could not fetch cash info cashid: " . $cashId);
+        }
+        $cashInfo['pdate'] = $cashInfo['cdate'] + ($cashInfo['paytime'] * 86400);
+        return $cashInfo;
+    }
 
-	/**
-	 * @param $response
-	 * @throws Exception
-	 */
-	public static function handleBadResponse($response, $path)
-	{
-		$message = $path . " returned code " . $response->getStatusCode() . "\n" . $response->getBody();
-		echo $message;
-		throw new Exception($message);
-	}
+    /**
+     * @param $response
+     * @throws Exception
+     */
+    public static function handleBadResponse($response, $path)
+    {
+        $message = $path . " returned code " . $response->getStatusCode() . "\n" . $response->getBody();
+        echo $message;
+        throw new Exception($message);
+    }
 
-	/**
-	 * @param $cashInfo
-	 * @param $amount
-	 * @return array
-	 * @throws Exception
-	 */
-	private static function createPaymentLinkRequest($cashInfo, $amount)
-	{
-		if (!$cashInfo) {
-			throw new Exception("Could not load customer " . $cashInfo['customerid']);
-		}
+    /**
+     * @param $cashInfo
+     * @param $amount
+     * @return array
+     * @throws Exception
+     */
+    private static function createPaymentLinkRequest($cashInfo, $amount)
+    {
+        if (!$cashInfo) {
+            throw new Exception("Could not load customer " . $cashInfo['customerid']);
+        }
 
-		$paymentDue = (new DateTime('@' . time()))->format('Y-m-d');
-		$title = $cashInfo['comment'];
+        $paymentDue = (new DateTime('@' . time()))->format('Y-m-d');
+        $title = $cashInfo['comment'];
 
-		if ($cashInfo['pdate']) {
-			$paymentDue = (new DateTime('@' . $cashInfo['pdate']))->format('Y-m-d');
-		}
+        if ($cashInfo['pdate']) {
+            $paymentDue = (new DateTime('@' . $cashInfo['pdate']))->format('Y-m-d');
+        }
 
-		return array(
-			'userId' => $cashInfo['customerid'],
-			'amount' => isset($amount) ? $amount : -$cashInfo['value'],
-			'nrb' => bankaccount($cashInfo['customerid'], null),
-			'paymentDue' => $paymentDue,
-			'title' => self::getTitle($title)
-		);
-	}
+        return array(
+            'userId' => $cashInfo['customerid'],
+            'amount' => isset($amount) ? $amount : -$cashInfo['value'],
+            'nrb' => bankaccount($cashInfo['customerid'], null),
+            'paymentDue' => $paymentDue,
+            'title' => self::getTitle($title)
+        );
+    }
 
-	/**
-	 * @param string $title
-	 * @return string
-	 */
-	private static function getTitle($title)
-	{
-		return substr(preg_replace("/[^ A-Za-z0-9#&_\-',.\\/\x{00c0}-\x{02c0}]/u", " ", $title), 0, 105);
-	}
+    /**
+     * @param string $title
+     * @return string
+     */
+    private static function getTitle($title)
+    {
+        return substr(preg_replace("/[^ A-Za-z0-9#&_\-',.\\/\x{00c0}-\x{02c0}]/u", " ", $title), 0, 105);
+    }
 }
 
 class GeneratedBilltechLink
 {
-	public $link;
-	public $token;
+    public $link;
+    public $token;
 }

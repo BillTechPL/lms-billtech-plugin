@@ -125,6 +125,8 @@ define('MODULES_DIR', $CONFIG['directories']['modules_dir']);
 define('PLUGIN_DIR', $CONFIG['directories']['plugin_dir']);
 define('PLUGINS_DIR', $CONFIG['directories']['plugin_dir']);
 
+
+
 // Load autoloader
 $composer_autoload_path = SYS_DIR . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 if (file_exists($composer_autoload_path)) {
@@ -136,13 +138,22 @@ if (file_exists($composer_autoload_path)) {
 // Init database
 
 $DB = null;
+// Init database
 
-try {
-	$DB = LMSDB::getInstance();
-} catch (Exception $ex) {
-	trigger_error($ex->getMessage(), E_USER_WARNING);
-	// can't work without database
-	die("Fatal error: cannot connect to database!" . PHP_EOL);
+$_DBTYPE = $CONFIG['database']['type'];
+$_DBHOST = $CONFIG['database']['host'];
+$_DBUSER = $CONFIG['database']['user'];
+$_DBPASS = $CONFIG['database']['password'];
+$_DBNAME = $CONFIG['database']['database'];
+
+require(LIB_DIR.'/LMSDB.php');
+
+$DB = DBInit($_DBTYPE, $_DBHOST, $_DBUSER, $_DBPASS, $_DBNAME);
+
+if(!$DB)
+{
+    // can't working without database
+    die();
 }
 
 // Include required files (including sequence is important)
@@ -151,15 +162,17 @@ require_once(LIB_DIR . DIRECTORY_SEPARATOR . 'common.php');
 require_once(LIB_DIR . DIRECTORY_SEPARATOR . 'language.php');
 include_once(LIB_DIR . DIRECTORY_SEPARATOR . 'definitions.php');
 
-$SYSLOG = SYSLOG::getInstance();
+// Read configuration of LMS-UI from database
+
+if($cfg = $DB->GetAll('SELECT section, var, value FROM uiconfig WHERE disabled=0'))
+    foreach($cfg as $row)
+        $CONFIG[$row['section']][$row['var']] = $row['value'];
 
 // Initialize Session, Auth and LMS classes
 
 $AUTH = null;
-$LMS = new LMS($DB, $AUTH, $SYSLOG);
 
-$plugin_manager = new LMSPluginManager();
-$LMS->setPluginManager($plugin_manager);
+$LMS = new LMS($DB, $AUTH, $CONFIG);
 
 $linksManager = new BillTechLinksManager(!$quiet);
 

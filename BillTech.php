@@ -24,6 +24,12 @@
  *  $Id$
  */
 
+if (!defined('LMSPlugin')) {
+    class LMSPlugin
+    {
+    }
+}
+
 /**
  * BillTech
  *
@@ -31,96 +37,118 @@
  */
 class BillTech extends LMSPlugin
 {
-	const PLUGIN_DBVERSION = 2020091914;
-	const PLUGIN_DIRECTORY_NAME = 'BillTech';
-	const PLUGIN_NAME = 'BillTech';
-	const PLUGIN_DESCRIPTION = 'BillTech - wersja: 20180215';
-	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
-	const CASH_COMMENT = 'Wpłata online';
+    const PLUGIN_DBVERSION = 2020091914;
+    const PLUGIN_DIRECTORY_NAME = 'BillTech';
+    const PLUGIN_NAME = 'BillTech';
+    const PLUGIN_DESCRIPTION = 'BillTech - wersja: 20180215';
+    const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
+    const CASH_COMMENT = 'Wpłata online';
 
-	public function registerHandlers()
-	{
-		$this->handlers = array(
-			'menu_initialized' => array(
-				'class' => 'BillTechInitHandler',
-				'method' => 'menuBillTech'
-			),
-			'modules_dir_initialized' => array(
-				'class' => 'BillTechInitHandler',
-				'method' => 'modulesBillTech'
-			),
-			'smarty_initialized' => array(
-				'class' => 'BillTechInitHandler',
-				'method' => 'smartyBillTech'
-			),
-			'userpanel_smarty_initialized' => array(
-				'class' => 'BillTechInitHandler',
-				'method' => 'smartyBillTech'
-			),
-			'invoice_email_before_send' => array(
-				'class' => 'BillTechButtonInsertHandler',
-				'method' => 'addButtonToInvoiceEmail'
-			),
-			'notify_parse_customer_data' => array(
-				'class' => 'BillTechButtonInsertHandler',
-				'method' => 'notifyCustomerDataParse'
-			),
-			'customer_before_display' => array(
-				'class' => 'BillTechButtonInsertHandler',
-				'method' => 'addButtonToCustomerView'
-			),
-			'customer_otherip_before_display' => array(
-				'class' => 'BillTechButtonInsertHandler',
-				'method' => 'addButtonToCustomerOtherIPView'
-			),
-			'userpanel_finances_main_before_module_display' => array(
-				'class' => 'BillTechButtonInsertHandler',
-				'method' => 'addButtonsToFinancesView'
-			),
-			'cashimport_after_commit' => array(
-				'class' => 'BillTechPaymentCashImportHandler',
-				'method' => 'processCashImport'
-			)
-		);
-	}
+    public function registerHandlers()
+    {
+        $this->handlers = array(
+            'menu_initialized' => array(
+                'class' => 'BillTechInitHandler',
+                'method' => 'menuBillTech'
+            ),
+            'modules_dir_initialized' => array(
+                'class' => 'BillTechInitHandler',
+                'method' => 'modulesBillTech'
+            ),
+            'smarty_initialized' => array(
+                'class' => 'BillTechInitHandler',
+                'method' => 'smartyBillTech'
+            ),
+            'userpanel_smarty_initialized' => array(
+                'class' => 'BillTechInitHandler',
+                'method' => 'smartyBillTech'
+            ),
+            'invoice_email_before_send' => array(
+                'class' => 'BillTechButtonInsertHandler',
+                'method' => 'addButtonToInvoiceEmail'
+            ),
+            'notify_parse_customer_data' => array(
+                'class' => 'BillTechButtonInsertHandler',
+                'method' => 'notifyCustomerDataParse'
+            ),
+            'customer_before_display' => array(
+                'class' => 'BillTechButtonInsertHandler',
+                'method' => 'addButtonToCustomerView'
+            ),
+            'customer_otherip_before_display' => array(
+                'class' => 'BillTechButtonInsertHandler',
+                'method' => 'addButtonToCustomerOtherIPView'
+            ),
+            'userpanel_finances_main_before_module_display' => array(
+                'class' => 'BillTechButtonInsertHandler',
+                'method' => 'addButtonsToFinancesView'
+            ),
+            'cashimport_after_commit' => array(
+                'class' => 'BillTechPaymentCashImportHandler',
+                'method' => 'processCashImport'
+            )
+        );
+    }
 
-	public static function toMap($callback, array $array)
-	{
-		$map = array();
-		foreach ($array as $item) {
-			$map[$callback($item)] = $item;
-		}
-		return $map;
-	}
+    public static function toMap($callback, array $array)
+    {
+        $map = array();
+        foreach ($array as $item) {
+            $map[$callback($item)] = $item;
+        }
+        return $map;
+    }
 
-	/**
-	 * @param string $str
-	 * @param $separator
-	 * @param int $repeatCount
-	 * @return string
-	 */
-	public static function repeatWithSeparator($str, $separator, $repeatCount)
-	{
-		return implode($separator, array_fill(0, $repeatCount, $str));
-	}
+    /**
+     * @param string $str
+     * @param $separator
+     * @param int $repeatCount
+     * @return string
+     */
+    public static function repeatWithSeparator($str, $separator, $repeatCount)
+    {
+        return implode($separator, array_fill(0, $repeatCount, $str));
+    }
 
-	/**
-	 * @param int $rowCount
-	 * @param int $valuesCount
-	 * @return string
-	 */
-	public static function prepareMultiInsertPlaceholders($rowCount, $valuesCount)
-	{
-		return BillTech::repeatWithSeparator("(" . BillTech::repeatWithSeparator("?", ",", $valuesCount) . ")", ',', $rowCount);
-	}
+    /**
+     * @param int $rowCount
+     * @param int $valuesCount
+     * @return string
+     */
+    public static function prepareMultiInsertPlaceholders($rowCount, $valuesCount)
+    {
+        return BillTech::repeatWithSeparator("(" . BillTech::repeatWithSeparator("?", ",", $valuesCount) . ")", ',', $rowCount);
+    }
 
-	public static function measureTime($callback, $verbose)
-	{
-		$start = microtime(true);
-		$callback();
-		$time_elapsed_secs = microtime(true) - $start;
-		if ($verbose) {
-			echo "Update took " . $time_elapsed_secs . " s\n";
-		}
-	}
+    public static function measureTime($callback, $verbose)
+    {
+        $start = microtime(true);
+        $callback();
+        $time_elapsed_secs = microtime(true) - $start;
+        if ($verbose) {
+            echo "Update took " . $time_elapsed_secs . " s\n";
+        }
+    }
+
+    public static function getConfig($name, $default = null, $allow_empty_value = false)
+    {
+        if (class_exists('ConfigHelper')) {
+            return ConfigHelper::getConfig($name, $default, $allow_empty_value);
+        } else {
+            global $CONFIG;
+            $names = preg_split("/\./", $name);
+            return isset($CONFIG[$names[0]][$names[1]]) ? $CONFIG[$names[0]][$names[1]] : $default;
+        }
+    }
+
+    public static function checkConfig($name)
+    {
+        if (class_exists('ConfigHelper')) {
+            return ConfigHelper::checkConfig($name);
+        } else {
+            global $CONFIG;
+            $names = preg_split("/\./", $name);
+            return isset($CONFIG[$names[0]][$names[1]]);
+        }
+    }
 }
