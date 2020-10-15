@@ -87,6 +87,6 @@ require_once(LIB_DIR . DIRECTORY_SEPARATOR . 'common.php');
 require_once(LIB_DIR . DIRECTORY_SEPARATOR . 'language.php');
 include_once(LIB_DIR . DIRECTORY_SEPARATOR . 'definitions.php');
 
-BillTechLinkApiService::generatePaymentLink($_GET['cashid']);
+BillTechLinkApiService::generatePaymentLinks($_GET['cashid']);
 
 $DB->Destroy();

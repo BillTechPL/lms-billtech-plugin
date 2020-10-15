@@ -18,7 +18,7 @@ class BillTechLinkApiService
 	 * @return GeneratedBilltechLink[]
 	 * @throws Exception
 	 */
-	public static function generatePaymentLink($linkDataList)
+	public static function generatePaymentLinks($linkDataList)
 	{
 		$isp_id = ConfigHelper::getConfig('billtech.isp_id');
 		$client = BillTechApiClientFactory::getClient();
@@ -127,10 +127,6 @@ class BillTechLinkApiService
 	 */
 	private static function createPaymentLinkRequest($cashInfo, $amount)
 	{
-		if (!$cashInfo) {
-			throw new Exception("Could not load customer " . $cashInfo['customerid']);
-		}
-
 		$paymentDue = (new DateTime('@' . time()))->format('Y-m-d');
 		$title = $cashInfo['comment'];
 
@@ -138,13 +134,23 @@ class BillTechLinkApiService
 			$paymentDue = (new DateTime('@' . $cashInfo['pdate']))->format('Y-m-d');
 		}
 
-		return array(
+		$request = array(
 			'userId' => $cashInfo['customerid'],
 			'amount' => isset($amount) ? $amount : -$cashInfo['value'],
 			'nrb' => bankaccount($cashInfo['customerid'], null),
 			'paymentDue' => $paymentDue,
 			'title' => self::getTitle($title)
 		);
+
+		if (ConfigHelper::checkConfig("billtech.produce_short_links")) {
+			$request = array_merge_recursive($request, array(
+				'name' => $cashInfo['name'],
+				'surname' => $cashInfo['lastname'],
+				'email' => $cashInfo['email'],
+			));
+		}
+
+		return $request;
 	}
 
 	/**
@@ -159,6 +165,7 @@ class BillTechLinkApiService
 
 class GeneratedBilltechLink
 {
-	public $link;
 	public $token;
+	public $link;
+	public $shortLink;
 }

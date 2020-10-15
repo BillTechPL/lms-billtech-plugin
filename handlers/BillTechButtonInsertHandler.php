@@ -18,15 +18,15 @@ class BillTechButtonInsertHandler
 		return $this->linksManager;
 	}
 
-	private function getPaymentLink($doc, $customerId)
+	private function getPaymentLink($doc, $customerId, $params = array())
 	{
 		global $DB;
 
 		if ($doc == 'balance') {
-			return ($this->getLinksManager())->getBalanceLink($customerId)->link;
+			return ($this->getLinksManager())->getBalanceLink($customerId, $params)->link;
 		} else {
 			$cashId = $DB->GetOne("select id from cash where docid = ?", array($doc));
-			return ($this->getLinksManager())->getCashLink($cashId)->link;
+			return ($this->getLinksManager())->getCashLink($cashId, $params)->link;
 		}
 	}
 
@@ -35,8 +35,8 @@ class BillTechButtonInsertHandler
 		global $DB;
 		$this->getLinksManager()->updateCustomerBalance($hook_data['doc']['customerid']);
 		$cashId = $DB->GetOne("select id from cash where docid = ?;", array($hook_data['doc']['id']));
-		$cashLink = $this->getLinksManager()->getCashLink($cashId)->link . '&utm_medium=email';
-		$balanceLink = $this->getLinksManager()->getBalanceLink($hook_data['doc']['customerid'])->link . '&utm_medium=email';
+		$cashLink = $this->getLinksManager()->getCashLink($cashId, ['utm_medium' => 'email'])->link;
+		$balanceLink = $this->getLinksManager()->getBalanceLink($hook_data['doc']['customerid'], ['utm_medium' => 'email'])->link;
 		$cashBtnCode = $this->getBtnCode($hook_data['mail_format'], $cashLink);
 		$balanceBtnCode = $this->getBtnCode($hook_data['mail_format'], $balanceLink);
 
@@ -52,7 +52,7 @@ class BillTechButtonInsertHandler
 	{
 		$data = $hook_data['data'];
 		$customerid = $hook_data['customer']['id'];
-		$link = self::getPaymentLink('balance', $customerid) . '&utm_medium=email';
+		$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
 
 		$hook_data['data'] = preg_replace('/%billtech_btn/',
 			$this->createEmailButton('html', $link), $data);
@@ -68,7 +68,7 @@ class BillTechButtonInsertHandler
 
 		$customerinfo = $LMS->GetCustomer($customerid);
 		if ($customerinfo['balance'] < 0) {
-			$smarty->assign('billtech_balance_link', self::getPaymentLink('balance', $customerid) . '&utm_medium=cutoffpage');
+			$smarty->assign('billtech_balance_link', self::getPaymentLink('balance', $customerid, ['utm_medium' => 'cutoffpage']));
 			$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'customerbilltechbutton.html');
 		} else {
 			$billtech_balance_button = '';
@@ -86,7 +86,7 @@ class BillTechButtonInsertHandler
 
 		$customerinfo = $LMS->GetCustomer($customerid);
 		if ($customerinfo['balance'] < 0) {
-			$smarty->assign('billtech_balance_link', self::getPaymentLink('balance', $customerid) . '&utm_medium=cutoffpage');
+			$smarty->assign('billtech_balance_link', self::getPaymentLink('balance', $customerid, ['utm_medium' => 'cutoffpage']));
 			$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'customerotheripbilltechbutton.html');
 		} else {
 			$billtech_balance_button = '';
@@ -138,7 +138,7 @@ class BillTechButtonInsertHandler
 		}
 
 		if (!ConfigHelper::checkConfig('billtech.balance_button_disabled')) {
-			$balanceLink = $linksManager->getBalanceLink($customerId)->link . '&utm_medium=userpanel';
+			$balanceLink = $linksManager->getBalanceLink($customerId, ['utm_medium' => 'userpanel'])->link;
 			$smarty->assign('billtech_balance_link', $balanceLink);
 			$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechbalancebutton.html');
 

@@ -4,10 +4,12 @@ class BillTechLinksManager
 {
 	private $batchSize = 100;
 	private $verbose = false;
+	private $linkShortener;
 
 	public function __construct($verbose = false)
 	{
 		$this->verbose = $verbose;
+		$this->linkShortener = new LinkShortenerApiService();
 	}
 
 	/** @return BillTechLink[]
@@ -25,16 +27,22 @@ class BillTechLinksManager
 		}, $rows);
 	}
 
-	public function getCashLink($cashId)
+	public function getCashLink($cashId, $params = array())
 	{
 		global $DB;
 		$row = $DB->GetRow("select l.* from billtech_payment_links l
 								left join cash c on l.src_cash_id = c.id
 								where src_cash_id = ?", array($cashId));
-		return $row ? BillTechLink::fromRow($row) : null;
+		if (!$row) {
+			return null;
+		}
+		$link = BillTechLink::fromRow($row);
+
+		$this->addParamsToLink($params, $link);
+		return $link;
 	}
 
-	public function getBalanceLink($customerId)
+	public function getBalanceLink($customerId, $params = array())
 	{
 		global $DB;
 		$row = $DB->GetRow("select l.* from billtech_payment_links l
@@ -45,7 +53,7 @@ class BillTechLinksManager
 			return null;
 		} else {
 			$balanceLink = BillTechLink::fromRow($row);
-			$balanceLink->link .= '&type=balance';
+			$this->addParamsToLink(array_merge($params, ['type' => 'balance']), $balanceLink);
 			return $balanceLink;
 		}
 	}
@@ -147,7 +155,7 @@ class BillTechLinksManager
 			);
 		}, $links);
 
-		$generatedLinks = BillTechLinkApiService::generatePaymentLink($linkDataList);
+		$generatedLinks = BillTechLinkApiService::generatePaymentLinks($linkDataList);
 		$values = array();
 		foreach ($generatedLinks as $idx => $generatedLink) {
 			$link = $links[$idx];
@@ -156,13 +164,14 @@ class BillTechLinksManager
 				$link->srcCashId,
 				$link->type,
 				$generatedLink->link,
+				$generatedLink->shortLink,
 				$generatedLink->token,
 				$link->amount
 			);
 		}
 
-		$sql = "insert into billtech_payment_links(customer_id, src_cash_id, type, link, token, amount) values " .
-			BillTech::prepareMultiInsertPlaceholders(count($generatedLinks), 6) . ";";
+		$sql = "insert into billtech_payment_links(customer_id, src_cash_id, type, link, short_link, token, amount) values " .
+			BillTech::prepareMultiInsertPlaceholders(count($generatedLinks), 7) . ";";
 		$DB->Execute($sql, $values);
 	}
 
@@ -181,9 +190,9 @@ class BillTechLinksManager
 				'amount' => $link->amount
 			)
 		);
-		$generatedLink = BillTechLinkApiService::generatePaymentLink($linkDataList)[0];
-		$DB->Execute("update billtech_payment_links set amount = ?, link = ?, token = ? where id = ?",
-			array($link->amount, $generatedLink->link, $generatedLink->token, $link->id));
+		$generatedLink = BillTechLinkApiService::generatePaymentLinks($linkDataList)[0];
+		$DB->Execute("update billtech_payment_links set amount = ?, link = ?, short_link = ?, token = ? where id = ?",
+			array($link->amount, $generatedLink->link, $generatedLink->shortLink, $generatedLink->token, $link->id));
 	}
 
 	/* @throws Exception
@@ -222,17 +231,23 @@ class BillTechLinksManager
 	{
 		$addBatches = array_chunk($actions['add'], $this->batchSize);
 		foreach ($addBatches as $idx => $links) {
-			echo "Adding batch " . ($idx + 1) . " of " . count($addBatches) . "\n";
+			if ($this->verbose) {
+				echo "Adding batch " . ($idx + 1) . " of " . count($addBatches) . "\n";
+			}
 			$this->addPayments($links);
 		}
 
 		foreach ($actions['update'] as $idx => $link) {
-			echo "Updating link " . ($idx + 1) . " of " . count($actions['update']) . "\n";
+			if ($this->verbose) {
+				echo "Updating link " . ($idx + 1) . " of " . count($actions['update']) . "\n";
+			}
 			$this->updatePaymentAmount($link);
 		}
 
 		foreach ($actions['close'] as $idx => $link) {
-			echo "Closing link " . ($idx + 1) . " of " . count($actions['close']) . "\n";
+			if ($this->verbose) {
+				echo "Closing link " . ($idx + 1) . " of " . count($actions['close']) . "\n";
+			}
 			$this->closePayment($link);
 		}
 	}
@@ -331,6 +346,19 @@ class BillTechLinksManager
 	{
 		global $DB;
 		$DB->Exec("update billtech_customer_info set balance_update_time = ?NOW? where customer_id in (" . BillTech::repeatWithSeparator("?", ",", count($customerIds)) . ")", $customerIds);
+	}
+
+	/**
+	 * @param array $params
+	 * @param BillTechLink $link
+	 */
+	private function addParamsToLink(array $params, BillTechLink $link)
+	{
+		$link->link .= http_build_query($params);
+
+		if ($link->shortLink) {
+			$link->shortLink = $this->linkShortener->addParameters($link->shortLink, $params);
+		}
 	}
 }
 
