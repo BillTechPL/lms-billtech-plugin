@@ -144,8 +144,8 @@ class BillTechLinkApiService
 
 		if (ConfigHelper::checkConfig("billtech.produce_short_links")) {
 			$request = array_merge_recursive($request, array(
-				'name' => $cashInfo['name'],
-				'surname' => $cashInfo['lastname'],
+				'name' => self::getNameOrSurname($cashInfo['name']),
+				'surname' => self::getNameOrSurname($cashInfo['lastname']),
 				'email' => $cashInfo['email'],
 			));
 		}
@@ -160,6 +160,15 @@ class BillTechLinkApiService
 	private static function getTitle($title)
 	{
 		return substr(preg_replace("/[^ A-Za-z0-9#&_\-',.\\/\x{00c0}-\x{02c0}]/u", " ", $title), 0, 105);
+	}
+
+	/**
+	 * @param string $value
+	 * @return string
+	 */
+	private static function getNameOrSurname($value)
+	{
+		return isset($value) ? substr(preg_replace("/[^ A-Za-z0-9-,.\x{00c0}-\x{02c0}]/u", " ", $value), 0, 100) : null;
 	}
 }
 
