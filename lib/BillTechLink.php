@@ -7,6 +7,7 @@ class BillTechLink
 	public $srcCashId;
 	public $type;
 	public $link;
+	public $shortLink;
 	public $token;
 	public $amount;
 	public $docid;
@@ -51,6 +52,7 @@ class BillTechLink
 		$instance->docid = $row['docid'];
 		$instance->type = $row['type'];
 		$instance->link = $row['link'];
+		$instance->shortLink = $row['short_link'];
 		$instance->token = $row['token'];
 		$instance->amount = floatval($row['amount']);
 		return $instance;
