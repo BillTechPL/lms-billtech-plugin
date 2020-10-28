@@ -54,7 +54,8 @@ class BillTechPaymentsUpdater
                         'time' => $payment['cdate']
                     );
 
-                    $cashid = $LMS->AddBalance($addbalance);
+                    $LMS->AddBalance($addbalance);
+					$cashid = $DB->GetLastInsertID('cash');
                     if ($cashid) {
                         $DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
                     }
@@ -128,8 +129,8 @@ class BillTechPaymentsUpdater
                     'time' => $payment->paidAt
                 );
 
-                $cashid = $LMS->AddBalance($addbalance);
-
+                $LMS->AddBalance($addbalance);
+				$cashid = $DB->GetLastInsertID('cash');
 
                 echo json_encode($cashid) . "\n";
                 if ($cashid) {
