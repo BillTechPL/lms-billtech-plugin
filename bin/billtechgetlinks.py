@@ -12,8 +12,8 @@ def getShortCashLinkByCustomer(cursor, customer_id):
 def getCashLinkByDocument(cursor, document_id):
     cursor.execute(
     "select bpl.link from billtech_payment_links bpl left join cash c on bpl.src_cash_id = c.id \
-     where c.docid = %s;" % document_id)
-     query_result = cursor.fetchone()
+    where c.docid = %s;" % document_id)
+    query_result = cursor.fetchone()
 
     return query_result[0] if query_result else None
 
