@@ -59,8 +59,8 @@ class BillTechLinkApiService
 			$cashInfo = $cashInfos[$idx];
 			$link->link = $link->link .
 				'?email=' . urlencode($cashInfo['email']) .
-				'&name=' . urlencode($cashInfo['name']) .
-				'&surname=' . urlencode($cashInfo['lastname']) .
+				'&name=' . urlencode(self::getNameOrSurname($cashInfo['name'])) .
+				'&surname=' . urlencode(self::getNameOrSurname($cashInfo['lastname'])) .
 				'&utm_content=' . urlencode($isp_id) .
 				'&utm_source=isp';
 			array_push($result, $link);
@@ -137,22 +137,16 @@ class BillTechLinkApiService
 			$paymentDue = (new DateTime('@' . $cashInfo['pdate']))->format('Y-m-d');
 		}
 
-		$request = array(
+		return array(
 			'userId' => $cashInfo['customerid'],
 			'amount' => isset($amount) ? $amount : -$cashInfo['value'],
 			'nrb' => bankaccount($cashInfo['customerid'], null),
 			'paymentDue' => $paymentDue,
-			'title' => self::getTitle($title)
+			'title' => self::getTitle($title),
+			'name' => self::getNameOrSurname($cashInfo['name']),
+			'surname' => self::getNameOrSurname($cashInfo['lastname']),
+			'email' => $cashInfo['email'],
 		);
-
-		if (BillTech::getConfig("billtech.produce_short_links", true)) {
-			$request = array_merge_recursive($request, array(
-				'name' => self::getNameOrSurname($cashInfo['name']),
-				'surname' => self::getNameOrSurname($cashInfo['lastname']),
-				'email' => $cashInfo['email'],
-			));
-		}
-		return $request;
 	}
 
 	/**
@@ -161,12 +155,12 @@ class BillTechLinkApiService
 	 */
 	private static function getTitle($title)
 	{
-		return substr(preg_replace("/[^ A-Za-z0-9#&_\-',.\\/\x{00c0}-\x{02c0}]/u", " ", $title), 0, 105);
+		return substr(preg_replace("/[^ A-Za-z0-9#&_\-',.\x{00c0}-\x{02c0}]/u", " ", $title), 0, 105) ?: "";
 	}
 
 	private static function getNameOrSurname($nameOrSurname)
 	{
-		return substr(preg_replace("/[^ A-Za-z0-9\-,.\\/\x{00c0}-\x{02c0}]/u", " ", $nameOrSurname), 0, $nameOrSurname);
+		return substr(preg_replace("/[^ A-Za-z0-9\-,.\x{00c0}-\x{02c0}]/u", " ", $nameOrSurname), 0, 100) ?: null;
 	}
 }
 

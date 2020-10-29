@@ -118,7 +118,7 @@ class BillTechButtonInsertHandler
 				}, $paymentLinks);
 
 				$invoices = $smarty->get_template_vars('invoices');
-				foreach ($invoices as &$invoice) {
+				foreach ($invoices as $idx => &$invoice) {
 					$link = $paymentLinksMap[$invoice['id']];
 					$button = isset($link) ? $this->createRowButton($link->link) : "";
 					$invoice['billtech_btn'] = $button;
@@ -219,10 +219,10 @@ class BillTechButtonInsertHandler
 				
 					.billtech_balance_button div {
 						padding: 10px 15px;
-						color: #fff;
+						color: #ffffff;
 						border-width: 0;
 						margin: 8px 3px 3px 3px;
-						background-color: #FF9F32;
+						background-color: #000000;
 						border-radius: 3px;
 					}
 				
@@ -231,7 +231,7 @@ class BillTechButtonInsertHandler
 					}
 				
 					.billtech_balance_button:hover div {
-						background-color: #ff9319;
+						background-color: #222222;
 					}
 				</style>
 				<div style=\"width:100%; text-align:center\">
@@ -255,7 +255,7 @@ class BillTechButtonInsertHandler
 						color: #fff;
 						border-width: 0;
 						margin: 0;
-						background-color: #FF9F32;
+						background-color: #000000;
 						border-radius: 3px;
 						cursor: pointer;
 					}
