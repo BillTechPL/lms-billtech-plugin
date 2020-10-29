@@ -63,6 +63,6 @@ Wpłaty które powstają po wykonaniu płatności BillTech, to tzw. opłaty tymc
 | isp_id             	| string   	| dostawca 	| Id dostawcy w systemie BillTech.                                                                                      	|
     
 ## Kontakt
-Więcej informacji na temat naszego API można znaleźć na stronie <docs.billtech.pl>. Po dane do połączenia prosimy o wysyłanie wiadomości na adres <admin@billtech.pl>
+Więcej informacji na temat naszego API można znaleźć na stronie <https://docs.billtech.pl>. Po dane do połączenia prosimy o wysyłanie wiadomości na adres <admin@billtech.pl>
 
 Jeżeli chciałbyś przetestować wtyczkę, zobaczyć jak wygląda proces płatności, rozpocząć współpracę lub dowiedzieć się więcej prosimy o wiadomość na adres <kontakt@billtech.pl>
