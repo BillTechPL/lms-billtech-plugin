@@ -84,7 +84,7 @@ class BillTechLinkApiService
 			]
 		]);
 
-		if (in_array($response->getStatusCode(), [204, 409])) {
+		if (!in_array($response->getStatusCode(), [204, 409])) {
 			throw new Exception($path . " returned code " . $response->getStatusCode() . "\n" . $response->getBody());
 		}
 	}
