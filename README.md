@@ -58,7 +58,7 @@ Wpłaty które powstają po wykonaniu płatności BillTech, to tzw. opłaty tymc
 
 | nazwa zmiennej      	| wartości   	| przykład       	| opis                                                                                                                                                                                                                          	|
 |---------------------	|------------	|----------------	|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
-| payment_expiration  	| int/string 	| 5              	| Liczba dni po których wpłata tymczasowa BillTech znika z systemu. Dla wartości never mechanizm ten zostajy wyłączony. Taka powinna być wartość tej zmiennej w przypadku korzystania z cashimport-u (cashimport_enabled=true). 	|
+| payment_expiration  	| int/string 	| 5              	| Liczba dni po których wpłata tymczasowa BillTech znika z systemu. Dla wartości never mechanizm ten zostaje wyłączony. Taka powinna być wartość tej zmiennej w przypadku korzystania z cashimport-u (cashimport_enabled=true). 	|
 | cashimport_enabled  	| boolean    	| true           	| Parametr umożliwiający automatyczne rozliczanie opłat tymczasowych poprzez mechanizm cashimport-u.                                                                                                                            	|
 | isp_id              	| string     	| nazwa_dostawcy 	| Id dostawcy w systemie BillTech.                                                                                                                                                                                              	|
 | produce_short_links 	| boolean    	| true           	| Odpowiada za podanie danych osobowych podczas generowania linków do płatności przez API, co sprawia że możliwe jest wygenerowanie skróconego linku do płatności, który można wysłać np. w SMS.                                	|
@@ -66,7 +66,7 @@ Wpłaty które powstają po wykonaniu płatności BillTech, to tzw. opłaty tymc
 ## Change Log
 
 #### Wersja 1.0 (obecna)
-* Dane na temat płatności są generowane w momencie ich powstawania w systemie LMS i identyfikowane w BillTech poprzez token, który jest główną częścia nowego, krótszego linka. 
+* Dane na temat płatności są generowane w momencie ich powstawania w systemie LMS i identyfikowane w BillTech poprzez token, który jest główną częścią nowego, krótszego linka. 
 Linki są zapisywane w bazie LMS w tabeli billtech_payment_links.
 Istnieją 2 możliwości podania danych identyfikujących użytkownika dokonującego płatności:
     * dane mogą zostać dodane do linka poprzez query params (np. ?name=Jan&surname=Kowalski&email=email@example.com)
