@@ -18,7 +18,12 @@ class BillTechLinksManager
 	public function getCustomerPaymentLinks($customerId)
 	{
 		global $DB;
-		$rows = $DB->GetAll("select * from billtech_payment_links where customer_id = ?", array($customerId));
+		$rows = $DB->GetAll("select bpl.*, c.docid
+                                from billtech_payment_links bpl
+                                         left join cash c on c.id = bpl.src_cash_id
+                                         left join billtech_payments bp on bpl.token = bp.token
+                                where bp.id is null
+                                  and customer_id = ?", array($customerId));
 		if (!is_array($rows)) {
 			return array();
 		}
@@ -27,7 +32,7 @@ class BillTechLinksManager
 		}, $rows);
 	}
 
-	public function getCashLink($cashId, $params = array())
+	public function getCashLink($cashId, $params)
 	{
 		global $DB;
 		$row = $DB->GetRow("select l.* from billtech_payment_links l
@@ -42,12 +47,13 @@ class BillTechLinksManager
 		return $link;
 	}
 
-	public function getBalanceLink($customerId, $params = array())
+	public function getBalanceLink($customerId, $params)
 	{
 		global $DB;
-		$row = $DB->GetRow("select l.* from billtech_payment_links l
+		$row = $DB->GetRow("select l.*, c.docid from billtech_payment_links l
 								left join cash c on l.src_cash_id = c.id
-								where customer_id = ?
+								left join billtech_payments bp on l.token = bp.token
+								where customer_id = ? and bp.id is null
 								order by c.time desc limit 1", array($customerId));
 		if (!$row) {
 			return null;
@@ -61,7 +67,6 @@ class BillTechLinksManager
 	public function updateForAll()
 	{
 		global $DB;
-		$DB->BeginTrans();
 		$actions = array(
 			'add' => array(),
 			'update' => array(),
@@ -69,10 +74,6 @@ class BillTechLinksManager
 		);
 		$this->addMissingCustomerInfo();
 		$customerIds = $this->getCustomerIdsForUpdate();
-
-		var_dump($customerIds);
-		var_dump($DB->GetErrors());
-		var_dump($DB->GetRow("select * from billtech_customer_info where customer_id = 8947;"));
 
 		if ($this->verbose) {
 			echo "Found " . count($customerIds) . " customers to update\n";
@@ -82,12 +83,12 @@ class BillTechLinksManager
 			return;
 		}
 
+		$time = time();
+
 		foreach ($customerIds as $idx => $customerId) {
 			echo "Collecting actions for customer " . ($idx + 1) . " of " . count($customerIds) . "\n";
 			$actions = array_merge_recursive($actions, $this->getCustomerUpdateBalanceActions($customerId));
 		}
-
-		$this->updateCustomerInfos($customerIds);
 
 		if ($this->verbose) {
 			echo "Adding " . count($actions['add']) . " links\n";
@@ -96,8 +97,7 @@ class BillTechLinksManager
 		}
 
 		$this->performActions($actions);
-
-		$DB->CommitTrans();
+		$this->updateCustomerInfos($customerIds, $time);
 	}
 
 	public function updateCustomerBalance($customerId)
@@ -307,10 +307,10 @@ class BillTechLinksManager
 										group by bci.customer_id", array($customerId));
 
 		if ($customerInfo) {
-			$DB->Exec("update billtech_customer_info set balance_update_time = ?NOW? where customer_id = ?", array($customerId));
+			$DB->Execute("update billtech_customer_info set balance_update_time = ?NOW? where customer_id = ?", array($customerId));
 			return $customerInfo['last_cash_time'] > $customerInfo['balance_update_time'];
 		} else {
-			$DB->Exec("insert into billtech_customer_info (customer_id, balance_update_time) values (?, ?NOW?)", array($customerId));
+			$DB->Execute("insert into billtech_customer_info (customer_id, balance_update_time) values (?, ?NOW?)", array($customerId));
 			return true;
 		}
 	}
@@ -318,7 +318,7 @@ class BillTechLinksManager
 	private function addMissingCustomerInfo()
 	{
 		global $DB;
-		$DB->Exec("insert into billtech_customer_info (customer_id, balance_update_time)
+		$DB->Execute("insert into billtech_customer_info (customer_id, balance_update_time)
 					select cu.id, 0
 					from customers cu
 							 left join billtech_customer_info bci on bci.customer_id = cu.id
@@ -342,10 +342,11 @@ class BillTechLinksManager
 	/**
 	 * @param array $customerIds
 	 */
-	private function updateCustomerInfos(array $customerIds)
+	private function updateCustomerInfos(array $customerIds, $time)
 	{
 		global $DB;
-		$DB->Exec("update billtech_customer_info set balance_update_time = ?NOW? where customer_id in (" . BillTech::repeatWithSeparator("?", ",", count($customerIds)) . ")", $customerIds);
+		$DB->Execute("update billtech_customer_info set balance_update_time = ? where customer_id in ("
+			. BillTech::repeatWithSeparator("?", ",", count($customerIds)) . ")", array_merge([$time], $customerIds));
 	}
 
 	/**

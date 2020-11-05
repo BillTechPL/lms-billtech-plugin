@@ -33,7 +33,7 @@ class BillTechButtonInsertHandler
 	public function addButtonToInvoiceEmail(array $hook_data = array())
 	{
 		global $DB;
-		$this->getLinksManager()->updateCustomerBalance($hook_data['doc']['customerid']);
+		($this->getLinksManager())->updateCustomerBalance($hook_data['doc']['customerid']);
 		$cashId = $DB->GetOne("select id from cash where docid = ?;", array($hook_data['doc']['id']));
 		$cashLink = $this->getLinksManager()->getCashLink($cashId, ['utm_medium' => 'email'])->link;
 		$balanceLink = $this->getLinksManager()->getBalanceLink($hook_data['doc']['customerid'], ['utm_medium' => 'email'])->link;
