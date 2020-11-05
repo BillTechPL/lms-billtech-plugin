@@ -69,24 +69,24 @@ Wpłaty które powstają po wykonaniu płatności BillTech, to tzw. opłaty tymc
 * Dane na temat płatności są generowane w momencie ich powstawania w systemie LMS i identyfikowane w BillTech poprzez token, który jest główną częścią nowego, krótszego linka. 
 Linki są zapisywane w bazie LMS w tabeli billtech_payment_links.
 Istnieją 2 możliwości podania danych identyfikujących użytkownika dokonującego płatności:
-    * dane mogą zostać dodane do linka poprzez paramtery zapytania (np. ?name=Jan&surname=Kowalski&email=email@example.com)
-    * dane mogą zostać podane przy tworzeniu linka do płatności w body zapytania. 
+    * dane mogą zostać dodane do linka poprzez paramtery zapytania (np. ?name=Jan&surname=Kowalski&email=email@example.com),
+    * dane mogą zostać podane przy tworzeniu linka do płatności w body zapytania.
     Wtedy dane zostaną zapisane w bazie BillTech oraz umożliwią utworzenie skróconego linka. 
     Odpowiada za to parametr produce_short_links ustawiony na wartość true. 
 * Powyższe podejście powoduje wyeliminowane problemy ze spójnością salda.
 * Integracja z ekosystemem BillTech:
-    * połączenia z bankami i aplikacjami
-    * przypomnienia o nadchodzących i przeterminowanych płatnościach
-    * płatności jednym kliknięciem z zapisanej karty
-    * autopłatności
-    * odraczanie płatności
+    * połączenia z bankami i aplikacjami,
+    * przypomnienia o nadchodzących i przeterminowanych płatnościach,
+    * płatności jednym kliknięciem z zapisanej karty,
+    * autopłatności,
+    * odraczanie płatności.
 * Dodanie nowych tabel billtech_payment_links, billtech_customer_info oraz aktualizacja istniejących poprzez skrypty migracyjne. 
 * Przeniesienie mechanizmu aktualizowania informacji nt. wpłat łączącego się z BillTech co 5 minut do skryptu cron. 
 * Usunięcie konieczności przesyłania klucza publicznego do BillTech oraz podpisywania parametrów w linku poprzez klucz prywatny.
 * Zmiana wartości parametrów payment_expiration. Aby wyłączyć mechanizm należy podać wartość *never* zamiast 0.
 * Dodanie możliwości generowania skróconych linków. Dla wartości produce_short_links = true pole shortLink nie jest null.
 
-### Wersja 1.1 (nadchodząca)
+#### Wersja 1.1 (nadchodząca)
 * Rozróżnienie czy dany użytkownik jest w ekosystemie BillTech.
 * Generowanie linków przez API tylko dla użytkowników, którzy są w ekosystemie.
 Dla pozostałych użytkowników dane o saldzie zakodowane są w parametrach zapytania - przekazanie danych następuje dopiero w momencie kliknięcia w link.
