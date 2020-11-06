@@ -35,12 +35,12 @@ Podane wartości można również wprowadzić w panelu zakładce *Konfiguracja -
 
 ## Dodatkowe informacje
 ### Obsługa płatności po stronie klienta
-Wpłaty które powstają po wykonaniu płatności BillTech, to tzw. opłaty tymczasowe. Są tworzone aby użytkownik widział wykonaną opłatę w userpanelu. Wpłaty tymczasowe również umożliwiają natychmiastowe odblokowanie usług w przypadku blokady z powodu niepłacenia. Opłaty tymczasowe przestają być potrzebne w momencie pojawienia się opłat z banku, wtedy mogą zostać zamknięte, po czym przestają być widoczne w panelu admina. Istnieją 3 możliwości ich zamykania:
+Wpłaty które powstają po wykonaniu płatności BillTech, to tzw. opłaty tymczasowe. Są tworzone aby użytkownik widział wykonaną opłatę w userpanelu. Wpłaty tymczasowe również umożliwiają natychmiastowe odblokowanie usług w przypadku blokady z powodu niepłacenia. Opłaty tymczasowe przestają być potrzebne w momencie pojawienia się opłat z banku, wtedy mogą zostać zamknięte, po czym przestają być widoczne w panelu admina. Istnieją 3 możliwości ich zamykania:
 
    1. Po upływie zadanej liczby dni (domyślnie jest to 5 dni). Odpowiada za to zmienna środowiskowa billtech.payment_expiration. 
-    Można ją ustawić również na 0, wtedy opłaty tymczasowe nie wygasają po upływie czasu. 
-   
-   1. Są zamykane automatycznie w momencie dokonania cashimport-u. Aby włączyć rozliczanie poprzez cashimport we wtyczce, należy ustawić zmienną billtech.cashimport_enabled na wartość true. Ponadto ważne jest aby w pliku, który jest importowany były numery referencyjne wpłat, zawarte w tytułach przelewów. Aby wpłata z się zamknęła, w importowanym pliku powinien być wpis o numerze referencyjnym (przykładowo 20201110-123456). 
+    Aby wpłaty tymczasowe nie wygasały po upływie czasu, należy ustawić tą zmienną na wartość `never`. Takie ustawienie jest wskazane, gdy *włączony* jest cashimport.
+
+   1. Są zamykane automatycznie w momencie dokonania cashimport-u. Aby włączyć rozliczanie poprzez cashimport we wtyczce, należy ustawić zmienną billtech.cashimport_enabled na wartość true.
     
    1. Można je zamykać manualnie poprzez panel Płatności BillTech.
 
@@ -73,7 +73,7 @@ Istnieją 2 możliwości podania danych identyfikujących użytkownika dokonują
     * dane mogą zostać podane przy tworzeniu linka do płatności w body zapytania.
     Wtedy dane zostaną zapisane w bazie BillTech oraz umożliwią utworzenie skróconego linka. 
     Odpowiada za to parametr produce_short_links ustawiony na wartość true. 
-* Powyższe podejście powoduje wyeliminowane problemy ze spójnością salda.
+* Przechowywanie linków do płatności w bazie powoduje wyeliminowanie problemów ze spójnością salda.
 * Integracja z ekosystemem BillTech:
     * połączenia z bankami i aplikacjami,
     * przypomnienia o nadchodzących i przeterminowanych płatnościach,
@@ -82,8 +82,7 @@ Istnieją 2 możliwości podania danych identyfikujących użytkownika dokonują
     * odraczanie płatności.
 * Dodanie nowych tabel billtech_payment_links, billtech_customer_info oraz aktualizacja istniejących poprzez skrypty migracyjne. 
 * Przeniesienie mechanizmu aktualizowania informacji nt. wpłat łączącego się z BillTech co 5 minut do skryptu cron. 
-* Usunięcie konieczności przesyłania klucza publicznego do BillTech oraz podpisywania parametrów w linku poprzez klucz prywatny.
-* Zmiana wartości parametrów payment_expiration. Aby wyłączyć mechanizm należy podać wartość *never* zamiast 0.
+* Zmiana wartości parametrów payment_expiration. Aby wyłączyć mechanizm należy podać wartość `never` zamiast 0.
 * Dodanie możliwości generowania skróconych linków. Dla wartości produce_short_links = true pole shortLink nie jest null.
 
 #### Wersja 1.1 (nadchodząca)
