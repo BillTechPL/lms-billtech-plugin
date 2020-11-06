@@ -35,14 +35,17 @@ Podane wartości można również wprowadzić w panelu zakładce *Konfiguracja -
 
 ## Dodatkowe informacje
 ### Obsługa płatności po stronie klienta
-Wpłaty które powstają po wykonaniu płatności BillTech, to tzw. opłaty tymczasowe. Są tworzone aby użytkownik widział wykonaną opłatę w userpanelu. Wpłaty tymczasowe również umożliwiają natychmiastowe odblokowanie usług w przypadku blokady z powodu niepłacenia. Opłaty tymczasowe przestają być potrzebne w momencie pojawienia się opłat z banku, wtedy mogą zostać zamknięte, po czym przestają być widoczne w panelu admina. Istnieją 3 możliwości ich zamykania:
+Wpłaty które powstają po wykonaniu płatności BillTech, to tzw. opłaty tymczasowe. Są tworzone aby użytkownik widział wykonaną opłatę w userpanelu. Wpłaty tymczasowe również umożliwiają natychmiastowe odblokowanie usług w przypadku blokady z powodu niepłacenia. 
+Opłaty tymczasowe przestają być potrzebne w momencie pojawienia się opłat z banku, wtedy mogą zostać zamknięte, po czym przestają być widoczne w panelu admina. Istnieją 3 możliwości ich zamykania:
+
+   1. Automatycznie rozliczanie w momencie dokonania cashimport-u. Aby włączyć zamykanie wpłat tymczasowych poprzez cashimport, należy ustawić wartość zmiennej billtech.cashimport_enabled na true.
 
    1. Po upływie zadanej liczby dni (domyślnie jest to 5 dni). Odpowiada za to zmienna środowiskowa billtech.payment_expiration. 
-    Aby wpłaty tymczasowe nie wygasały po upływie czasu, należy ustawić tą zmienną na wartość `never`. Takie ustawienie jest wskazane, gdy *włączony* jest cashimport.
-
-   1. Są zamykane automatycznie w momencie dokonania cashimport-u. Aby włączyć rozliczanie poprzez cashimport we wtyczce, należy ustawić zmienną billtech.cashimport_enabled na wartość true.
+    Aby wpłaty tymczasowe nie wygasały po upływie czasu, należy ustawić tą zmienną na wartość `never`. 
+    Takie ustawienie jest wskazane, gdy rozliczanie wpłat tymczasowych poprzez cashimport jest włączone (punkt pierwszy).
     
-   1. Można je zamykać manualnie poprzez panel Płatności BillTech.
+   1. Wpłaty tymczasowe można rozliczać manualnie poprzez panel Płatności BillTech. 
+   W tym celu należy zaznaczyć wpłaty do rozliczenia i kliknąć przycisk *Zaznacz/Odznacz jako rozliczone*.
 
 ### Spis zmiennych konfiguracyjnych w sekcji billtech (billtech.<nazwa_zmiennej>):
 
