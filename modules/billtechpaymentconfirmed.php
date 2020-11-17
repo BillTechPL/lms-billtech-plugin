@@ -28,9 +28,10 @@ if (is_array($ids) && sizeof($ids)) {
 			);
 
 			$cashid = $LMS->AddBalance($addbalance);
-			if ($cashid) {
-				$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
+			if ($cashid == 1) {
+				$cashid = $DB->GetLastInsertID('cash');
 			}
+			$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
 		} else {
 			$cash = $LMS->GetCashByID($payment['cashid']);
 			if ($cash && $cash['comment'] == BillTech::CASH_COMMENT) {
