@@ -45,25 +45,10 @@ class BillTechPaymentsUpdater
 
 		if (is_array($payments) && sizeof($payments)) {
 			foreach ($payments as $payment) {
-				if ($payment['closed']) {
-					$addbalance = array(
-						'value' => $payment['amount'],
-						'type' => 100,
-						'customerid' => $payment['customerid'],
-						'comment' => BillTech::CASH_COMMENT,
-						'time' => $payment['cdate']
-					);
-
-					$cashid = $LMS->AddBalance($addbalance);
-					if ($cashid) {
-						$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
-					}
-				} else {
-					$cash = $LMS->GetCashByID($payment['cashid']);
-					if ($cash && $cash['comment'] == BillTech::CASH_COMMENT) {
-						$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
-						$LMS->DelBalance($payment['cashid']);
-					}
+				$cash = $LMS->GetCashByID($payment['cashid']);
+				if ($cash && strpos($cash['comment'], BillTech::CASH_COMMENT) !== false) {
+					$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
+					$LMS->DelBalance($payment['cashid']);
 				}
 			}
 		}
@@ -128,7 +113,7 @@ class BillTechPaymentsUpdater
 					'type' => 100,
 					'userid' => null,
 					'customerid' => $payment->userId,
-					'comment' => BillTech::CASH_COMMENT,
+					'comment' => BillTech::CASH_COMMENT.' for: '.$payment->invoiceNumber,
 					'time' => $payment->paidAt
 				);
 
