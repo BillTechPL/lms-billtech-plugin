@@ -36,19 +36,19 @@ Podane wartości można również wprowadzić w panelu zakładce *Konfiguracja -
 
 ## Dodatkowe informacje
 ### Obsługa płatności po stronie klienta
-Opłaty które powstają po wykonaniu płatności BillTech, to tzw. opłaty tymczasowe. Są tworzone aby użytkownik oraz administrator systemu widzieli wykonaną płatność. Opłaty tymczasowe umożliwiają natychmiastowe odblokowanie usług w przypadku blokady z powodu niepłacenia. 
-Opłaty tymczasowe przestają być potrzebne w momencie zaksięgowania opłat z wykazu bankowego, wtedy mogą zostać rozliczone (zamknięte), po czym przestają być widoczne (znikają zarówno w panelu admina jak i w userpanelu). Istnieją 3 możliwości rozliczania wpłat tymczasowych:
+Operacje kasowe, które powstają po wykonaniu płatności BillTech, to tzw. wpłaty tymczasowe. Są tworzone aby użytkownik oraz administrator systemu widzieli wykonaną płatność. Wpłaty tymczasowe umożliwiają natychmiastowe odblokowanie usług w przypadku blokady z powodu niepłacenia. 
+Wpłaty tymczasowe przestają być potrzebne w momencie zaksięgowania opłat z wykazu bankowego, wtedy mogą zostać rozliczone (zamknięte), po czym przestają być widoczne (znikają zarówno w panelu admina jak i w userpanelu). Istnieją 3 możliwości rozliczania wpłat tymczasowych:
 
    1. Automatyczne rozliczanie poprzez mapowanie odpowiednich transakcji pochodzących z wyciągu bankowego (tzw. cashimport). 
    
         Aby włączyć automatyczne rozliczanie opłat tymczasowych poprzez cashimport, należy ustawić wartość zmiennej `billtech.cashimport_enabled=true`.
 
-   1. Po upływie zadanej liczby dni (domyślnie jest to 5 dni), opłaty tymczasowe są automatycznie zamykane jako rozliczone. Odpowiada za to zmienna środowiskowa `billtech.payment_expiration`. 
+   1. Po upływie zadanej liczby dni (domyślnie jest to 5 dni), wpłaty tymczasowe są automatycznie zamykane jako rozliczone. Odpowiada za to zmienna środowiskowa `billtech.payment_expiration`. 
     
-        Aby opłaty tymczasowe nigdy nie wygasały po upływie zadanego czasu, należy ustawić zmienną `billtech.payment_expiration=never`. 
+        Aby wpłaty tymczasowe nigdy nie wygasały po upływie zadanego czasu, należy ustawić zmienną `billtech.payment_expiration=never`. 
     Takie ustawienie jest wskazane, gdy rozliczanie wpłat tymczasowych poprzez cashimport jest włączone (punkt pierwszy).
     
-   1. Opłaty tymczasowe można rozliczać manualnie poprzez panel Płatności BillTech. 
+   1. Wpłaty tymczasowe można rozliczać manualnie poprzez panel Płatności BillTech. 
    
         W tym celu należy zaznaczyć opłaty do rozliczenia i kliknąć przycisk *Zaznacz/Odznacz jako rozliczone*. 
    W przypadku pomyłki proces ten jest w pełni odwracalny poprzez wskazanie wyszarzonych (rozliczonych) wpłat tymczasowych, a następnie kliknięcie przycisku *Zaznacz/Odznacz jako rozliczone*. 
@@ -75,7 +75,7 @@ Opłaty tymczasowe przestają być potrzebne w momencie zaksięgowania opłat z 
 ## Change Log
 
 #### Wersja 1.0 (obecna)
-* Dane na temat płatności są generowane w momencie ich powstawania w systemie LMS i identyfikowane w BillTech poprzez token, który jest główną częścią nowego, krótszego linka. 
+* Dane na temat płatności są generowane w momencie ich powstawania w systemie LMS i identyfikowane w BillTech poprzez token, który jest główną częścią nowego, krótszego linku. 
 Linki są zapisywane w bazie LMS w tabeli billtech_payment_links.
 Istnieją 2 możliwości podania danych identyfikujących użytkownika dokonującego płatności:
     * dane mogą zostać dodane do linka poprzez paramtery zapytania (np. ?name=Jan&surname=Kowalski&email=email@example.com),
