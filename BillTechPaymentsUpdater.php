@@ -54,11 +54,10 @@ class BillTechPaymentsUpdater
 						'time' => $payment['cdate']
 					);
 
-					$cashid = $LMS->AddBalance($addbalance);
-					if ($cashid == 1) {
-						$cashid = $DB->GetLastInsertID('cash');
+					$cashid = $this->AddBalanceAndReturnCashIdOrFalse($addbalance);
+					if ($cashid) {
+						$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
 					}
-					$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
 				} else {
 					$cash = $LMS->GetCashByID($payment['cashid']);
 					if ($cash && $cash['comment'] == BillTech::CASH_COMMENT) {
@@ -133,20 +132,18 @@ class BillTechPaymentsUpdater
 					'time' => $payment->paidAt
 				);
 
-				$cashid = $LMS->AddBalance($addbalance);
-				if ($cashid == 1) {
-					$cashid = $DB->GetLastInsertID('cash');
+				$cashid = $this->AddBalanceAndReturnCashIdOrFalse($addbalance);
+				if ($cashid) {
+					$title = $payment->title ? $payment->title : '';
+
+					$amount = str_replace(',', '.', $payment->amount);
+
+					$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed, token) "
+						. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)",
+						array($cashid, '', $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->referenceNumber, $payment->paidAt, $payment->token));
+
+					$customers[$payment->userId] = $payment->userId;
 				}
-				
-				$title = $payment->title ? $payment->title : '';
-
-				$amount = str_replace(',', '.', $payment->amount);
-
-				$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed, token) "
-					. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)",
-					array($cashid, '', $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->referenceNumber, $payment->paidAt, $payment->token));
-
-				$customers[$payment->userId] = $payment->userId;
 			}
 		}
 
@@ -267,5 +264,15 @@ class BillTechPaymentsUpdater
 	{
 		$billTechInfo = $this->readBillTechInfo();
 		return $billTechInfo['last_sync'];
+	}
+
+	public static function AddBalanceAndReturnCashIdOrFalse($addbalance) {
+		global $DB, $LMS;
+
+		$cashid = $LMS->AddBalance($addbalance);
+		if ($cashid && $cashid == 1) {
+			$cashid = $DB->GetLastInsertID('cash');
+		}
+		return $cashid;
 	}
 }
