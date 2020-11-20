@@ -78,9 +78,9 @@ Wpłaty tymczasowe przestają być potrzebne w momencie zaksięgowania opłat z 
 * Dane na temat płatności są generowane w momencie ich powstawania w systemie LMS i identyfikowane w BillTech poprzez token, który jest główną częścią nowego, krótszego linku. 
 Linki są zapisywane w bazie LMS w tabeli billtech_payment_links.
 Istnieją 2 możliwości podania danych identyfikujących użytkownika dokonującego płatności:
-    * dane mogą zostać dodane do linka poprzez paramtery zapytania (np. ?name=Jan&surname=Kowalski&email=email@example.com),
-    * dane mogą zostać podane przy tworzeniu linka do płatności w body zapytania.
-    Wtedy dane zostaną zapisane w bazie BillTech oraz umożliwią utworzenie skróconego linka. 
+    * dane mogą zostać dodane do linku poprzez parametry zapytania (np. ?name=Jan&surname=Kowalski&email=email@example.com),
+    * dane mogą zostać podane przy tworzeniu linku do płatności w body zapytania.
+    Wtedy dane zostaną zapisane w bazie BillTech oraz umożliwią utworzenie skróconego linku. 
 * Przechowywanie linków do płatności w bazie powoduje wyeliminowanie problemów ze spójnością salda.
 * Integracja z ekosystemem BillTech:
     * połączenia z bankami i aplikacjami,
@@ -100,7 +100,7 @@ Istnieją 2 możliwości podania danych identyfikujących użytkownika dokonują
 Dla pozostałych użytkowników dane o saldzie zakodowane są w parametrach zapytania - przekazanie danych następuje dopiero w momencie kliknięcia w link.
 
 ## Znane problemy
-* Spontaniczne dodawanie spacji oraz znaku nowej linii w treści wiadomości z fakturą, skutkujące załączaniem niepoprawnego linka (niepotrzebne znaki występują w treści linka).
+* Spontaniczne dodawanie spacji oraz znaku nowej linii w treści wiadomości z fakturą, skutkujące załączaniem niepoprawnego linku (niepotrzebne znaki występują w treści linku).
 
     Wskazany problem występuje rzadko, natomiast gdy ma miejsce, to wynika z korzystania z silnika pocztowego Pear. 
 LMS ma możliwość korzystania z dwóch silników pocztowch służących do wysyłania wiadomości z fakturą i notyfikacji. 
