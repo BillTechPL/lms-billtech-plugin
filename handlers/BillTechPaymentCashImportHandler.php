@@ -23,7 +23,7 @@ class BillTechPaymentCashImportHandler
 					if (is_array($payments) && !empty($payments)) {
 						foreach ($payments as $payment) {
 							$cash = $LMS->GetCashByID($payment['cashid']);
-							if ($cash && $cash['comment'] == BillTech::CASH_COMMENT) {
+							if ($cash && strpos($cash['comment'], BillTech::CASH_COMMENT) !== false) {
 								$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
 								$LMS->DelBalance($payment['cashid']);
 							}
