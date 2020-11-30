@@ -111,7 +111,7 @@ class BillTechPaymentsUpdater
 				$addbalance = array(
 					'value' => $payment->amount,
 					'type' => 100,
-					'userid' => null,
+					'userid' => null, // pomimo, że jest null, to AddBalanceAndReturnCashIdOrFalse i tak wstawi Auth::GetCurrentUser(). Trzeba dalej zmienić ręcznie.
 					'customerid' => $payment->userId,
 					'comment' => BillTech::CASH_COMMENT.' for: '.$payment->invoiceNumber,
 					'time' => $payment->paidAt
@@ -119,6 +119,7 @@ class BillTechPaymentsUpdater
 
 				$cashid = $this->AddBalanceAndReturnCashIdOrFalse($addbalance);
 				if ($cashid) {
+					$this->SetCashsUserIdToNull($cashid);
 					$title = $payment->title ? $payment->title : '';
 
 					$amount = str_replace(',', '.', $payment->amount);
@@ -152,6 +153,11 @@ class BillTechPaymentsUpdater
 		} else {
 			$DB->CommitTrans();
 		}
+	}
+
+	private function SetCashsUserIdToNull($cashid) {
+		$DB->Execute("update cash set userid = ? where id = ?",
+			array(null, $cashid));
 	}
 
 	private
