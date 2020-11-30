@@ -111,7 +111,7 @@ class BillTechPaymentsUpdater
 				$addbalance = array(
 					'value' => $payment->amount,
 					'type' => 100,
-					'userid' => null, // pomimo, że jest null, to AddBalanceAndReturnCashIdOrFalse i tak wstawi Auth::GetCurrentUser(). Trzeba dalej zmienić ręcznie.
+					'userid' => null, // pomimo, ze ustawiamy null, to AddBalanceAndReturnCashIdOrFalse i tak wstawi Auth::GetCurrentUser(). Trzeba dalej zmienic recznie.
 					'customerid' => $payment->userId,
 					'comment' => BillTech::CASH_COMMENT.' for: '.$payment->invoiceNumber,
 					'time' => $payment->paidAt
