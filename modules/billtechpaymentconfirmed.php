@@ -27,7 +27,7 @@ if (is_array($ids) && sizeof($ids)) {
 				'time' => $payment['cdate']
 			);
 
-			$cashid = $LMS->AddBalance($addbalance);
+			$cashid = BillTechPaymentsUpdater::AddBalanceAndReturnCashIdOrFalse($addbalance);
 			if ($cashid) {
 				$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
 			}
