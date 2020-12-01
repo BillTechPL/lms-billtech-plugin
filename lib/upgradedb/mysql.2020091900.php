@@ -3,10 +3,11 @@ $this->Execute("
 create table billtech_payment_links (
     id serial primary key,
     customer_id integer not null references customers(id) on delete cascade,
-    src_cash_id integer not null references cash(id) on delete cascade,
+    src_cash_id integer references cash(id) on delete cascade,
+    src_document_id integer references documents(id) on delete cascade,
     type varchar(255) not null,
     link varchar(2000) not null,
-    short_link varchar(160) not null,
+    short_link varchar(160),
     token varchar(1000) not null,
     amount numeric(9,2) not null
 );
