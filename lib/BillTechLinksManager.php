@@ -115,7 +115,7 @@ class BillTechLinksManager
 	 * @param $cashItems array
 	 * @return BillTechLink[]
 	 */
-	public function getLiabilities(array $cashItems)
+	public function getTargetLinks(array $cashItems)
 	{
 		$balance = array_reduce($cashItems, function ($carry, $item) {
 			return $carry + $item['value'];
@@ -134,11 +134,19 @@ class BillTechLinksManager
 			}
 			if ($intBalance < 0) {
 				$amountToPay = self::intToMoney(-max(min($intBalance, 0), $intCashValue));
-				array_push($liabilities, BillTechLink::linked($cash, $amountToPay));
+
+				$key = isset($cash['docid']) ? $cash['docid'] : 'cash_' . $cash['id'];
+
+				if (isset($liabilities[$key])) {
+					$liabilities[$key]->amount += $amountToPay;
+				} else {
+					$liabilities[$key] = BillTechLink::linked($cash['customerid'], $cash['id'], $cash['docid'], $amountToPay);
+				}
 			}
 			$balance = self::intToMoney($intBalance - $intCashValue);
 		}
-		return $liabilities;
+
+		return array_values($liabilities);
 	}
 
 	/* @throws Exception
@@ -148,20 +156,14 @@ class BillTechLinksManager
 	{
 		global $DB;
 
-		$linkDataList = array_map(function ($link) {
-			return array(
-				'cashId' => $link->srcCashId,
-				'amount' => $link->amount
-			);
-		}, $links);
-
-		$generatedLinks = BillTechLinkApiService::generatePaymentLinks($linkDataList);
+		$generatedLinks = BillTechLinkApiService::generatePaymentLinks($links);
 		$values = array();
 		foreach ($generatedLinks as $idx => $generatedLink) {
 			$link = $links[$idx];
 			array_push($values,
 				$link->customerId,
 				$link->srcCashId,
+				$link->srcDocumentId,
 				$link->type,
 				$generatedLink->link,
 				$generatedLink->shortLink,
@@ -170,8 +172,8 @@ class BillTechLinksManager
 			);
 		}
 
-		$sql = "insert into billtech_payment_links(customer_id, src_cash_id, type, link, short_link, token, amount) values " .
-			BillTech::prepareMultiInsertPlaceholders(count($generatedLinks), 7) . ";";
+		$sql = "insert into billtech_payment_links(customer_id, src_cash_id, src_document_id, type, link, short_link, token, amount) values " .
+			BillTech::prepareMultiInsertPlaceholders(count($generatedLinks), 8) . ";";
 		$DB->Execute($sql, $values);
 	}
 
@@ -184,13 +186,7 @@ class BillTechLinksManager
 		if (self::shouldCancelLink($link)) {
 			BillTechLinkApiService::cancelPaymentLink($link->token);
 		}
-		$linkDataList = array(
-			array(
-				'cashId' => $link->srcCashId,
-				'amount' => $link->amount
-			)
-		);
-		$generatedLink = BillTechLinkApiService::generatePaymentLinks($linkDataList)[0];
+		$generatedLink = BillTechLinkApiService::generatePaymentLinks([$link])[0];
 		$DB->Execute("update billtech_payment_links set amount = ?, link = ?, short_link = ?, token = ? where id = ?",
 			array($link->amount, $generatedLink->link, $generatedLink->shortLink, $generatedLink->token, $link->id));
 	}
@@ -264,35 +260,35 @@ class BillTechLinksManager
 			"update" => array(),
 			"close" => array()
 		);
-		$cashItems = $DB->GetAll("select id, value, customerid from cash where customerid = ? order by time desc, id desc", array($customerId));
+		$cashItems = $DB->GetAll("select id, value, customerid, docid from cash where customerid = ? order by time desc, id desc", array($customerId));
 		if (!$cashItems) {
 			return $actions;
 		}
 
-		$liabilities = $this->getLiabilities($cashItems);
-		$links = $this->getCustomerPaymentLinks($customerId);
-		$paymentMap = BillTech::toMap(function ($payment) {
+		$targetLinks = $this->getTargetLinks($cashItems);
+		$existingLinks = $this->getCustomerPaymentLinks($customerId);
+		$existingLinkMap = BillTech::toMap(function ($link) {
 			/* @var $payment BillTechLink */
-			return $payment->srcCashId;
-		}, $links);
+			return $link->getKey();
+		}, $existingLinks);
 
-		foreach ($liabilities as $liability) {
-			/* @var $link BillTechLink */
-			$link = $paymentMap[$liability->srcCashId];
-			if (isset($link) && self::moneyToInt($link->amount) != self::moneyToInt($liability->amount)) {
-				$link->amount = $liability->amount;
-				array_push($actions['update'], $link);
-			} else if (!isset($link) && self::moneyToInt($liability->amount) > 0) {
-				array_push($actions['add'], $liability);
+		foreach ($targetLinks as $targetLink) {
+			/* @var $existingLink BillTechLink */
+			$existingLink = $existingLinkMap[$targetLink->getKey()];
+			if (isset($existingLink) && self::moneyToInt($existingLink->amount) != self::moneyToInt($targetLink->amount)) {
+				$existingLink->amount = $targetLink->amount;
+				array_push($actions['update'], $existingLink);
+			} else if (!isset($existingLink) && self::moneyToInt($targetLink->amount) > 0) {
+				array_push($actions['add'], $targetLink);
 			}
 
-			if (isset($link)) {
-				unset($paymentMap[$liability->srcCashId]);
+			if (isset($existingLink)) {
+				unset($existingLinkMap[$targetLink->getKey()]);
 			}
 		}
 
-		foreach ($paymentMap as $cashId => $link) {
-			array_push($actions['close'], $link);
+		foreach ($existingLinkMap as $cashId => $existingLink) {
+			array_push($actions['close'], $existingLink);
 		}
 
 		return $actions;

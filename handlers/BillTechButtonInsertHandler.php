@@ -114,12 +114,15 @@ class BillTechButtonInsertHandler
 				$paymentLinks = $linksManager->getCustomerPaymentLinks($customerId);
 				$paymentLinksMap = BillTech::toMap(function ($link) {
 					/* @var $link BillTechLink */
-					return $link->srcCashId;
+					return $link->getKey();
 				}, $paymentLinks);
 
 				foreach ($balancelist['list'] as &$item) {
 					/* @var $link BillTechLink */
-					$link = $paymentLinksMap[$item['id']];
+					$link = $paymentLinksMap[$item['docid']];
+					if (!isset($link)) {
+						$link = $paymentLinksMap['cash_' . $item['id']];
+					}
 					if (isset($link)) {
 						$customlinks = $item['customlinks'];
 						if (!isset($customlinks)) {

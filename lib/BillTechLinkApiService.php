@@ -13,29 +13,28 @@ class BillTechLinkApiService
 	const BASE_PATH = '/pay/v1/payments';
 
 	/**
-	 * @param $linkDataList
-	 * @param array $config
+	 * @param BillTechLink[] $linkRequests
 	 * @return GeneratedBilltechLink[]
 	 * @throws Exception
 	 */
-	public static function generatePaymentLinks($linkDataList)
+	public static function generatePaymentLinks($linkRequests)
 	{
 		$isp_id = ConfigHelper::getConfig('billtech.isp_id');
 		$client = BillTechApiClientFactory::getClient();
 
-		$cashInfos = array();
-		$paymentLinkRequests = array();
+		$linkDataList = array();
+		$apiRequests = array();
 
-		foreach ($linkDataList as $linkData) {
-			array_push($cashInfos, $cashInfo = self::getCashInfo($linkData['cashId']));
-			array_push($paymentLinkRequests, self::createPaymentLinkRequest($cashInfo, $linkData['amount']));
+		foreach ($linkRequests as $linkRequest) {
+			array_push($linkDataList, $linkData = self::getLinkData($linkRequest));
+			array_push($apiRequests, self::createApiRequest($linkData));
 		}
 
 		try {
 			$response = $client->post(self::BASE_PATH, [
 				'json' => [
-					'providerCode' => BillTech::getConfig('billtech.isp_id'),
-					'payments' => $paymentLinkRequests
+					'providerCode' => ConfigHelper::getConfig('billtech.isp_id'),
+					'payments' => $apiRequests
 				],
 				'exceptions' => FALSE
 			]);
@@ -57,11 +56,11 @@ class BillTechLinkApiService
 		$result = array();
 
 		foreach ($json as $idx => $link) {
-			$cashInfo = $cashInfos[$idx];
+			$linkData = $linkDataList[$idx];
 			$link->link = $link->link .
-				'?email=' . urlencode($cashInfo['email']) .
-				'&name=' . urlencode(self::getNameOrSurname($cashInfo['name'])) .
-				'&surname=' . urlencode(self::getNameOrSurname($cashInfo['lastname'])) .
+				'?email=' . urlencode($linkData['email']) .
+				'&name=' . urlencode(self::getNameOrSurname($linkData['name'])) .
+				'&surname=' . urlencode(self::getNameOrSurname($linkData['lastname'])) .
 				'&utm_content=' . urlencode($isp_id) .
 				'&utm_source=isp';
 			array_push($result, $link);
@@ -92,21 +91,36 @@ class BillTechLinkApiService
 	}
 
 	/**
-	 * @param $cashId
+	 * @param BillTechLink $linkRequest
 	 * @return array|bool
 	 */
-	public static function getCashInfo($cashId)
+	public static function getLinkData($linkRequest)
 	{
 		global $DB;
-		$cashInfo = $DB->GetRow("select ca.customerid, ca.value, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, cu.email, cu.redebankaccount from cash ca
+
+		if ($linkRequest->srcDocumentId) {
+			$linkData = $DB->GetRow("select d.customerid, d.number, concat(d.fullnumber, case when d.comment is not null then concat(' ', d.comment) end) as comment, 
+       									d.id, c.lastname, c.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name from documents d
+    									left join customers c on d.customerid = c.id
+										left join divisions di on c.divisionid = di.id where d.id = ?", [$linkRequest->srcDocumentId]);
+			if (!$linkData) {
+				throw new Exception("Could not fetch link data by document id: " . $linkRequest->srcDocumentId);
+			}
+		} else {
+			$linkData = $DB->GetRow("select ca.customerid, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name from cash ca
 										left join customers cu on ca.customerid = cu.id 
 										left join documents d on d.id = ca.docid
-										where ca.id = ?", array($cashId));
-		if (!$cashInfo) {
-			throw new Exception("Could not fetch cash info cashid: " . $cashId);
+										left join divisions di on cu.divisionid = di.id 
+										where ca.id = ?", [$linkRequest->srcCashId]);
+			if (!$linkData) {
+				throw new Exception("Could not fetch link data by cash id: " . $linkRequest->srcCashId);
+			}
 		}
-		$cashInfo['pdate'] = $cashInfo['cdate'] + ($cashInfo['paytime'] * 86400);
-		return $cashInfo;
+
+		$linkData['key'] = $linkRequest->getKey();
+		$linkData['amount'] = $linkRequest->amount;
+		$linkData['pdate'] = $linkData['cdate'] + ($linkData['paytime'] * 86400);
+		return $linkData;
 	}
 
 	/**
@@ -121,37 +135,35 @@ class BillTechLinkApiService
 	}
 
 	/**
-	 * @param $cashInfo
-	 * @param $amount
+	 * @param $linkData
 	 * @return array
 	 * @throws Exception
 	 */
-	private static function createPaymentLinkRequest($cashInfo, $amount)
+	private static function createApiRequest($linkData)
 	{
-		if (!$cashInfo) {
-			throw new Exception("Could not load customer " . $cashInfo['customerid']);
-		}
-
-		$paymentDue = (new DateTime('@' . time()))->format('Y-m-d');
-		$title = $cashInfo['comment'];
-
-		if ($cashInfo['pdate']) {
-			$paymentDue = (new DateTime('@' . $cashInfo['pdate']))->format('Y-m-d');
-		}
-
-		return array(
-			'userId' => $cashInfo['customerid'],
-			'amount' => isset($amount) ? $amount : -$cashInfo['value'],
-			'nrb' => bankaccount($cashInfo['customerid'], null),
-			'paymentDue' => $paymentDue,
-			'title' => self::getTitle($title)
+		$request = array(
+			'userId' => $linkData['customerid'],
+			'operationId' => $linkData['key'],
+			'amount' => $linkData['amount'],
+			'nrb' => bankaccount($linkData['customerid'], null),
+			'paymentDue' => ($linkData['pdate'] ? new DateTime('@' . $linkData['pdate']) : new DateTime('@' . time()))->format('Y-m-d'),
+			'title' => self::getTitle($linkData['comment'])
 		);
 
 		if (ConfigHelper::checkConfig("billtech.produce_short_links")) {
 			$request = array_merge_recursive($request, array(
-				'name' => self::getNameOrSurname($cashInfo['name']),
-				'surname' => self::getNameOrSurname($cashInfo['lastname']),
-				'email' => $cashInfo['email'],
+				'name' => self::getNameOrSurname($linkData['name']),
+				'surname' => self::getNameOrSurname($linkData['lastname']),
+				'email' => $linkData['email'] ? $linkData['email'] : null,
+			));
+		}
+
+		if (ConfigHelper::checkConfig("billtech.branding_enabled")) {
+			$request = array_merge_recursive($request, array(
+				'recipient' => array(
+					'id' => $linkData['division_id'],
+					'name' => self::getRecipientName($linkData['division_name'])
+				)
 			));
 		}
 
@@ -170,6 +182,11 @@ class BillTechLinkApiService
 	private static function getNameOrSurname($nameOrSurname)
 	{
 		return substr(preg_replace("/[^ A-Za-z0-9\-,.\x{00c0}-\x{02c0}]/u", " ", $nameOrSurname), 0, 100) ?: null;
+	}
+
+	private static function getRecipientName($divisionName)
+	{
+		return substr(preg_replace("/[^ A-Za-z0-9\-,.\x{00c0}-\x{02c0}]+/u", " ", $divisionName), 0, 35);
 	}
 }
 
