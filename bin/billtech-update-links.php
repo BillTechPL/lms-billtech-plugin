@@ -100,10 +100,6 @@ if (array_key_exists('config-file', $options)) {
 	$CONFIG_FILE = '/etc/lms/lms.ini';
 }
 
-if (!$quiet) {
-	echo "Using file " . $CONFIG_FILE . " as config." . PHP_EOL;
-}
-
 if (!is_readable($CONFIG_FILE)) {
 	die("Unable to read configuration file [" . $CONFIG_FILE . "]!" . PHP_EOL);
 }
@@ -164,5 +160,8 @@ $LMS->setPluginManager($plugin_manager);
 $linksManager = new BillTechLinksManager(!$quiet);
 
 BillTech::measureTime(function () use ($linksManager) {
-	$linksManager->updateForAll();
+	BillTech::lock("update-links", function () use ($linksManager) {
+		sleep(3);
+		$linksManager->updateForAll();
+	});
 }, !$quiet);

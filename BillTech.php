@@ -123,4 +123,21 @@ class BillTech extends LMSPlugin
 			echo "Update took " . $time_elapsed_secs . " s\n";
 		}
 	}
+
+	public static function lock($lockName, $callback)
+	{
+		$fp = fopen('/tmp/billtech-lock-' . $lockName, 'w+');
+
+		try {
+			if (flock($fp, LOCK_EX | LOCK_NB)) {
+				echo "Lock acquired\n";
+				$callback();
+				flock($fp, LOCK_UN);
+			} else {
+				exit("Could not acquire lock. Another process is running.\n");
+			}
+		} finally {
+			fclose($fp);
+		}
+	}
 }

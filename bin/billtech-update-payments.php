@@ -164,5 +164,7 @@ $LMS->setPluginManager($plugin_manager);
 $paymentsUpdater = new BillTechPaymentsUpdater(!$quiet);
 
 BillTech::measureTime(function () use ($paymentsUpdater) {
-	$paymentsUpdater->checkForUpdate();
+	BillTech::lock("update-payments", function () use ($paymentsUpdater) {
+		$paymentsUpdater->checkForUpdate();
+	});
 }, !$quiet);
