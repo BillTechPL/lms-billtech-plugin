@@ -36,7 +36,8 @@ class BillTechLinkApiService
 				'json' => [
 					'providerCode' => BillTech::getConfig('billtech.isp_id'),
 					'payments' => $paymentLinkRequests
-				]
+				],
+				'exceptions' => FALSE
 			]);
 		} catch (ClientException $e) {
 			$response = $e->GetResponse();
@@ -81,10 +82,11 @@ class BillTechLinkApiService
 		$response = $client->post($path, [
 			"json" => [
 				"resolution" => $resolution
-			]
+			],
+			"exceptions" => FALSE
 		]);
 
-		if (!in_array($response->getStatusCode(), [204, 409])) {
+		if (!in_array($response->getStatusCode(), [204, 404, 409])) {
 			throw new Exception($path . " returned code " . $response->getStatusCode() . "\n" . $response->getBody());
 		}
 	}
@@ -96,7 +98,7 @@ class BillTechLinkApiService
 	public static function getCashInfo($cashId)
 	{
 		global $DB;
-		$cashInfo = $DB->GetRow("select ca.customerid, ca.value, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, cu.email from cash ca
+		$cashInfo = $DB->GetRow("select ca.id, ca.customerid, ca.value, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, cu.email, cu.redebankaccount from cash ca
 										left join customers cu on ca.customerid = cu.id 
 										left join documents d on d.id = ca.docid
 										where ca.id = ?", array($cashId));
@@ -131,7 +133,7 @@ class BillTechLinkApiService
 		}
 
 		$paymentDue = (new DateTime('@' . time()))->format('Y-m-d');
-		$title = $cashInfo['comment'];
+		$title = $cashInfo['id'] . ' ' . $cashInfo['comment'];
 
 		if ($cashInfo['pdate']) {
 			$paymentDue = (new DateTime('@' . $cashInfo['pdate']))->format('Y-m-d');
@@ -140,12 +142,12 @@ class BillTechLinkApiService
 		return array(
 			'userId' => $cashInfo['customerid'],
 			'amount' => isset($amount) ? $amount : -$cashInfo['value'],
-			'nrb' => bankaccount($cashInfo['customerid'], null),
+			'nrb' => !!$cashInfo['redebankaccount'] ? str_replace(' ', '', $cashInfo['redebankaccount']) : bankaccount($cashInfo['customerid'], null),
 			'paymentDue' => $paymentDue,
 			'title' => self::getTitle($title),
 			'name' => self::getNameOrSurname($cashInfo['name']),
 			'surname' => self::getNameOrSurname($cashInfo['lastname']),
-			'email' => $cashInfo['email'],
+			'email' => trim($cashInfo['email']) ?: null,
 		);
 	}
 

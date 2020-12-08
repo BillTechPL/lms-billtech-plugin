@@ -84,7 +84,7 @@ class BillTechPaymentsUpdater
         $last_sync = $this->getLastSync();
 
         $client = BillTechApiClientFactory::getClient();
-        $path = "/pay/v1/payments/search" . "?fromDate=" . (BillTech::getConfig("billtech.debug") ? 0 : $last_sync);
+        $path = "/pay/v1/payments/search" . "?fromDate=" . (BillTech::getConfig("billtech.debug") ? 0 : ($last_sync - 60));
 
         $response = $client->get($path);
 
@@ -118,7 +118,7 @@ class BillTechPaymentsUpdater
                 continue;
             }
 
-            $id = $DB->GetOne("SELECT id FROM billtech_payments WHERE reference_number=?", array($payment->referenceNumber));
+            $id = $DB->GetOne("SELECT id FROM billtech_payments WHERE reference_number=? and token=?", array($payment->referenceNumber, $payment->token));
             if (!$id) {
                 $addbalance = array(
                     'value' => $payment->amount,

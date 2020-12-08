@@ -4,6 +4,7 @@ class BillTechLinksManager
 {
 	private $batchSize = 100;
 	private $verbose = false;
+	private $debug = true;
 	private $linkShortener;
 
 	public function __construct($verbose = false)
@@ -52,13 +53,15 @@ class BillTechLinksManager
 		global $DB;
 		$row = $DB->GetRow("select l.*, c.docid from billtech_payment_links l
 								left join cash c on l.src_cash_id = c.id
-								where customer_id = ?
+								left join billtech_payments bp on l.token = bp.token
+								where customer_id = ? and bp.id is null
 								order by c.time desc limit 1", array($customerId));
 		if (!$row) {
 			return null;
 		} else {
 			$balanceLink = BillTechLink::fromRow($row);
 			$this->addParamsToLink(array_merge($params, ['type' => 'balance']), $balanceLink);
+			$balanceLink->shortLink .= '/1';
 			return $balanceLink;
 		}
 	}
@@ -66,7 +69,6 @@ class BillTechLinksManager
 	public function updateForAll()
 	{
 		global $DB;
-		$DB->BeginTrans();
 		$actions = array(
 			'add' => array(),
 			'update' => array(),
@@ -83,12 +85,15 @@ class BillTechLinksManager
 			return;
 		}
 
+		$time = time();
+
+		echo $time . "\n";
+
 		foreach ($customerIds as $idx => $customerId) {
 			echo "Collecting actions for customer " . ($idx + 1) . " of " . count($customerIds) . "\n";
 			$actions = array_merge_recursive($actions, $this->getCustomerUpdateBalanceActions($customerId));
 		}
 
-		$this->updateCustomerInfos($customerIds);
 
 		if ($this->verbose) {
 			echo "Adding " . count($actions['add']) . " links\n";
@@ -97,8 +102,7 @@ class BillTechLinksManager
 		}
 
 		$this->performActions($actions);
-
-		$DB->CommitTrans();
+		$this->updateCustomerInfos($customerIds, $time);
 	}
 
 	public function updateCustomerBalance($customerId)
@@ -167,7 +171,7 @@ class BillTechLinksManager
 				$generatedLink->link,
 				$generatedLink->shortLink,
 				$generatedLink->token,
-				$link->amount
+				number_format($link->amount, 2, '.', '')
 			);
 		}
 
@@ -193,7 +197,7 @@ class BillTechLinksManager
 		);
 		$generatedLink = BillTechLinkApiService::generatePaymentLinks($linkDataList)[0];
 		$DB->Execute("update billtech_payment_links set amount = ?, link = ?, short_link = ?, token = ? where id = ?",
-			array($link->amount, $generatedLink->link, $generatedLink->shortLink, $generatedLink->token, $link->id));
+			array(number_format($link->amount, 2, '.', ''), $generatedLink->link, $generatedLink->shortLink, $generatedLink->token, $link->id));
 	}
 
 	/* @throws Exception
@@ -229,29 +233,58 @@ class BillTechLinksManager
 	 * @throws Exception
 	 */
 	public function performActions($actions)
-	{
-		$addBatches = array_chunk($actions['add'], $this->batchSize);
-		foreach ($addBatches as $idx => $links) {
-			if ($this->verbose) {
-				echo "Adding batch " . ($idx + 1) . " of " . count($addBatches) . "\n";
-			}
-			$this->addPayments($links);
-		}
+    {
+		global $DB;
+        $addBatches = array_chunk($actions['add'], $this->batchSize);
+        $errorCount = 0;
+        foreach ($addBatches as $idx => $links) {
+            if ($this->verbose) {
+                echo "Adding batch " . ($idx + 1) . " of " . count($addBatches) . "\n";
+            }
+            try {
+		$DB->BeginTrans();
+                $this->addPayments($links);
+		$DB->CommitTrans();
+            } catch (Exception $e) {
+                $errorCount++;
+                if ($this->debug) {
+                    echo $e->getMessage();
+                }
+            }
+        }
 
-		foreach ($actions['update'] as $idx => $link) {
-			if ($this->verbose) {
-				echo "Updating link " . ($idx + 1) . " of " . count($actions['update']) . "\n";
-			}
-			$this->updatePaymentAmount($link);
-		}
+        foreach ($actions['update'] as $idx => $link) {
+            if ($this->verbose) {
+                echo "Updating link " . ($idx + 1) . " of " . count($actions['update']) . "\n";
+            }
+            try {
+		$DB->BeginTrans();
+                $this->updatePaymentAmount($link);
+		$DB->CommitTrans();
+            } catch (Exception $e) {
+                $errorCount++;
+                if ($this->debug) {
+                    echo $e->getMessage();
+                }
+            }
+        }
 
-		foreach ($actions['close'] as $idx => $link) {
-			if ($this->verbose) {
-				echo "Closing link " . ($idx + 1) . " of " . count($actions['close']) . "\n";
-			}
-			$this->closePayment($link);
-		}
-	}
+        foreach ($actions['close'] as $idx => $link) {
+            if ($this->verbose) {
+                echo "Closing link " . ($idx + 1) . " of " . count($actions['close']) . "\n";
+            }
+            try {
+		$DB->BeginTrans();
+                $this->closePayment($link);
+		$DB->CommitTrans();
+            } catch (Exception $e) {
+                $errorCount++;
+                if ($this->debug) {
+                    echo $e->getMessage();
+                }
+            }
+        }
+    }
 
 	/**
 	 * @param $customerId
@@ -343,10 +376,12 @@ class BillTechLinksManager
 	/**
 	 * @param array $customerIds
 	 */
-	private function updateCustomerInfos(array $customerIds)
+	private function updateCustomerInfos(array $customerIds, $time)
 	{
 		global $DB;
-		$DB->Execute("update billtech_customer_info set balance_update_time = ?NOW? where customer_id in (" . BillTech::repeatWithSeparator("?", ",", count($customerIds)) . ")", $customerIds);
+		$params = $customerIds;
+		array_unshift($params, $time);
+		$DB->Execute("update billtech_customer_info set balance_update_time = ? where customer_id in (" . BillTech::repeatWithSeparator("?", ",", count($customerIds)) . ")", $params);
 	}
 
 	/**
