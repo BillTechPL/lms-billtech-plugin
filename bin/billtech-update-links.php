@@ -161,7 +161,6 @@ $linksManager = new BillTechLinksManager(!$quiet);
 
 BillTech::measureTime(function () use ($linksManager) {
 	BillTech::lock("update-links", function () use ($linksManager) {
-		sleep(3);
 		$linksManager->updateForAll();
 	});
 }, !$quiet);

@@ -83,7 +83,7 @@ class BillTechLinksManager
 			return;
 		}
 
-		$time = time();
+		$maxCashId = $DB->GetOne("select max(id) from cash");
 
 		foreach ($customerIds as $idx => $customerId) {
 			echo "Collecting actions for customer " . ($idx + 1) . " of " . count($customerIds) . "\n";
@@ -97,7 +97,7 @@ class BillTechLinksManager
 		}
 
 		$this->performActions($actions);
-		$this->updateCustomerInfos($customerIds, $time);
+		$this->updateCustomerInfos($customerIds, $maxCashId);
 	}
 
 	public function updateCustomerBalance($customerId)
@@ -297,16 +297,20 @@ class BillTechLinksManager
 	private function checkLastUpdate($customerId)
 	{
 		global $DB;
-		$customerInfo = $DB->GetRow("select bci.*, max(c.time) as last_cash_time from billtech_customer_info bci 
+		$customerInfo = $DB->GetRow("select bci.*, max(c.id) as new_last_cash_id from billtech_customer_info bci 
 										left join cash c on c.customerid = bci.customer_id
 										where bci.customer_id = ?
 										group by bci.customer_id", array($customerId));
 
 		if ($customerInfo) {
-			$DB->Execute("update billtech_customer_info set balance_update_time = ?NOW? where customer_id = ?", array($customerId));
-			return $customerInfo['last_cash_time'] > $customerInfo['balance_update_time'];
+			if ($customerInfo['new_last_cash_id'] > $customerInfo['last_cash_id']) {
+				$DB->Execute("update billtech_customer_info set last_cash_id = ? where customer_id = ?", array($customerInfo['new_last_cash_id'], $customerId));
+				return true;
+			} else {
+				return false;
+			}
 		} else {
-			$DB->Execute("insert into billtech_customer_info (customer_id, balance_update_time) values (?, ?NOW?)", array($customerId));
+			$DB->Execute("insert into billtech_customer_info (customer_id, last_cash_id) values (?, ?)", array($customerId, $customerInfo['new_last_cash_id']));
 			return true;
 		}
 	}
@@ -314,7 +318,7 @@ class BillTechLinksManager
 	private function addMissingCustomerInfo()
 	{
 		global $DB;
-		$DB->Execute("insert into billtech_customer_info (customer_id, balance_update_time)
+		$DB->Execute("insert into billtech_customer_info (customer_id, last_cash_id)
 					select cu.id, 0
 					from customers cu
 							 left join billtech_customer_info bci on bci.customer_id = cu.id
@@ -331,18 +335,18 @@ class BillTechLinksManager
 										from customers cu
 												 left join billtech_customer_info bci on bci.customer_id = cu.id
 												 left join cash ca on ca.customerid = cu.id
-										group by bci.customer_id, bci.balance_update_time
-										having bci.balance_update_time <= coalesce(max(ca.time), 0);");
+										group by bci.customer_id, bci.last_cash_id
+										having bci.last_cash_id <= coalesce(max(ca.id), 0);");
 	}
 
 	/**
 	 * @param array $customerIds
 	 */
-	private function updateCustomerInfos(array $customerIds, $time)
+	private function updateCustomerInfos(array $customerIds, $maxCashId)
 	{
 		global $DB;
-		$DB->Execute("update billtech_customer_info set balance_update_time = ? where customer_id in ("
-			. BillTech::repeatWithSeparator("?", ",", count($customerIds)) . ")", array_merge([$time], $customerIds));
+		$DB->Execute("update billtech_customer_info set last_cash_id = ? where customer_id in ("
+			. BillTech::repeatWithSeparator("?", ",", count($customerIds)) . ")", array_merge([$maxCashId], $customerIds));
 	}
 
 	/**

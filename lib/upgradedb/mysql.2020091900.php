@@ -25,7 +25,7 @@ $this->Execute("create index billtech_payments__token on billtech_payments(token
 $this->Execute("create table billtech_customer_info
 (
     customer_id     	int    primary key,
-    balance_update_time int
+    last_cash_id 		int
 );
 
 create index billtech_customer_info__customer_id on billtech_customer_info (customer_id);");
