@@ -82,10 +82,10 @@ class BillTechLinkApiService
 			"json" => [
 				"resolution" => $resolution
 			],
-			'exceptions' => FALSE
+			"exceptions" => FALSE
 		]);
 
-		if (!in_array($response->getStatusCode(), [204, 409])) {
+		if (!in_array($response->getStatusCode(), [204, 404, 409])) {
 			throw new Exception($path . " returned code " . $response->getStatusCode() . "\n" . $response->getBody());
 		}
 	}
@@ -99,19 +99,24 @@ class BillTechLinkApiService
 		global $DB;
 
 		if ($linkRequest->srcDocumentId) {
-			$linkData = $DB->GetRow("select d.customerid, d.number, concat(d.fullnumber, case when d.comment is not null then concat(' ', d.comment) end) as comment, 
-       									d.id, c.lastname, c.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name from documents d
+			// TODO: use customercontacts for email
+			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (c.id)" : "") .
+				" d.customerid, d.number, concat(d.fullnumber, case when d.comment is not null then concat(' ', d.comment) end) as comment, 
+       									d.id, c.lastname, c.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email from documents d
     									left join customers c on d.customerid = c.id
-										left join divisions di on c.divisionid = di.id where d.id = ?", [$linkRequest->srcDocumentId]);
+       									left join customercontacts cc on cc.customerid = c.id and (cc.type & 8) > 1
+										left join divisions di on c.divisionid = di.id where d.id = ?" . ($DB->GetDbType() == "mysql" ? " group by c.id" : ""), [$linkRequest->srcDocumentId]);
 			if (!$linkData) {
 				throw new Exception("Could not fetch link data by document id: " . $linkRequest->srcDocumentId);
 			}
 		} else {
-			$linkData = $DB->GetRow("select ca.customerid, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name from cash ca
+			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (cu.id)" : "") .
+				" ca.customerid, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email from cash ca
 										left join customers cu on ca.customerid = cu.id 
+       									left join customercontacts cc on cc.customerid = cu.id and (cc.type & 8) > 1
 										left join documents d on d.id = ca.docid
 										left join divisions di on cu.divisionid = di.id 
-										where ca.id = ?", [$linkRequest->srcCashId]);
+										where ca.id = ?" . ($DB->GetDbType() == "mysql" ? " group by cu.id" : ""), [$linkRequest->srcCashId]);
 			if (!$linkData) {
 				throw new Exception("Could not fetch link data by cash id: " . $linkRequest->srcCashId);
 			}
@@ -146,7 +151,7 @@ class BillTechLinkApiService
 			'operationId' => $linkData['key'],
 			'amount' => $linkData['amount'],
 			'nrb' => bankaccount($linkData['customerid'], null),
-			'paymentDue' => ($linkData['pdate'] ? new DateTime('@' . $linkData['pdate']) : new DateTime('@' . time()))->format('Y-m-d'),
+			'paymentDue' => (new DateTime('@' . ($linkData['pdate'] ?: time())))->format('Y-m-d'),
 			'title' => self::getTitle($linkData['comment'])
 		);
 
@@ -154,7 +159,7 @@ class BillTechLinkApiService
 			$request = array_merge_recursive($request, array(
 				'name' => self::getNameOrSurname($linkData['name']),
 				'surname' => self::getNameOrSurname($linkData['lastname']),
-				'email' => $linkData['email'] ?: null,
+				'email' => trim($linkData['email']) ?: null,
 			));
 		}
 
@@ -176,7 +181,7 @@ class BillTechLinkApiService
 	 */
 	private static function getTitle($title)
 	{
-		return substr(preg_replace("/[^ A-Za-z0-9#&_\-',.\x{00c0}-\x{02c0}]/u", " ", $title), 0, 105) ?: "";
+		return substr(preg_replace("/[^ A-Za-z0-9#&_\-',.\\/\x{00c0}-\x{02c0}]/u", " ", $title), 0, 105) ?: "";
 	}
 
 	private static function getNameOrSurname($nameOrSurname)

@@ -60,6 +60,7 @@ class BillTechLinksManager
 		} else {
 			$balanceLink = BillTechLink::fromRow($row);
 			$this->addParamsToLink(array_merge($params, ['type' => 'balance']), $balanceLink);
+			$balanceLink->shortLink .= '/1';
 			return $balanceLink;
 		}
 	}
@@ -96,19 +97,27 @@ class BillTechLinksManager
 			echo "Cancelling " . count($actions['close']) . " links\n";
 		}
 
-		$this->performActions($actions);
-		$this->updateCustomerInfos($customerIds, $maxCashId);
+		if ($this->performActions($actions)) {
+			$this->updateCustomerInfos($customerIds, $maxCashId);
+		}
 	}
 
 	public function updateCustomerBalance($customerId)
 	{
 		global $DB;
-		$DB->BeginTrans();
-		if ($this->checkLastUpdate($customerId)) {
+		$this->addMissingCustomerInfo();
+
+		$customerInfo = $DB->GetRow("select bci.*, max(c.id) as new_last_cash_id from billtech_customer_info bci 
+										left join cash c on c.customerid = bci.customer_id
+										where bci.customer_id = ?
+										group by bci.customer_id", array($customerId));
+
+		if ($customerInfo['new_last_cash_id'] > $customerInfo['last_cash_id']) {
 			$actions = $this->getCustomerUpdateBalanceActions($customerId);
-			$this->performActions($actions);
+			if ($this->performActions($actions)) {
+				$DB->Execute("update billtech_customer_info set last_cash_id = ? where customer_id = ?", array($customerInfo['new_last_cash_id'], $customerId));
+			}
 		}
-		$DB->CommitTrans();
 	}
 
 	/**
@@ -168,7 +177,7 @@ class BillTechLinksManager
 				$generatedLink->link,
 				$generatedLink->shortLink,
 				$generatedLink->token,
-				$link->amount
+				number_format($link->amount, 2, '.', '')
 			);
 		}
 
@@ -188,7 +197,7 @@ class BillTechLinksManager
 		}
 		$generatedLink = BillTechLinkApiService::generatePaymentLinks([$link])[0];
 		$DB->Execute("update billtech_payment_links set amount = ?, link = ?, short_link = ?, token = ? where id = ?",
-			array($link->amount, $generatedLink->link, $generatedLink->shortLink, $generatedLink->token, $link->id));
+			array(number_format($link->amount, 2, '.', ''), $generatedLink->link, $generatedLink->shortLink, $generatedLink->token, $link->id));
 	}
 
 	/* @throws Exception
@@ -221,31 +230,77 @@ class BillTechLinksManager
 
 	/**
 	 * @param array $actions
-	 * @throws Exception
+	 * @return bool
 	 */
 	public function performActions($actions)
 	{
+		global $DB;
 		$addBatches = array_chunk($actions['add'], $this->batchSize);
+		$errorCount = 0;
 		foreach ($addBatches as $idx => $links) {
 			if ($this->verbose) {
 				echo "Adding batch " . ($idx + 1) . " of " . count($addBatches) . "\n";
 			}
-			$this->addPayments($links);
+			try {
+				$DB->BeginTrans();
+				$this->addPayments($links);
+				if (!$DB->GetErrors()) {
+					$DB->CommitTrans();
+				} else {
+					$errorCount++;
+					$DB->RollbackTrans();
+				}
+			} catch (Exception $e) {
+				$errorCount++;
+				if ($this->debug) {
+					echo $e->getMessage();
+				}
+			}
 		}
 
 		foreach ($actions['update'] as $idx => $link) {
 			if ($this->verbose) {
 				echo "Updating link " . ($idx + 1) . " of " . count($actions['update']) . "\n";
 			}
-			$this->updatePaymentAmount($link);
+			try {
+				$DB->BeginTrans();
+				$this->updatePaymentAmount($link);
+				if (!$DB->GetErrors()) {
+					$DB->CommitTrans();
+				} else {
+					$errorCount++;
+					$DB->RollbackTrans();
+				}
+			} catch (Exception $e) {
+				$errorCount++;
+				if ($this->debug) {
+					echo $e->getMessage();
+				}
+			}
 		}
 
 		foreach ($actions['close'] as $idx => $link) {
 			if ($this->verbose) {
 				echo "Closing link " . ($idx + 1) . " of " . count($actions['close']) . "\n";
 			}
-			$this->closePayment($link);
+			try {
+				$DB->BeginTrans();
+				$this->closePayment($link);
+				if (!$DB->GetErrors()) {
+					$DB->CommitTrans();
+				} else {
+					$errorCount++;
+					$DB->RollbackTrans();
+				}
+			} catch (Exception $e) {
+				$errorCount++;
+				if ($this->debug) {
+					echo $e->getMessage();
+				}
+			}
 		}
+
+		return $errorCount == 0;
 	}
 
 	/**
@@ -260,7 +315,7 @@ class BillTechLinksManager
 			"update" => array(),
 			"close" => array()
 		);
-		$cashItems = $DB->GetAll("select id, value, customerid, docid from cash where customerid = ? order by time desc, id desc", array($customerId));
+		$cashItems = $DB->GetAll("select c.id, value, c.customerid, d.id as docid from cash c left join documents d on d.id = c.docid where c.customerid = ? order by c.time desc, c.id desc", array($customerId));
 		if (!$cashItems) {
 			return $actions;
 		}
@@ -294,27 +349,6 @@ class BillTechLinksManager
 		return $actions;
 	}
 
-	private function checkLastUpdate($customerId)
-	{
-		global $DB;
-		$customerInfo = $DB->GetRow("select bci.*, max(c.id) as new_last_cash_id from billtech_customer_info bci 
-										left join cash c on c.customerid = bci.customer_id
-										where bci.customer_id = ?
-										group by bci.customer_id", array($customerId));
-
-		if ($customerInfo) {
-			if ($customerInfo['new_last_cash_id'] > $customerInfo['last_cash_id']) {
-				$DB->Execute("update billtech_customer_info set last_cash_id = ? where customer_id = ?", array($customerInfo['new_last_cash_id'], $customerId));
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			$DB->Execute("insert into billtech_customer_info (customer_id, last_cash_id) values (?, ?)", array($customerId, $customerInfo['new_last_cash_id']));
-			return true;
-		}
-	}
-
 	private function addMissingCustomerInfo()
 	{
 		global $DB;
@@ -341,12 +375,14 @@ class BillTechLinksManager
 
 	/**
 	 * @param array $customerIds
+	 * @param $maxCashId
 	 */
 	private function updateCustomerInfos(array $customerIds, $maxCashId)
 	{
 		global $DB;
-		$DB->Execute("update billtech_customer_info set last_cash_id = ? where customer_id in ("
-			. BillTech::repeatWithSeparator("?", ",", count($customerIds)) . ")", array_merge([$maxCashId], $customerIds));
+		$params = $customerIds;
+		array_unshift($params, $maxCashId);
+		$DB->Execute("update billtech_customer_info set last_cash_id = ? where customer_id in (" . BillTech::repeatWithSeparator("?", ",", count($customerIds)) . ")", $params);
 	}
 
 	/**
@@ -362,4 +398,3 @@ class BillTechLinksManager
 		}
 	}
 }
-

@@ -11,7 +11,6 @@ class BillTechLink
 	public $shortLink;
 	public $token;
 	public $amount;
-	public $docid;
 
 	public function __construct($customerId, $cashId, $documentId, $amount)
 	{

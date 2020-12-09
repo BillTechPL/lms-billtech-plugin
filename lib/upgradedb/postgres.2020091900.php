@@ -15,6 +15,7 @@ create table billtech_payment_links (
 
 $this->Execute("create index billtech_payment_links__customer_id on billtech_payment_links (customer_id);");
 $this->Execute("create index billtech_payment_links__src_cash_id on billtech_payment_links (src_cash_id);");
+$this->Execute("create index billtech_payment_links__src_document_id on billtech_payment_links (src_document_id);");
 $this->Execute("create index billtech_payment_links__token on billtech_payment_links (token);");
 
 $this->Execute("alter table billtech_payments add column token varchar(1000);");
