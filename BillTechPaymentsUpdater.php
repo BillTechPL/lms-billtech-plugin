@@ -156,6 +156,7 @@ class BillTechPaymentsUpdater
 	}
 
 	private function SetCashUserIdToZero($cashid) {
+		global $DB;
 		$DB->Execute("update cash set userid = ? where id = ?",
 			array(0, $cashid));
 	}
