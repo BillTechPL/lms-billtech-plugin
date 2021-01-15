@@ -19,6 +19,7 @@ $this->Execute("create index billtech_payment_links__src_document_id on billtech
 $this->Execute("create index billtech_payment_links__token on billtech_payment_links (token);");
 
 $this->Execute("alter table billtech_payments add column token varchar(1000);");
+$this->Execute("alter table billtech_payments add primary key (id);");
 $this->Execute("create index billtech_payments__reference_number on billtech_payments(reference_number);");
 $this->Execute("create index billtech_payments__closed_cdate on billtech_payments(closed, cdate);");
 $this->Execute("create index billtech_payments__token on billtech_payments(token);");
