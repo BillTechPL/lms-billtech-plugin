@@ -21,7 +21,7 @@ if (is_array($ids) && sizeof($ids)) {
 			$addbalance = array(
 				'value' => $payment['amount'],
 				'type' => 100,
-				'userid' => null,
+				'userid' => Auth::GetCurrentUser(),
 				'customerid' => $payment['customerid'],
 				'comment' => BillTech::CASH_COMMENT,
 				'time' => $payment['cdate']

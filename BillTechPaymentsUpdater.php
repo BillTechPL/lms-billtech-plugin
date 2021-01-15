@@ -113,7 +113,7 @@ class BillTechPaymentsUpdater
 					'type' => 100,
 					'userid' => null,
 					'customerid' => $payment->userId,
-					'comment' => BillTech::CASH_COMMENT.' for: '.$payment->invoiceNumber,
+					'comment' => BillTech::CASH_COMMENT.' for: '.$payment->title,
 					'time' => $payment->paidAt
 				);
 
