@@ -54,7 +54,7 @@ class BillTechButtonInsertHandler
 		$customerid = $hook_data['customer']['id'];
 		$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
 
-		$hook_data['data'] = preg_replace('/%billtech_btn/',
+		$hook_data['data'] = preg_replace('/%billtech_balance_btn/',
 			$this->createEmailButton('html', $link), $data);
 
 		return $hook_data;
@@ -64,15 +64,11 @@ class BillTechButtonInsertHandler
 	{
 		$customerid = $hook_data['data']['id'];
 		$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
-		if (isset($hook_data['data']['contenttype'])) {
-			if ($customerid = $hook_data['data']['contenttype'] == 'text/html') {
-				$cashBtnCode = $this->getBtnCode($hook_data['mail_format'], $link);
-				$hook_data['body'] = preg_replace('/%billtech_btn/', $cashBtnCode, $hook_data['body']);
-			} else {
-				$hook_data['body'] = preg_replace('/%billtech_btn/', $this->createEmailButton('txt', $link), $hook_data['body']);
-			}
+		if (isset($hook_data['data']['contenttype']) && $hook_data['data']['contenttype'] == 'text/html') {
+			$cashBtnCode = $this->getBtnCode($hook_data['mail_format'], $link);
+			$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $cashBtnCode, $hook_data['body']);
 		} else {
-			$hook_data['body'] = preg_replace('/%billtech_btn/', $this->createEmailButton('txt', $link), $hook_data['body']);
+			$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $this->createEmailButton('txt', $link), $hook_data['body']);
 		}
 
 		return $hook_data;
