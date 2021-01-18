@@ -65,8 +65,8 @@ class BillTechButtonInsertHandler
 		$customerid = $hook_data['data']['id'];
 		$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
 		if (isset($hook_data['data']['contenttype']) && $hook_data['data']['contenttype'] == 'text/html') {
-			$cashBtnCode = $this->getBtnCode($hook_data['mail_format'], $link);
-			$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $cashBtnCode, $hook_data['body']);
+			$balanceBtnCode = $this->getBtnCode($hook_data['mail_format'], $link);
+			$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $balanceBtnCode, $hook_data['body']);
 		} else {
 			$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $this->createEmailButton('txt', $link), $hook_data['body']);
 		}
