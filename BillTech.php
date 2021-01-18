@@ -80,7 +80,11 @@ class BillTech extends LMSPlugin
 			'cashimport_after_commit' => array(
 				'class' => 'BillTechPaymentCashImportHandler',
 				'method' => 'processCashImport'
-			)
+			),
+			'messageadd_variable_parser' => array(
+				'class' => 'BillTechButtonInsertHandler',
+				'method' => 'messageaddCustomerDataParse'
+			),
 		);
 	}
 

@@ -60,6 +60,24 @@ class BillTechButtonInsertHandler
 		return $hook_data;
 	}
 
+	public function messageaddCustomerDataParse(array $hook_data = array())
+	{
+		$customerid = $hook_data['data']['id'];
+		$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
+		if (isset($hook_data['data']['contenttype'])) {
+			if ($customerid = $hook_data['data']['contenttype'] == 'text/html') {
+				$hook_data['body'] = preg_replace('/%billtech_btn/', $this->createEmailButton('html', $link), $hook_data['body']);
+			} else {
+				$hook_data['body'] = preg_replace('/%billtech_btn/', $this->createEmailButton('txt', $link), $hook_data['body']);
+			}
+		} else {
+			$hook_data['body'] = preg_replace('/%billtech_btn/', $this->createEmailButton('txt', $link), $hook_data['body']);
+		}
+
+		return $hook_data;
+	}
+
+
 	public function addButtonToCustomerView(array $hook_data = array())
 	{
 		global $LMS;
