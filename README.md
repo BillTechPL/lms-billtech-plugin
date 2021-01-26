@@ -3,47 +3,48 @@
 ## Opis
 BillTech Pay to usługa, która pozwala Dostawcom na wygodne pobieranie należności od swoich klientów. 
 Po wystawieniu faktury Dostawca generuje link do płatności, który może dostarczyć swoim klientom różnymi kanałami,
- np. wysłać w wiadomości e-mail, sms lub pokazać w panelu online. 
+ np. wysłać w wiadomości e-mail, sms lub pokazać w panelu klienta. 
 Klient (użytkownik) po kliknięciu w taki link, zostaje przekierowany na ekran podsumowania płatności.
 Informacja o wykonanej płatności natychmiast trafia do Dostawcy,
- dzięki czemu możliwe jest szybkie zwiększenia salda klienta oraz ewentualne zdjęcie blokady usług.
+ dzięki czemu możliwe jest szybkie uregulowanie salda klienta oraz ewentualne zdjęcie blokady usług.
  
 Wtyczka umożliwia integrację z usługą BillTech Pay poprzez:
 * Dodanie przycisku *Opłać teraz* do panelu klienta w sekcji finanse przy saldzie oraz indywidualnych 
-fakturach pozwalając na wykonanie płatności on-line poprzez platformę BillTech,
-* Pozwala na dodanie przycisku *Opłać teraz* do emaili z fakturą oraz notyfikacji,
-* Wstrzykuje informacje o płatności do nagłówków wiadomości email z fakturą,
-* Dodaje przycisk *Opłać teraz* do ekranu blokady internetu,
-* Informacja o płatności wykonanej na platformie BillTech trafia do LMS.
+fakturach pozwalając na wykonanie płatności online poprzez platformę BillTech,
+* Dodanie przycisku *Opłać teraz* do wiadomości e-mail z fakturą oraz notyfikacji,
+* Wstawienie informacji o płatności do nagłówków wiadomości e-mail z fakturą,
+* Dodanie przycisku *Opłać teraz* do ekranu blokady internetu,
+* Przekazanie informacji o płatności wykonanej na platformie BillTech trafia do LMS.
 
 
 #### Uwaga
 Wtyczka do działania wymaga aktualizacji odpowiedniej wersji LMS. W przypadku posiadania najnowszej wersji
 lmsgit nie jest konieczne dodatkowe działanie. W przeciwnym wypadku zapraszamy do kontaktu, chętnie pomożemy 
-z wprowadzeniem odpowiednich zmian również do innych wersji LMS.
+z wprowadzeniem odpowiednich zmian również do innych wersji.
 
 ## Instalacja
 * Umieść zawartość tego repozytorium w katalogu *plugins/BillTech* w katalogu instalacyjnym LMSa,
-* Zaloguj się do panelu admina LMS,
+* Zaloguj się do panelu admininistracyjnego LMS,
 * Przejdź do zakładki *Konfiguracja -> Wtyczki*,
-* Kliknij żarówkę po prawej stronie w wierszu z wtyczką BillTech aby ją włączyć,
-* W szablonie wiadomości email z powiadomieniem o wystawieniu nowej faktury dodaj `%billtech_btn` i/lub `%billtech_balance_btn`,
-w miejscu, w którym powinny pojawić się przyciski do opłacenia odpowiednio indywidualnej faktury i/lub salda. 
+* Kliknij żarówkę po prawej stronie w wierszu z wtyczką BillTech, aby ją włączyć,
+* W szablonie wiadomości e-mail z powiadomieniem o wystawieniu nowej faktury dodaj `%billtech_btn` i/lub `%billtech_balance_btn` w miejscu,
+  w którym powinny pojawić się przyciski do opłacenia odpowiednio indywidualnej faktury i/lub salda. 
 
 ## Konfiguracja
-W panelu admina wejdź w zakładkę *Konfiguracja -> BillTech* i wpisz wartości zmiennych konfiguracyjnych otrzymanych od <admin@billtech.pl>. 
-Podane wartości można również wprowadzić w panelu zakładce *Konfiguracja -> Interfejs użytkownika* w sekcji billtech.
+W panelu administracyjnym wejdź w zakładkę *Konfiguracja -> BillTech* i wpisz wartości zmiennych konfiguracyjnych otrzymanych od <admin@billtech.pl>. 
+Podane wartości można również wprowadzić w zakładce *Konfiguracja -> Interfejs użytkownika* w sekcji billtech.
 
 ## Dodatkowe informacje
 ### Obsługa płatności po stronie klienta
-Operacje kasowe, które powstają po wykonaniu płatności BillTech, to tzw. wpłaty tymczasowe. Są tworzone aby użytkownik oraz administrator systemu widzieli wykonaną płatność. Wpłaty tymczasowe umożliwiają natychmiastowe odblokowanie usług w przypadku blokady z powodu niepłacenia. 
-Wpłaty tymczasowe przestają być potrzebne w momencie zaksięgowania opłat z wykazu bankowego, wtedy mogą zostać rozliczone (zamknięte), po czym przestają być widoczne (znikają zarówno w panelu admina jak i w userpanelu). Istnieją 3 możliwości rozliczania wpłat tymczasowych:
+Operacje kasowe, które powstają po wykonaniu płatności BillTech, to tzw. wpłaty tymczasowe. Są tworzone po to, aby użytkownik oraz administrator systemu widzieli wykonaną płatność. Wpłaty tymczasowe umożliwiają natychmiastowe odblokowanie usług w przypadku blokady z powodu nieuregulowania opłat.
+Wpłaty tymczasowe przestają być potrzebne w momencie zaksięgowania opłat z wykazu bankowego - mogą wtedy zostać rozliczone (zamknięte), po czym przestają być widoczne (znikają zarówno w panelu administracyjnym jak i w panelu klienta).
+Istnieją 3 możliwości rozliczania wpłat tymczasowych:
 
    1. Automatyczne rozliczanie poprzez mapowanie odpowiednich transakcji pochodzących z wyciągu bankowego (tzw. cashimport). 
    
         Aby włączyć automatyczne rozliczanie opłat tymczasowych poprzez cashimport, należy ustawić wartość zmiennej `billtech.cashimport_enabled=true`.
 
-   1. Po upływie zadanej liczby dni (domyślnie jest to 5 dni), wpłaty tymczasowe są automatycznie zamykane jako rozliczone. Odpowiada za to zmienna środowiskowa `billtech.payment_expiration`. 
+   1. Po upływie określonej liczby dni (domyślnie jest to 5 dni), wpłaty tymczasowe są automatycznie zamykane jako rozliczone. Odpowiada za to zmienna środowiskowa `billtech.payment_expiration`. 
     
         Aby wpłaty tymczasowe nigdy nie wygasały po upływie zadanego czasu, należy ustawić zmienną `billtech.payment_expiration=never`. 
     Takie ustawienie jest wskazane, gdy rozliczanie wpłat tymczasowych poprzez cashimport jest włączone (punkt pierwszy).
@@ -51,7 +52,7 @@ Wpłaty tymczasowe przestają być potrzebne w momencie zaksięgowania opłat z 
    1. Wpłaty tymczasowe można rozliczać manualnie poprzez panel Płatności BillTech. 
    
         W tym celu należy zaznaczyć opłaty do rozliczenia i kliknąć przycisk *Zaznacz/Odznacz jako rozliczone*. 
-   W przypadku pomyłki proces ten jest w pełni odwracalny poprzez wskazanie wyszarzonych (rozliczonych) wpłat tymczasowych, a następnie kliknięcie przycisku *Zaznacz/Odznacz jako rozliczone*. 
+   W przypadku pomyłki, proces ten jest w pełni odwracalny poprzez wskazanie wyszarzonych (rozliczonych) wpłat tymczasowych, a następnie kliknięcie przycisku *Zaznacz/Odznacz jako rozliczone*. 
 
 ### Spis zmiennych konfiguracyjnych w sekcji billtech (billtech.<nazwa_zmiennej>):
 
@@ -61,16 +62,17 @@ Wpłaty tymczasowe przestają być potrzebne w momencie zaksięgowania opłat z 
 |----------------	|----------	|----------------------------------	|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
 | api_key        	| string   	| Lg8C6zy851WCMSx8d2hctoWIFAwPGlbk 	| Parametr wykorzystywany do uwierzytelnienia HTTP BASIC.                                                                                                                                     	|
 | api_secret     	| string   	| fYA9FuqVjMQ4bJIEtNloBMUni1qAKNVi 	| Parametr wykorzystywany do uwierzytelnienia HTTP BASIC.  Otrzymywany po podaniu parametru PIN i kliknięciu przycisku Generuj API secret w zakładce *Konfiguracja -> BillTech*. 	            |
-| api_url        	| string   	| https://api.test.billtech.pl     	| Adres do komunikacji z platformą BillTech                                                                                                                                                   	|
+| api_url        	| string   	| https://api.test.billtech.pl     	| Adres do komunikacji z platformą BillTech.                                                                                                                                                 	|
 
 ##### Zmienne związane z obsługą dokonanej płatności
 
-| nazwa zmiennej      	| wartości   	| przykład       	| opis                                                                                                                                                                                                                                                         	|
-|---------------------	|------------	|----------------	|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
-| payment_expiration  	| int/string 	| 5              	| Liczba dni po których wpłata tymczasowa BillTech znika z systemu. Dla wartości  `never`  mechanizm ten zostaje wyłączony - taka powinna być wartość w przypadku korzystania z rozliczania wpłat tymczasowych poprzez cashimport (`cashimport_enabled=true`). 	|
-| cashimport_enabled  	| boolean    	| true           	| Parametr umożliwiający automatyczne rozliczanie opłat tymczasowych poprzez wyciąg bankowy.                                                                                                                                                                   	|
-| isp_id              	| string     	| nazwa_dostawcy 	| Id dostawcy w systemie BillTech.                                                                                                                                                                                                                             	|
-| produce_short_links 	| boolean    	| true           	| Odpowiada za podanie danych osobowych podczas generowania linków do płatności przez API, co umożliwia wygenerowanie skróconego linku do płatności, który można zastosować np. w wiadomości SMS.                                                              	|
+| nazwa zmiennej      	| wartości   	| przykład                         	| opis                                                                                                                                                                                                                                                          	|
+|---------------------	|------------	|----------------------------------	|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
+| payment_expiration  	| int/string 	| 5                                	| Liczba dni po których wpłata tymczasowa BillTech znika z systemu. Dla wartości  `never`  mechanizm ten zostaje wyłączony -- taka powinna być wartość w przypadku korzystania z rozliczania wpłat tymczasowych poprzez cashimport (`cashimport_enabled=true`). 	|
+| cashimport_enabled  	| boolean    	| true                             	| Parametr umożliwiający automatyczne rozliczanie opłat tymczasowych poprzez wyciąg bankowy.                                                                                                                                                                    	|
+| isp_id              	| string     	| nazwa_dostawcy                   	| Id dostawcy w systemie BillTech.                                                                                                                                                                                                                              	|
+| produce_short_links 	| boolean    	| true                             	| Odpowiada za podanie danych osobowych podczas generowania linków do płatności przez API, co umożliwia wygenerowanie skróconego linku do płatności, który można zastosować np. w wiadomości SMS.                                                               	|
+| bankaccount         	| string     	| 61 1090 1014 0000 0712 1981 2874 	| Globalny numer rachunku bankowego, na który klienci powinni dokonywać wpłat. Należy stosować, gdy wszyscy klienci powinni płacić na dany numer rachunku bankowego.                                                                                            	|
 
 ## Change Log
 
@@ -82,7 +84,7 @@ Istnieją 2 możliwości podania danych identyfikujących użytkownika dokonują
     * dane mogą zostać podane przy tworzeniu linku do płatności w body zapytania.
     Wtedy dane zostaną zapisane w bazie BillTech oraz umożliwią utworzenie skróconego linku. 
 * Przechowywanie linków do płatności w bazie powoduje wyeliminowanie problemów ze spójnością salda.
-* Integracja z ekosystemem BillTech:
+* Integracja z ekosystemem BillTech (poprzez alternatywne metody płatności na bramce płatniczej):
     * połączenia z bankami i aplikacjami,
     * przypomnienia o nadchodzących i przeterminowanych płatnościach,
     * płatności jednym kliknięciem z zapisanej karty,
@@ -111,4 +113,4 @@ Nie odnotowaliśmy żadnych skutków ubocznych wśród użytkowników, którzy d
 ## Kontakt
 Więcej informacji na temat naszego API można znaleźć na stronie <https://docs.billtech.pl>. Po dane do połączenia prosimy o wysyłanie wiadomości na adres <admin@billtech.pl>
 
-Jeżeli chciałbyś przetestować wtyczkę, zobaczyć jak wygląda proces płatności, rozpocząć współpracę lub dowiedzieć się więcej prosimy o wiadomość na adres <kontakt@billtech.pl>
+Jeżeli chciałbyś przetestować wtyczkę, zobaczyć jak wygląda proces płatności, rozpocząć współpracę lub dowiedzieć się więcej, prosimy o wiadomość na adres <kontakt@billtech.pl>

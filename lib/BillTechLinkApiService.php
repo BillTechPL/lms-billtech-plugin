@@ -150,7 +150,7 @@ class BillTechLinkApiService
 			'userId' => $linkData['customerid'],
 			'operationId' => $linkData['key'],
 			'amount' => $linkData['amount'],
-			'nrb' => bankaccount($linkData['customerid'], null),
+			'nrb' => ConfigHelper::getConfig('billtech.bankaccount', bankaccount($linkData['customerid'], null)),
 			'paymentDue' => (new DateTime('@' . ($linkData['pdate'] ?: time())))->format('Y-m-d'),
 			'title' => self::getTitle($linkData['comment'])
 		);
