@@ -72,7 +72,7 @@ Istnieją 3 możliwości rozliczania wpłat tymczasowych:
 | isp_id              	| string     	| nazwa_dostawcy             	| Id dostawcy w systemie BillTech.                                                                                                                                                                                                                              	|
 | produce_short_links 	| boolean    	| true                       	| Odpowiada za podanie danych osobowych podczas generowania linków do płatności przez API, co umożliwia wygenerowanie skróconego linku do płatności, który można zastosować np. w wiadomości SMS.                                                               	|
 | cashimport_enabled  	| boolean    	| true                       	| Opcjonalny parametr umożliwiający automatyczne rozliczanie opłat tymczasowych poprzez wyciąg bankowy. Wartość domyślna: false.                                                                                                                                	|
-| bankaccount         	| string     	| 61109010140000071219812874 	| Opcjonalny parametr odpowiadający za globalny numer rachunku bankowego wykorzystywany do generowania linków dla wszystkich klientów. W przypadku braku tego parametru linki są tworzone na podstawie indywidualnych rachunków bankowych klientów.             	|
+| bankaccount         	| string     	| 61109010140000071219812874 	| Opcjonalny parametr odpowiadający za globalny numer rachunku bankowego wykorzystywany do generowania linków dla wszystkich klientów. W przypadku niepodania tego parametru linki są tworzone na podstawie indywidualnych rachunków bankowych klientów.            |
 
 ## Change Log
 
