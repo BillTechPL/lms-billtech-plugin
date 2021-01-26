@@ -14,7 +14,7 @@ fakturach pozwalając na wykonanie płatności online poprzez platformę BillTec
 * Dodanie przycisku *Opłać teraz* do wiadomości e-mail z fakturą oraz notyfikacji,
 * Wstawienie informacji o płatności do nagłówków wiadomości e-mail z fakturą,
 * Dodanie przycisku *Opłać teraz* do ekranu blokady internetu,
-* Przekazanie informacji o płatności wykonanej na platformie BillTech trafia do LMS.
+* Przekazanie informacji o płatności wykonanej na platformie BillTech do LMS.
 
 
 #### Uwaga
