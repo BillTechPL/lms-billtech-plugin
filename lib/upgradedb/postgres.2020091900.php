@@ -28,8 +28,10 @@ $this->Execute("create table billtech_customer_info
 (
     customer_id     	int    primary key,
     last_cash_id		int
-);
+);");
 
-create index billtech_customer_info__customer_id on billtech_customer_info (customer_id);");
+$this->Execute("create index billtech_customer_info__customer_id on billtech_customer_info (customer_id);");
+
+$this->Execute("INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'append_client_info', true)");
 
 $this->Execute("UPDATE dbinfo SET keyvalue = ? WHERE keytype = ?", array('2020091900', 'dbversion_BillTech'));

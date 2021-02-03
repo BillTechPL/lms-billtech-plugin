@@ -106,14 +106,14 @@ class BillTechPaymentsUpdater
 				continue;
 			}
 
-			$ids = $DB->GetCol("SELECT id FROM billtech_payments WHERE reference_number=?", array($payment->referenceNumber, $payment->token));
+			$ids = $DB->GetCol("SELECT id FROM billtech_payments WHERE token=?", array($payment->token));
 			if (!$ids || !count($ids)) {
 				$addbalance = array(
 					'value' => $payment->amount,
 					'type' => 100,
 					'userid' => null,
 					'customerid' => $payment->userId,
-					'comment' => BillTech::CASH_COMMENT.' for: '.$payment->title,
+					'comment' => BillTech::CASH_COMMENT.' za: '.$payment->title,
 					'time' => $payment->paidAt
 				);
 
