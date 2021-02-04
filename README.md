@@ -3,7 +3,7 @@
 ## Opis
 BillTech Pay to usługa, która pozwala Dostawcom na wygodne pobieranie należności od swoich klientów. 
 Po wystawieniu faktury Dostawca generuje link do płatności, który może dostarczyć swoim klientom różnymi kanałami,
- np. wysłać w wiadomości e-mail, sms lub pokazać w panelu klienta. 
+ np. wysłać w wiadomości e-mail, sms lub pokazać w panelu klienta (userpanel). 
 Klient (użytkownik) po kliknięciu w taki link, zostaje przekierowany na ekran podsumowania płatności.
 Informacja o wykonanej płatności natychmiast trafia do Dostawcy,
  dzięki czemu możliwe jest szybkie uregulowanie salda klienta oraz ewentualne zdjęcie blokady usług.
@@ -17,13 +17,14 @@ fakturach pozwalając na wykonanie płatności online poprzez platformę BillTec
 * Przekazanie informacji o płatności wykonanej na platformie BillTech do LMS.
 
 
-#### Uwaga
-Wtyczka do działania wymaga aktualizacji odpowiedniej wersji LMS. W przypadku posiadania najnowszej wersji
+> #### Uwaga
+> Wtyczka do działania wymaga aktualizacji odpowiedniej wersji LMS. W przypadku posiadania najnowszej wersji
 lmsgit nie jest konieczne dodatkowe działanie. W przeciwnym wypadku zapraszamy do kontaktu, chętnie pomożemy 
 z wprowadzeniem odpowiednich zmian również do innych wersji.
 
 ## Instalacja
 * Umieść zawartość tego repozytorium w katalogu *plugins/BillTech* w katalogu instalacyjnym LMSa,
+* W katalogu projektu uruchom skrypt install.sh. W celu jego poprawnego działania plik lms.ini powinien znajdować się w katalogu `/etc/lms` i mieć wypełnione pole `sys_dir`,
 * Zaloguj się do panelu admininistracyjnego LMS,
 * Przejdź do zakładki *Konfiguracja -> Wtyczki*,
 * Kliknij żarówkę po prawej stronie w wierszu z wtyczką BillTech, aby ją włączyć,
@@ -65,14 +66,20 @@ Istnieją 3 możliwości rozliczania wpłat tymczasowych:
 | api_url        	| string   	| https://api.test.billtech.pl     	| Adres do komunikacji z platformą BillTech.                                                                                                                                                 	|
 
 ##### Zmienne związane z obsługą dokonanej płatności
+>#####Uwaga
+> 
+>W przypadku braku któregokolwiek z paramterów opcjonalnych typu boolean (aka flag) LMS traktuje je jakby miały wartość false.
 
-| nazwa zmiennej      	| wartości   	| przykład                   	| opis                                                                                                                                                                                                                                                          	|
-|---------------------	|------------	|----------------------------	|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
-| payment_expiration  	| int/string 	| 5                          	| Liczba dni po których wpłata tymczasowa BillTech znika z systemu. Dla wartości  `never`  mechanizm ten zostaje wyłączony -- taka powinna być wartość w przypadku korzystania z rozliczania wpłat tymczasowych poprzez cashimport (`cashimport_enabled=true`). 	|
-| isp_id              	| string     	| nazwa_dostawcy             	| Id dostawcy w systemie BillTech.                                                                                                                                                                                                                              	|
-| append_client_info 	| boolean    	| true                       	| Odpowiada za dodanie danych osobowych podczas procesu tworzenia linków. Skutkuje generowaniem skróconych linków do płatności, które mogą mieć zastosowanie np. w wiadomościach SMS. Wartość domyślna: true.                                                       |
-| cashimport_enabled  	| boolean    	| true                       	| Opcjonalny parametr umożliwiający automatyczne rozliczanie opłat tymczasowych poprzez wyciąg bankowy. Wartość domyślna: false.                                                                                                                                	|
-| bankaccount         	| string     	| 61109010140000071219812874 	| Opcjonalny parametr odpowiadający za globalny numer rachunku bankowego wykorzystywany do generowania linków dla wszystkich klientów. W przypadku niepodania tego parametru linki są tworzone na podstawie indywidualnych rachunków bankowych klientów.            |
+| nazwa zmiennej      	  	| wartości   	| przykład                   	| opis                                                                                                                                                                                                                                                          	|
+|-------------------------	|------------	|----------------------------	|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
+| payment_expiration  	  	| int/string 	| 5                          	| Liczba dni po których wpłata tymczasowa BillTech znika z systemu. Dla wartości  `never`  mechanizm ten zostaje wyłączony -- taka powinna być wartość w przypadku korzystania z rozliczania wpłat tymczasowych poprzez cashimport (`cashimport_enabled=true`). 	|
+| isp_id              	  	| string     	| nazwa_dostawcy             	| Id dostawcy w systemie BillTech.                                                                                                                                                                                                                              	|
+| bankaccount         	  	| string     	| 61109010140000071219812874 	| Opcjonalny parametr. Odpowiada za globalny numer rachunku bankowego wykorzystywany do generowania linków dla wszystkich klientów. W przypadku niepodania tego parametru linki są tworzone na podstawie indywidualnych rachunków bankowych klientów.               |
+| manage_cutoff 	      	| boolean    	| true                       	| Opcjonalny parametr. Powinien być ustawiony na wartość true w przypadku włączonego mechanizmu blokady usług w LMS (dla niepłacących klientów). Wartość początkowa: true                                                                                           |
+| append_client_info 	  	| boolean    	| true                       	| Opcjonalny parametr. Odpowiada za dodanie danych osobowych podczas procesu tworzenia linków. Skutkuje wygenerowaniem skróconych linków do płatności, które mogą mieć zastosowanie np. w wiadomościach SMS. Wartość początkowa: true                               |
+| cashimport_enabled  	  	| boolean    	| true                       	| Opcjonalny parametr. Umożliwia automatyczne rozliczanie opłat tymczasowych poprzez wyciąg bankowy. Wartość początkowa: true                                                                                                                                	    |
+| balance_button_disabled  	| boolean    	| true                       	| Opcjonalny parametr. Umożliwia schowanie przycisku opłacenia salda w panelu klienta. Wartość początkowa: false                                                                                                                                	                |
+| row_buttons_disabled    	| boolean    	| true                       	| Opcjonalny parametr. Umożliwia schowanie przycisków opłacenia przy każdej fakturze w panelu klienta. Wartość początkowa: false                                                                                                                                	|
 
 ## Change Log
 
