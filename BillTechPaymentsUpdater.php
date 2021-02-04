@@ -137,7 +137,7 @@ class BillTechPaymentsUpdater
 		}
 
 		foreach ($customers as $customerid) {
-			if (ConfigHelper::checkConfig('billtech.manage_cutoff', true)) {
+			if (ConfigHelper::checkConfig('billtech.manage_cutoff')) {
 				$this->checkCutoff($customerid);
 			}
 

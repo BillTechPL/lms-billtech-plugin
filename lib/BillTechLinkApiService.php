@@ -155,7 +155,7 @@ class BillTechLinkApiService
 			'title' => self::getTitle($linkData['comment'])
 		);
 
-		if (ConfigHelper::checkConfig("billtech.append_client_info", true)) {
+		if (ConfigHelper::checkConfig("billtech.append_client_info")) {
 			$request = array_merge_recursive($request, array(
 				'name' => self::getNameOrSurname($linkData['name']),
 				'surname' => self::getNameOrSurname($linkData['lastname']),
@@ -163,7 +163,7 @@ class BillTechLinkApiService
 			));
 		}
 
-		if (ConfigHelper::checkConfig("billtech.branding_enabled", true)) {
+		if (ConfigHelper::checkConfig("billtech.branding_enabled")) {
 			$request = array_merge_recursive($request, array(
 				'recipient' => array(
 					'id' => $linkData['division_id'],
