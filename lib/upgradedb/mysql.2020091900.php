@@ -31,6 +31,8 @@ $this->Execute("create table billtech_customer_info
 
 $this->Execute("create index billtech_customer_info__customer_id on billtech_customer_info (customer_id);");
 
+$this->Execute("INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'cashimport_enabled', true)");
+$this->Execute("INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'manage_cutoff', true)");
 $this->Execute("INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'append_client_info', true)");
 
 $this->Execute("UPDATE dbinfo SET keyvalue = ? WHERE keytype = ?", array('2020091900', 'dbversion_BillTech'));

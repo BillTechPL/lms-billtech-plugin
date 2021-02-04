@@ -72,7 +72,7 @@ class BillTechPaymentsUpdater
 		$last_sync = $this->getLastSync();
 
 		$client = BillTechApiClientFactory::getClient();
-		$path = "/pay/v1/payments/search" . "?fromDate=" . (ConfigHelper::getConfig("billtech.debug") ? 0 : ($last_sync - 60));
+		$path = "/pay/v1/payments/search" . "?fromDate=" . (ConfigHelper::checkConfig("billtech.debug") ? 0 : ($last_sync - 60));
 
 		$response = $client->get($path);
 
@@ -80,7 +80,7 @@ class BillTechPaymentsUpdater
 			$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)", array('ERROR', "/pay/v1/payments returned code " . $response->getStatusCode() . "\n" . $response->getBody()));
 			return;
 		}
-		if (ConfigHelper::getConfig("billtech.debug")) {
+		if (ConfigHelper::checkConfig("billtech.debug")) {
 			file_put_contents('/var/tmp/billtech_debug.txt', print_r($response->getBody(), true));
 		}
 
@@ -137,7 +137,7 @@ class BillTechPaymentsUpdater
 		}
 
 		foreach ($customers as $customerid) {
-			if (ConfigHelper::getConfig('billtech.manage_cutoff', true)) {
+			if (ConfigHelper::checkConfig('billtech.manage_cutoff', true)) {
 				$this->checkCutoff($customerid);
 			}
 
