@@ -66,7 +66,7 @@ Istnieją 3 możliwości rozliczania wpłat tymczasowych:
 | api_url        	| string   	| https://api.test.billtech.pl     	| Adres do komunikacji z platformą BillTech.                                                                                                                                                 	|
 
 ##### Zmienne związane z obsługą dokonanej płatności
->#####Uwaga
+> #### Uwaga
 > 
 >W przypadku braku któregokolwiek z paramterów opcjonalnych typu boolean (aka flag) LMS traktuje je jakby miały wartość false.
 
