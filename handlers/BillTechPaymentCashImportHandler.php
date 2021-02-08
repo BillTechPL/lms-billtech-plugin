@@ -14,7 +14,7 @@ class BillTechPaymentCashImportHandler
 		foreach ($hookdata['cashimports'] as $import) {
 			$description = $import['description'];
 
-			if (ConfigHelper::getConfig('billtech.cashimport_enabled', false) && $description) {
+			if (ConfigHelper::checkConfig('billtech.cashimport_enabled') && $description) {
 				$description = preg_replace('/[,|]/', '', $description);
 				preg_match('/ref[: ](\d{8}-\d{6})/', $description, $matches);
 				if (isset($matches[1])) {

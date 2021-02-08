@@ -21,22 +21,25 @@ class BillTechButtonInsertHandler
 	private function getPaymentLink($doc, $customerId, $params = array())
 	{
 		global $DB;
+		$linksManager = $this->getLinksManager();
 
 		if ($doc == 'balance') {
-			return ($this->getLinksManager())->getBalanceLink($customerId, $params)->link;
+			return $linksManager->getBalanceLink($customerId, $params)->link;
 		} else {
 			$cashId = $DB->GetOne("select id from cash where docid = ?", array($doc));
-			return ($this->getLinksManager())->getCashLink($cashId, $params)->link;
+			return $linksManager->getCashLink($cashId, $params)->link;
 		}
 	}
 
 	public function addButtonToInvoiceEmail(array $hook_data = array())
 	{
 		global $DB;
-		($this->getLinksManager())->updateCustomerBalance($hook_data['doc']['customerid']);
+		$linksManager = $this->getLinksManager();
+
+		$linksManager->updateCustomerBalance($hook_data['doc']['customerid']);
 		$cashId = $DB->GetOne("select id from cash where docid = ?;", array($hook_data['doc']['id']));
-		$cashLink = $this->getLinksManager()->getCashLink($cashId, ['utm_medium' => 'email'])->link;
-		$balanceLink = $this->getLinksManager()->getBalanceLink($hook_data['doc']['customerid'], ['utm_medium' => 'email'])->link;
+		$cashLink = $linksManager->getCashLink($cashId, ['utm_medium' => 'email'])->link;
+		$balanceLink = $linksManager->getBalanceLink($hook_data['doc']['customerid'], ['utm_medium' => 'email'])->link;
 		$cashBtnCode = $this->createEmailButton($hook_data['mail_format'], $cashLink);
 		$balanceBtnCode = $this->createEmailButton($hook_data['mail_format'], $balanceLink);
 

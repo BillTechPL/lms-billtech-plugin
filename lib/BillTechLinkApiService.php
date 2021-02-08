@@ -101,7 +101,7 @@ class BillTechLinkApiService
 		if ($linkRequest->srcDocumentId) {
 			// TODO: use customercontacts for email
 			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (c.id)" : "") .
-				" d.customerid, d.number, concat(d.fullnumber, case when d.comment is not null then concat(' ', d.comment) end) as comment, 
+				" d.customerid, d.number, concat(d.fullnumber, case when d.comment is not null then concat(' ', d.comment) else '' end) as comment, 
        									d.id, c.lastname, c.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email from documents d
     									left join customers c on d.customerid = c.id
        									left join customercontacts cc on cc.customerid = c.id and (cc.type & 8) > 1
@@ -155,7 +155,7 @@ class BillTechLinkApiService
 			'title' => self::getTitle($linkData['comment'])
 		);
 
-		if (ConfigHelper::checkConfig("billtech.produce_short_links")) {
+		if (ConfigHelper::checkConfig("billtech.append_client_info")) {
 			$request = array_merge_recursive($request, array(
 				'name' => self::getNameOrSurname($linkData['name']),
 				'surname' => self::getNameOrSurname($linkData['lastname']),
