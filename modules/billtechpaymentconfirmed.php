@@ -21,19 +21,19 @@ if (is_array($ids) && sizeof($ids)) {
 			$addbalance = array(
 				'value' => $payment['amount'],
 				'type' => 100,
-				'userid' => null,
+				'userid' => Auth::GetCurrentUser(),
 				'customerid' => $payment['customerid'],
-				'comment' => 'BillTech Payments',
+				'comment' => BillTech::CASH_COMMENT,
 				'time' => $payment['cdate']
 			);
 
-			$cashid = $LMS->AddBalance($addbalance);
+			$cashid = BillTechPaymentsUpdater::AddBalanceAndReturnCashIdOrFalse($addbalance);
 			if ($cashid) {
 				$DB->Execute("UPDATE billtech_payments SET closed = 0, cashid = ? WHERE id = ?", array($cashid, $payment['id']));
 			}
 		} else {
 			$cash = $LMS->GetCashByID($payment['cashid']);
-			if ($cash && $cash['comment'] == BillTech::CASH_COMMENT) {
+			if ($cash && strpos($cash['comment'], BillTech::CASH_COMMENT) !== false) {
 				$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
 				$LMS->DelBalance($payment['cashid']);
 			}

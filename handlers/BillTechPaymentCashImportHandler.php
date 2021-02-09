@@ -14,17 +14,19 @@ class BillTechPaymentCashImportHandler
 		foreach ($hookdata['cashimports'] as $import) {
 			$description = $import['description'];
 
-			if (ConfigHelper::getConfig('billtech.cashimport_enabled', false) && $description) {
+			if (ConfigHelper::checkConfig('billtech.cashimport_enabled') && $description) {
 				$description = preg_replace('/[,|]/', '', $description);
 				preg_match('/ref[: ](\d{8}-\d{4,6})/', $description, $matches);
 				if (isset($matches[1])) {
 					$reference_number = $matches[1];
-					$payment = $DB->GetRow("SELECT id, amount, cashid FROM billtech_payments WHERE reference_number=? AND closed=0", array($reference_number));
-					if ($payment) {
-						$cash = $LMS->GetCashByID($payment['cashid']);
-						if ($cash && $cash['comment'] == BillTech::CASH_COMMENT) {
-							$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
-							$LMS->DelBalance($payment['cashid']);
+					$payments = $DB->GetAll("SELECT id, amount, cashid FROM billtech_payments WHERE reference_number=? AND closed=0", array($reference_number));
+					if (is_array($payments) && !empty($payments)) {
+						foreach ($payments as $payment) {
+							$cash = $LMS->GetCashByID($payment['cashid']);
+							if ($cash && strpos($cash['comment'], BillTech::CASH_COMMENT) !== false) {
+								$DB->Execute("UPDATE billtech_payments SET closed = 1, cashid = NULL WHERE id = ?", array($payment['id']));
+								$LMS->DelBalance($payment['cashid']);
+							}
 						}
 					}
 				}
@@ -33,3 +35,4 @@ class BillTechPaymentCashImportHandler
 		return $hookdata;
 	}
 }
+

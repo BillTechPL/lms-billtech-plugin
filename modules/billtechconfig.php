@@ -1,5 +1,7 @@
 <?php
 
+global $DB, $SESSION, $SMARTY;
+
 $isp_id = ConfigHelper::getConfig('billtech.isp_id');
 $payment_url = ConfigHelper::getConfig('billtech.payment_url');
 $api_url = ConfigHelper::getConfig('billtech.api_url');

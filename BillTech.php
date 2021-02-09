@@ -31,20 +31,12 @@
  */
 class BillTech extends LMSPlugin
 {
-	const PLUGIN_DBVERSION = 2018042300;
+	const PLUGIN_DBVERSION = 2020091914;
 	const PLUGIN_DIRECTORY_NAME = 'BillTech';
 	const PLUGIN_NAME = 'BillTech';
 	const PLUGIN_DESCRIPTION = 'BillTech - wersja: 20180215';
 	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
-	const CASH_COMMENT = 'BillTech Payments';
-
-	public function __construct()
-	{
-		parent::__construct();
-
-		$updater = new BillTechPaymentsUpdater();
-		$updater->checkForUpdate();
-	}
+	const CASH_COMMENT = 'Wpłata online';
 
 	public function registerHandlers()
 	{
@@ -88,7 +80,68 @@ class BillTech extends LMSPlugin
 			'cashimport_after_commit' => array(
 				'class' => 'BillTechPaymentCashImportHandler',
 				'method' => 'processCashImport'
-			)
+			),
+			'messageadd_variable_parser' => array(
+				'class' => 'BillTechButtonInsertHandler',
+				'method' => 'messageaddCustomerDataParse'
+			),
 		);
+	}
+
+	public static function toMap($callback, array $array)
+	{
+		$map = array();
+		foreach ($array as $item) {
+			$map[$callback($item)] = $item;
+		}
+		return $map;
+	}
+
+	/**
+	 * @param string $str
+	 * @param $separator
+	 * @param int $repeatCount
+	 * @return string
+	 */
+	public static function repeatWithSeparator($str, $separator, $repeatCount)
+	{
+		return implode($separator, array_fill(0, $repeatCount, $str));
+	}
+
+	/**
+	 * @param int $rowCount
+	 * @param int $valuesCount
+	 * @return string
+	 */
+	public static function prepareMultiInsertPlaceholders($rowCount, $valuesCount)
+	{
+		return BillTech::repeatWithSeparator("(" . BillTech::repeatWithSeparator("?", ",", $valuesCount) . ")", ',', $rowCount);
+	}
+
+	public static function measureTime($callback, $verbose)
+	{
+		$start = microtime(true);
+		$callback();
+		$time_elapsed_secs = microtime(true) - $start;
+		if ($verbose) {
+			echo "Update took " . $time_elapsed_secs . " s\n";
+		}
+	}
+
+	public static function lock($lockName, $callback)
+	{
+		$fp = fopen('/tmp/billtech-lock-' . $lockName, 'w+');
+
+		try {
+			if (flock($fp, LOCK_EX | LOCK_NB)) {
+				echo "Lock acquired\n";
+				$callback();
+				flock($fp, LOCK_UN);
+			} else {
+				exit("Could not acquire lock. Another process is running.\n");
+			}
+		} finally {
+			fclose($fp);
+		}
 	}
 }
