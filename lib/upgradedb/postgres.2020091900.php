@@ -36,5 +36,6 @@ $this->Execute("INSERT INTO uiconfig (section, var, value) VALUES ('billtech', '
 $this->Execute("INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'manage_cutoff', true)");
 $this->Execute("INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'append_client_info', true)");
 
+$this->Execute("UPDATE uiconfig SET value='never' WHERE section='billtech' and var='payment_expiration'");
 
 $this->Execute("UPDATE dbinfo SET keyvalue = ? WHERE keytype = ?", array('2020091900', 'dbversion_BillTech'));

@@ -106,7 +106,7 @@ class BillTechPaymentsUpdater
 				continue;
 			}
 
-			$ids = $DB->GetCol("SELECT id FROM billtech_payments WHERE token=?", array($payment->token));
+			$ids = $DB->GetCol("SELECT id FROM billtech_payments WHERE token=? or reference_number=?", array($payment->token, $payment->reference_number));
 			if (!$ids || !count($ids)) {
 				$addbalance = array(
 					'value' => $payment->amount,
