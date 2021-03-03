@@ -106,12 +106,9 @@ class BillTechPaymentsUpdater
 				continue;
 			}
 
-			$ids = $DB->GetCol("SELECT id FROM billtech_payments WHERE token=? and integration_version='V1'", array($payment->token));
-			if ($ids && count($ids) > 1) {
-				$ids = $DB->GetCol("SELECT id FROM billtech_payments WHERE token=?", array($payment->token));
-			}
+			$ids = BillTechPaymentsUpdater::getBillTechPaymentsFromDb($payment);
 
-			if (!$ids) {
+			if (!$ids || !count($ids)) {
 				$addbalance = array(
 					'value' => $payment->amount,
 					'type' => 100,
@@ -155,6 +152,17 @@ class BillTechPaymentsUpdater
 			$DB->RollbackTrans();
 		} else {
 			$DB->CommitTrans();
+		}
+	}
+
+	private
+	function getBillTechPaymentsFromDb($payment) {
+		global $DB;
+
+		if ($payment->integrationVersion == 'V1') {
+			return $DB->GetCol("SELECT id FROM billtech_payments WHERE token=?", array($payment->token));
+		} else { //integrationVersion == 'V0'
+			return $DB->GetCol("SELECT id FROM billtech_payments WHERE reference_number=?", array($payment->referenceNumber));
 		}
 	}
 
