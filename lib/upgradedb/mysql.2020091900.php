@@ -34,5 +34,8 @@ $this->Execute("create index billtech_customer_info__customer_id on billtech_cus
 $this->Execute("INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'cashimport_enabled', true)");
 $this->Execute("INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'manage_cutoff', true)");
 $this->Execute("INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'append_client_info', true)");
+$this->Execute("UPDATE uiconfig SET value='never' WHERE section='billtech' AND var='payment_expiration' AND value=0");
+
+$this->Execute("UPDATE billtech_payments SET title='Wpłata online' WHERE title='BillTech Payments' AND closed=0");
 
 $this->Execute("UPDATE dbinfo SET keyvalue = ? WHERE keytype = ?", array('2020091900', 'dbversion_BillTech'));
