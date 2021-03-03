@@ -106,7 +106,7 @@ class BillTechPaymentsUpdater
 				continue;
 			}
 
-			$ids = $DB->GetCol("SELECT id FROM billtech_payments WHERE reference_number=?", array($payment->reference_number));
+			$ids = $DB->GetCol("SELECT id FROM billtech_payments WHERE token=? and integration_version='V1'", array($payment->token));
 			if ($ids && count($ids) > 1) {
 				$ids = $DB->GetCol("SELECT id FROM billtech_payments WHERE token=?", array($payment->token));
 			}
