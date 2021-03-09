@@ -101,7 +101,10 @@ class BillTechLinkApiService
 		if ($linkRequest->srcDocumentId) {
 			// TODO: use customercontacts for email
 			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (c.id)" : "") .
-				" d.customerid, d.number, concat(d.fullnumber, case when d.comment is not null then concat(' ', d.comment) else '' end) as comment, 
+				" d.customerid, d.number, d.div_account,
+				case when (concat(d.fullnumber, case when d.comment is not null then concat(' ', d.comment) else '' end)) = '' then concat('Faktura ', d.name)
+				else (concat(d.fullnumber, case when d.comment is not null then concat(' ', d.comment) else '' end)) 
+				end as comment,
        									d.id, c.lastname, c.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email from documents d
     									left join customers c on d.customerid = c.id
        									left join customercontacts cc on cc.customerid = c.id and (cc.type & 8) > 1
@@ -111,7 +114,7 @@ class BillTechLinkApiService
 			}
 		} else {
 			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (cu.id)" : "") .
-				" ca.customerid, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email from cash ca
+				" ca.customerid, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email, di.account as div_account from cash ca
 										left join customers cu on ca.customerid = cu.id 
        									left join customercontacts cc on cc.customerid = cu.id and (cc.type & 8) > 1
 										left join documents d on d.id = ca.docid
@@ -150,7 +153,7 @@ class BillTechLinkApiService
 			'userId' => $linkData['customerid'],
 			'operationId' => $linkData['key'],
 			'amount' => $linkData['amount'],
-			'nrb' => ConfigHelper::getConfig('billtech.bankaccount', bankaccount($linkData['customerid'], null)),
+			'nrb' => ConfigHelper::getConfig('billtech.bankaccount', bankaccount($linkData['customerid'], $linkData['div_account'])),
 			'paymentDue' => (new DateTime('@' . ($linkData['pdate'] ?: time())))->format('Y-m-d'),
 			'title' => self::getTitle($linkData['comment'])
 		);
