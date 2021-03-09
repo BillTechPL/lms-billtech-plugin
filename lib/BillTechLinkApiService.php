@@ -101,7 +101,7 @@ class BillTechLinkApiService
 		if ($linkRequest->srcDocumentId) {
 			// TODO: use customercontacts for email
 			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (c.id)" : "") .
-				" d.customerid, d.number, d.fullnumber, d.comment as comment_string, d. d.div_account, d.id, c.lastname,
+				" d.customerid, d.number, d.fullnumber, d.comment, d.div_account, d.id, c.lastname,
 				 c.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email 
 				 						from documents d
     									left join customers c on d.customerid = c.id
@@ -110,10 +110,10 @@ class BillTechLinkApiService
 			if (!$linkData) {
 				throw new Exception("Could not fetch link data by document id: " . $linkRequest->srcDocumentId);
 			}
-			$linkData['comment'] = self::getDocumentComment($linkData['fullnumber'], $linkData['comment_string'], $linkData['name']);
+			$linkData['title'] = self::getDocumentTitle($linkData['fullnumber'], $linkData['comment'], $linkData['name']);
 		} else {
 			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (cu.id)" : "") .
-				" ca.customerid, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email, di.account as div_account from cash ca
+				" ca.customerid, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, ca.comment as title, di.id as division_id, di.shortname as division_name, cc.contact as email, di.account as div_account from cash ca
 										left join customers cu on ca.customerid = cu.id 
        									left join customercontacts cc on cc.customerid = cu.id and (cc.type & 8) > 1
 										left join documents d on d.id = ca.docid
@@ -130,10 +130,10 @@ class BillTechLinkApiService
 		return $linkData;
 	}
 
-	private static function getDocumentComment($fullnumber, $commentstring, $name)
+	private static function getDocumentTitle($fullnumber, $comment, $name)
 	{
-		if ($fullnumber != '' || $commentstring != '') {
-			return $commentstring != '' ? $fullnumber . ' ' . $commentstring : $fullnumber;
+		if ($fullnumber != '' || $comment != '') {
+			return $comment != '' ? $fullnumber . ' ' . $comment : $fullnumber;
 		} else {
 			return 'Faktura ' . $name;
 		}
@@ -163,7 +163,7 @@ class BillTechLinkApiService
 			'amount' => $linkData['amount'],
 			'nrb' => ConfigHelper::getConfig('billtech.bankaccount', bankaccount($linkData['customerid'], $linkData['div_account'])),
 			'paymentDue' => (new DateTime('@' . ($linkData['pdate'] ?: time())))->format('Y-m-d'),
-			'title' => self::getTitle($linkData['comment'])
+			'title' => self::getTitle($linkData['title'])
 		);
 
 		if (ConfigHelper::checkConfig("billtech.append_client_info")) {
