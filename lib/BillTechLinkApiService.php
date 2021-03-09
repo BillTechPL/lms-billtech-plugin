@@ -101,17 +101,16 @@ class BillTechLinkApiService
 		if ($linkRequest->srcDocumentId) {
 			// TODO: use customercontacts for email
 			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (c.id)" : "") .
-				" d.customerid, d.number, d.div_account,
-				case when (concat(d.fullnumber, case when d.comment is not null then concat(' ', d.comment) else '' end)) = '' then concat('Faktura ', d.name)
-				else (concat(d.fullnumber, case when d.comment is not null then concat(' ', d.comment) else '' end)) 
-				end as comment,
-       									d.id, c.lastname, c.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email from documents d
+				" d.customerid, d.number, d.fullnumber, d.comment as comment_string, d. d.div_account, d.id, c.lastname,
+				 c.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email 
+				 						from documents d
     									left join customers c on d.customerid = c.id
        									left join customercontacts cc on cc.customerid = c.id and (cc.type & 8) > 1
 										left join divisions di on c.divisionid = di.id where d.id = ?" . ($DB->GetDbType() == "mysql" ? " group by c.id" : ""), [$linkRequest->srcDocumentId]);
 			if (!$linkData) {
 				throw new Exception("Could not fetch link data by document id: " . $linkRequest->srcDocumentId);
 			}
+			$linkData['comment'] = self::getDocumentComment($linkData['fullnumber'], $linkData['comment_string'], $linkData['name']);
 		} else {
 			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (cu.id)" : "") .
 				" ca.customerid, ca.comment, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email, di.account as div_account from cash ca
@@ -129,6 +128,15 @@ class BillTechLinkApiService
 		$linkData['amount'] = $linkRequest->amount;
 		$linkData['pdate'] = $linkData['cdate'] + ($linkData['paytime'] * 86400);
 		return $linkData;
+	}
+
+	private static function getDocumentComment($fullnumber, $comment, $name)
+	{
+		if ($fullnumber != '' || $comment != '') {
+			return $fullnumber . ' ' . $comment;
+		} else {
+			return 'Faktura ' . $name;
+		}
 	}
 
 	/**
