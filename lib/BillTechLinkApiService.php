@@ -130,10 +130,10 @@ class BillTechLinkApiService
 		return $linkData;
 	}
 
-	private static function getDocumentComment($fullnumber, $comment, $name)
+	private static function getDocumentComment($fullnumber, $commentstring, $name)
 	{
-		if ($fullnumber != '' || $comment != '') {
-			return $fullnumber . ' ' . $comment;
+		if ($fullnumber != '' || $commentstring != '') {
+			return $commentstring != '' ? $fullnumber . ' ' . $commentstring : $fullnumber;
 		} else {
 			return 'Faktura ' . $name;
 		}
