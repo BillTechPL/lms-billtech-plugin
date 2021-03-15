@@ -26,8 +26,7 @@ class BillTechButtonInsertHandler
 		if ($doc == 'balance') {
 			return $linksManager->getBalanceLink($customerId, $params)->link;
 		} else {
-			$cashId = $DB->GetOne("select id from cash where docid = ?", array($doc));
-			return $linksManager->getCashLink($cashId, $params)->link;
+			return $linksManager->getCashLinkByDocumentId($doc, $params)->link;
 		}
 	}
 
@@ -37,8 +36,7 @@ class BillTechButtonInsertHandler
 		$linksManager = $this->getLinksManager();
 
 		$linksManager->updateCustomerBalance($hook_data['doc']['customerid']);
-		$cashId = $DB->GetOne("select id from cash where docid = ?;", array($hook_data['doc']['id']));
-		$cashLink = $linksManager->getCashLink($cashId, ['utm_medium' => 'email'])->link;
+		$cashLink = $linksManager->getCashLinkByDocumentId($hook_data['doc']['id'], ['utm_medium' => 'email'])->link;
 		$balanceLink = $linksManager->getBalanceLink($hook_data['doc']['customerid'], ['utm_medium' => 'email'])->link;
 		$cashBtnCode = $this->createEmailButton($hook_data['mail_format'], $cashLink);
 		$balanceBtnCode = $this->createEmailButton($hook_data['mail_format'], $balanceLink);

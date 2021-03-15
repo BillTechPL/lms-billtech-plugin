@@ -32,12 +32,14 @@ class BillTechLinksManager
 		}, $rows);
 	}
 
-	public function getCashLink($cashId, $params)
+	public function getCashLinkByDocumentId($documentId, $params)
 	{
 		global $DB;
-		$row = $DB->GetRow("select l.* from billtech_payment_links l
-								left join cash c on l.src_cash_id = c.id
-								where src_cash_id = ?", array($cashId));
+		$row = $DB->GetRow("select bpl.* from billtech_payment_links bpl
+								left join cash c on bpl.src_cash_id = c.id
+								left join documents d on c.docid=d.id
+								where d.id=?", array($documentId));
+
 		if (!$row) {
 			return null;
 		}

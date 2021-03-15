@@ -101,7 +101,7 @@ class BillTechLinkApiService
 		if ($linkRequest->srcDocumentId) {
 			// TODO: use customercontacts for email
 			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (c.id)" : "") .
-				" d.customerid, d.number, d.fullnumber, d.comment, d.div_account, d.id, c.lastname,
+				" d.customerid, d.number, d.fullnumber, d.comment, d.div_account, d.id, d.name as fullname, c.lastname,
 				 c.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email 
 				 						from documents d
     									left join customers c on d.customerid = c.id
@@ -110,7 +110,7 @@ class BillTechLinkApiService
 			if (!$linkData) {
 				throw new Exception("Could not fetch link data by document id: " . $linkRequest->srcDocumentId);
 			}
-			$linkData['title'] = self::getDocumentTitle($linkData['fullnumber'], $linkData['comment'], $linkData['name']);
+			$linkData['title'] = self::getDocumentTitle($linkData['fullnumber'], $linkData['comment'], $linkData['fullname']);
 		} else {
 			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (cu.id)" : "") .
 				" ca.customerid, ca.docid, cu.lastname, cu.name, d.cdate, d.paytime, ca.comment as title, di.id as division_id, di.shortname as division_name, cc.contact as email, di.account as div_account from cash ca
