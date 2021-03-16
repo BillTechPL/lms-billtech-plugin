@@ -118,7 +118,7 @@ class BillTechPaymentsUpdater
 					'time' => $payment->paidAt
 				);
 
-				$cashid = $this->AddBalanceAndReturnCashIdOrFalse($addbalance);
+				$cashid = $this->addBalanceReturnCashIdOrFalse($addbalance);
 				if ($cashid) {
 					$title = $payment->title ? $payment->title : '';
 
@@ -263,7 +263,7 @@ class BillTechPaymentsUpdater
 		return $billTechInfo['last_sync'];
 	}
 
-	public static function AddBalanceAndReturnCashIdOrFalse($addbalance) {
+	public static function addBalanceReturnCashIdOrFalse($addbalance) {
 		global $DB, $LMS;
 
 		$cashid = $LMS->AddBalance($addbalance);
