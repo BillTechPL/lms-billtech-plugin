@@ -62,7 +62,6 @@ class BillTechLinksManager
 		} else {
 			$balanceLink = BillTechLink::fromRow($row);
 			$this->addParamsToLink(array_merge($params, ['type' => 'balance']), $balanceLink);
-			$balanceLink->shortLink .= '/1';
 			return $balanceLink;
 		}
 	}
