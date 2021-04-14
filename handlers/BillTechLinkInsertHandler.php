@@ -76,11 +76,11 @@ class BillTechLinkInsertHandler
 	public function messageaddCustomerDataParse(array $hook_data = array())
 	{
 		$customerid = $hook_data['data']['id'];
-		$appendClientInfo = ConfigHelper::getConfig('billtech.append_client_info', true);
+		$appendCustomerInfoEnabled = ConfigHelper::getConfig('billtech.append_customer_info', true);
 
 		if ($hook_data['data']['phone']) {
 			$link = self::getShortPaymentLink('balance', $customerid);
-			if ($appendClientInfo) {
+			if ($appendCustomerInfoEnabled) {
 				$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $link, $hook_data['body']);
 			} else {
 				$hook_data['body'] = preg_replace('/%billtech_balance_btn/', '', $hook_data['body']);

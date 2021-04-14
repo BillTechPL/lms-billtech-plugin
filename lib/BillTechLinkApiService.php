@@ -166,7 +166,7 @@ class BillTechLinkApiService
 			'title' => self::getTitle($linkData['title'])
 		);
 
-		if (ConfigHelper::checkConfig("billtech.append_client_info")) {
+		if (ConfigHelper::checkConfig("billtech.append_customer_info")) {
 			$request = array_merge_recursive($request, array(
 				'name' => self::getNameOrSurname($linkData['name']),
 				'surname' => self::getNameOrSurname($linkData['lastname']),
