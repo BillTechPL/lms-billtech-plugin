@@ -58,23 +58,23 @@ class BillTech extends LMSPlugin
 				'method' => 'smartyBillTech'
 			),
 			'invoice_email_before_send' => array(
-				'class' => 'BillTechButtonInsertHandler',
+				'class' => 'BillTechLinkInsertHandler',
 				'method' => 'addButtonToInvoiceEmail'
 			),
 			'notify_parse_customer_data' => array(
-				'class' => 'BillTechButtonInsertHandler',
+				'class' => 'BillTechLinkInsertHandler',
 				'method' => 'notifyCustomerDataParse'
 			),
 			'customer_before_display' => array(
-				'class' => 'BillTechButtonInsertHandler',
+				'class' => 'BillTechLinkInsertHandler',
 				'method' => 'addButtonToCustomerView'
 			),
 			'customer_otherip_before_display' => array(
-				'class' => 'BillTechButtonInsertHandler',
+				'class' => 'BillTechLinkInsertHandler',
 				'method' => 'addButtonToCustomerOtherIPView'
 			),
 			'userpanel_finances_main_before_module_display' => array(
-				'class' => 'BillTechButtonInsertHandler',
+				'class' => 'BillTechLinkInsertHandler',
 				'method' => 'addButtonsToFinancesView'
 			),
 			'cashimport_after_commit' => array(
@@ -82,7 +82,7 @@ class BillTech extends LMSPlugin
 				'method' => 'processCashImport'
 			),
 			'messageadd_variable_parser' => array(
-				'class' => 'BillTechButtonInsertHandler',
+				'class' => 'BillTechLinkInsertHandler',
 				'method' => 'messageaddCustomerDataParse'
 			),
 		);

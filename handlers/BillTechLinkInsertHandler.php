@@ -6,7 +6,7 @@
  * @author Michał Kaciuba <michal@billtech.pl>
  */
 
-class BillTechButtonInsertHandler
+class BillTechLinkInsertHandler
 {
 	private $linksManager;
 
@@ -27,6 +27,18 @@ class BillTechButtonInsertHandler
 			return $linksManager->getBalanceLink($customerId, $params)->link;
 		} else {
 			return $linksManager->getCashLinkByDocumentId($doc, $params)->link;
+		}
+	}
+
+	private function getShortPaymentLink($doc, $customerId, $params = array())
+	{
+		global $DB;
+		$linksManager = $this->getLinksManager();
+
+		if ($doc == 'balance') {
+			return $linksManager->getBalanceLink($customerId, $params)->shortLink;
+		} else {
+			return $linksManager->getCashLinkByDocumentId($doc, $params)->shortLink;
 		}
 	}
 
@@ -64,12 +76,24 @@ class BillTechButtonInsertHandler
 	public function messageaddCustomerDataParse(array $hook_data = array())
 	{
 		$customerid = $hook_data['data']['id'];
-		$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
-		if (isset($hook_data['data']['contenttype']) && $hook_data['data']['contenttype'] == 'text/html') {
-			$balanceBtnCode = $this->createEmailButton($hook_data['mail_format'], $link);
-			$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $balanceBtnCode, $hook_data['body']);
+		$appendCustomerInfoEnabled = ConfigHelper::getConfig('billtech.append_customer_info', true);
+
+		if ($hook_data['data']['phone']) {
+			$link = self::getShortPaymentLink('balance', $customerid);
+			if ($appendCustomerInfoEnabled) {
+				$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $link, $hook_data['body']);
+			} else {
+				$hook_data['body'] = preg_replace('/%billtech_balance_btn/', '', $hook_data['body']);
+			}
 		} else {
-			$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $this->createEmailButton('txt', $link), $hook_data['body']);
+			$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
+			if (isset($hook_data['data']['contenttype']) && $hook_data['data']['contenttype'] == 'text/html') {
+				$mail_format = ConfigHelper::getConfig('sendinvoices.mail_format', 'html');
+				$balanceBtnCode = $this->createEmailButton($mail_format, $link);
+				$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $balanceBtnCode, $hook_data['body']);
+			} else {
+				$hook_data['body'] = preg_replace('/%billtech_balance_btn/', $this->createEmailButton('txt', $link), $hook_data['body']);
+			}
 		}
 
 		return $hook_data;

@@ -42,7 +42,7 @@ INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_expirati
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'private_key', 'plugins/BillTech/lms.pem');
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'cashimport_enabled', true);
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'manage_cutoff', true);
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'append_client_info', true);
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'append_customer_info', true);
 
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('last_sync', 0);
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('current_sync', 0);
