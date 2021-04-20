@@ -228,7 +228,9 @@ class BillTechLinkInsertHandler
 	function createEmailButton($mail_format, $link)
 	{
 		global $SMARTY;
-		if (isset($SMARTY) && isset($mail_format) && $mail_format == 'html') {
+		if ($link === null) {
+			return '';
+		} else if (isset($SMARTY) && isset($mail_format) && $mail_format == 'html') {
 			$SMARTY->assign('link', $link);
 			return $SMARTY->fetch('button/billtechemailbutton.html');
 		} else {
