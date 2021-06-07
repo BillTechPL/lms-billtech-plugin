@@ -39,7 +39,7 @@ class BillTechPaymentsUpdater
 		$DB->BeginTrans();
 		$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, cashid FROM billtech_payments WHERE closed = 0 AND ?NOW? > cdate + $expiration * 86400");
 
-		if ($this->verbose) {
+		if ($this->verbose && $payments) {
 			echo "Closing " . count($payments) . " expired payments\n";
 		}
 
