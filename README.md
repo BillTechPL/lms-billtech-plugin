@@ -1,14 +1,16 @@
-# Wtyczka BillTech Pay dla LMS
+# Wtyczka Bill Gateway dla LMS od BillTech
 
 ## Opis
-BillTech Pay to usługa, która pozwala Dostawcom na wygodne pobieranie należności od swoich klientów. 
+Bill Gateway to usługa, która pozwala Dostawcom na wygodne pobieranie należności od swoich klientów. 
 Po wystawieniu faktury Dostawca generuje link do płatności, który może dostarczyć swoim klientom różnymi kanałami,
  np. wysłać w wiadomości e-mail, sms lub pokazać w panelu klienta (userpanel). 
 Klient (użytkownik) po kliknięciu w taki link, zostaje przekierowany na ekran podsumowania płatności.
 Informacja o wykonanej płatności natychmiast trafia do Dostawcy,
  dzięki czemu możliwe jest szybkie uregulowanie salda klienta oraz ewentualne zdjęcie blokady usług.
  
-Wtyczka umożliwia integrację z usługą BillTech Pay poprzez:
+Więcej o korzyściach [Bill Gateway na stronie BillTech](https://billtech.pl/bill-gateway/).
+ 
+Wtyczka umożliwia integrację z usługą Bill Gateway poprzez:
 * Dodanie przycisku *Opłać teraz* do panelu klienta w sekcji finanse przy saldzie oraz indywidualnych 
 fakturach pozwalając na wykonanie płatności online poprzez platformę BillTech,
 * Dodanie przycisku *Opłać teraz* do wiadomości e-mail z fakturą oraz notyfikacji,
@@ -16,6 +18,7 @@ fakturach pozwalając na wykonanie płatności online poprzez platformę BillTec
 * Dodanie przycisku *Opłać teraz* do ekranu blokady internetu,
 * Przekazanie informacji o płatności wykonanej na platformie BillTech do LMS.
 
+Szczegółowa [dokumnetacja API](https://docs.billtech.pl/) produktu Bill Gateway.
 
 > #### Uwaga
 > Wtyczka do działania wymaga aktualizacji odpowiedniej wersji LMS. W przypadku posiadania najnowszej wersji
@@ -120,4 +123,4 @@ Nie odnotowaliśmy żadnych skutków ubocznych wśród użytkowników, którzy d
 ## Kontakt
 Więcej informacji na temat naszego API można znaleźć na stronie <https://docs.billtech.pl>. Po dane do połączenia prosimy o wysyłanie wiadomości na adres <admin@billtech.pl>
 
-Jeżeli chciałbyś przetestować wtyczkę, zobaczyć jak wygląda proces płatności, rozpocząć współpracę lub dowiedzieć się więcej, prosimy o wiadomość na adres <kontakt@billtech.pl>
+Jeżeli chciałbyś przetestować wtyczkę, zobaczyć jak wygląda proces płatności, rozpocząć współpracę lub dowiedzieć się więcej, prosimy o wiadomość na adres <sales@billtech.pl>
