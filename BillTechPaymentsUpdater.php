@@ -53,6 +53,10 @@ class BillTechPaymentsUpdater
 			}
 		}
 		if (is_array($DB->GetErrors()) && sizeof($DB->GetErrors())) {
+			foreach ($DB->GetErrors() as $error) {
+				echo $error['query'] . PHP_EOL;
+				echo $error['error'] . PHP_EOL;
+			}
 			$DB->RollbackTrans();
 		} else {
 			$DB->CommitTrans();

@@ -11,6 +11,6 @@ composer require guzzlehttp/guzzle:^6.0
 composer dump-autoload
 
 cd plugins/BillTech
-chmod 0644 cron/*
+chmod 0755 cron/*
 mkdir /var/log/billtech
 (crontab -l ; eval "echo \"$(cat cron/*)\"") | crontab -
