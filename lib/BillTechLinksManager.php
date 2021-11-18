@@ -248,6 +248,10 @@ class BillTechLinksManager
 				if (!$DB->GetErrors()) {
 					$DB->CommitTrans();
 				} else {
+					foreach ($DB->GetErrors() as $error) {
+						echo $error['query'] . PHP_EOL;
+						echo $error['error'] . PHP_EOL;
+					}
 					$errorCount++;
 					$DB->RollbackTrans();
 				}
@@ -269,6 +273,10 @@ class BillTechLinksManager
 				if (!$DB->GetErrors()) {
 					$DB->CommitTrans();
 				} else {
+					foreach ($DB->GetErrors() as $error) {
+						echo $error['query'] . PHP_EOL;
+						echo $error['error'] . PHP_EOL;
+					}
 					$errorCount++;
 					$DB->RollbackTrans();
 				}
@@ -290,6 +298,10 @@ class BillTechLinksManager
 				if (!$DB->GetErrors()) {
 					$DB->CommitTrans();
 				} else {
+					foreach ($DB->GetErrors() as $error) {
+						echo $error['query'] . PHP_EOL;
+						echo $error['error'] . PHP_EOL;
+					}
 					$errorCount++;
 					$DB->RollbackTrans();
 				}

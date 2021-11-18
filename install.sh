@@ -12,5 +12,6 @@ composer dump-autoload
 
 cd plugins/BillTech
 chmod 0644 cron/*
+chmod +x bin/*
 mkdir /var/log/billtech
 (crontab -l ; eval "echo \"$(cat cron/*)\"") | crontab -
