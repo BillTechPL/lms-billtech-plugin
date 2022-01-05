@@ -78,7 +78,7 @@ class BillTechLinkInsertHandler
 		$customerid = $hook_data['data']['id'];
 		$appendCustomerInfoEnabled = ConfigHelper::getConfig('billtech.append_customer_info', true);
 
-        $amount = sprintf('%01.2f', -$hook_data['data']['balance']);
+		$amount = sprintf('%01.2f', -$hook_data['data']['balance']);
 		$btnPatterns = ['/%billtech_balance_btn/', '/'.$amount.'illtech_balance_btn/'];
 
 		if ($hook_data['data']['phone']) {
