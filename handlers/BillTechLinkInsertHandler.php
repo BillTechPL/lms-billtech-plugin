@@ -184,12 +184,12 @@ class BillTechLinkInsertHandler
 
 		if (!ConfigHelper::checkConfig('billtech.balance_button_disabled')) {
 			$balanceLink = $linksManager->getBalanceLink($customerId, ['utm_medium' => 'userpanel'])->link;
-            if($balanceLink != '') {
-                $smarty->assign('billtech_balance_link', $balanceLink);
-                $billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechbalancebutton.html');
+			if($balanceLink != '') {
+				$smarty->assign('billtech_balance_link', $balanceLink);
+				$billtech_balance_button = $smarty->fetch('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechbalancebutton.html');
 
-                $smarty->assign('custom_content', $smarty->getTemplateVars('custom_content') . $billtech_balance_button);
-            }
+				$smarty->assign('custom_content', $smarty->getTemplateVars('custom_content') . $billtech_balance_button);
+			}
 		}
 		return $hook_data;
 	}
