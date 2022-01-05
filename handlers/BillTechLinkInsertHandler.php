@@ -79,7 +79,7 @@ class BillTechLinkInsertHandler
 		$appendCustomerInfoEnabled = ConfigHelper::getConfig('billtech.append_customer_info', true);
 
         $amount = sprintf('%01.2f', -$hook_data['data']['balance']);
-        $btnPatterns = ['/%billtech_balance_btn/', '/'.$amount.'illtech_balance_btn/'];
+		$btnPatterns = ['/%billtech_balance_btn/', '/'.$amount.'illtech_balance_btn/'];
 
 		if ($hook_data['data']['phone']) {
 			$link = self::getShortPaymentLink('balance', $customerid);
@@ -101,7 +101,6 @@ class BillTechLinkInsertHandler
 
 		return $hook_data;
 	}
-
 
 	public function addButtonToCustomerView(array $hook_data = array())
 	{
