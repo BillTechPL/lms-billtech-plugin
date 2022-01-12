@@ -213,6 +213,24 @@ class BillTechLinksManager
 		$DB->Execute("delete from billtech_payment_links where id = ?", array($link->id));
 	}
 
+    /**
+     * @return array
+     */
+    private function getPaymentLinksToCancel()
+    {
+        global $DB;
+        return $DB->GetCol("select token from billtech_payment_links where src_cash_id is null and src_document_id is null");
+    }
+
+    /**
+     * @return array
+     */
+    private function deletePaymentLinkByToken($linkToken)
+    {
+        global $DB;
+        return $DB->GetCol("delete from billtech_payment_links where token = '{$linkToken}'");
+    }
+
 	private function shouldCancelLink($link)
 	{
 		global $DB;
@@ -228,6 +246,15 @@ class BillTechLinksManager
 	{
 		return $value / 100.0;
 	}
+
+    public function cancelPaymentLinksIfManuallyDeletedLiability() {
+        $paymentLinkTokensToCancel = $this->getPaymentLinksToCancel();
+        foreach($paymentLinkTokensToCancel as $linkToken){
+            BillTechLinkApiService::cancelPaymentLink($linkToken);
+            $this->deletePaymentLinkByToken($linkToken);
+        }
+        echo "Cancelled " . count($paymentLinkTokensToCancel) . " links for manually deleted liability\n";
+    }
 
 	/**
 	 * @param array $actions
