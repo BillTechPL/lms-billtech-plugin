@@ -20,8 +20,8 @@ class BillTechLinksManager
 		global $DB;
 		$rows = $DB->GetAll("select bpl.*, c.docid
 				from billtech_payment_links bpl
-						 left join cash c on c.id = bpl.src_cash_id
-						 left join billtech_payments bp on bpl.token = bp.token
+						left join cash c on c.id = bpl.src_cash_id
+						left join billtech_payments bp on bpl.token = bp.token
 				where bp.id is null
 				  and customer_id = ?", array($customerId));
 		if (!is_array($rows)) {
