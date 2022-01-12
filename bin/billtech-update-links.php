@@ -161,7 +161,7 @@ $linksManager = new BillTechLinksManager(!$quiet);
 
 BillTech::measureTime(function () use ($linksManager) {
 	BillTech::lock("update-links", function () use ($linksManager) {
-        $linksManager->cancelPaymentLinksIfManuallyDeletedLiability();
+		$linksManager->cancelPaymentLinksIfManuallyDeletedLiability();
 		$linksManager->updateForAll();
 	});
 }, !$quiet);
