@@ -19,11 +19,11 @@ class BillTechLinksManager
 	{
 		global $DB;
 		$rows = $DB->GetAll("select bpl.*, c.docid
-                from billtech_payment_links bpl
-                         left join cash c on c.id = bpl.src_cash_id
-                         left join billtech_payments bp on bpl.token = bp.token
-                where bp.id is null
-                  and customer_id = ?", array($customerId));
+				from billtech_payment_links bpl
+						 left join cash c on c.id = bpl.src_cash_id
+						 left join billtech_payments bp on bpl.token = bp.token
+				where bp.id is null
+				  and customer_id = ?", array($customerId));
 		if (!is_array($rows)) {
 			return array();
 		}
@@ -228,7 +228,7 @@ class BillTechLinksManager
 	private function deletePaymentLinkByToken($linkToken)
 	{
 		global $DB;
-        $DB->Execute("delete from billtech_payment_links where token = ?", array($linkToken));
+		$DB->Execute("delete from billtech_payment_links where token = ?", array($linkToken));
 	}
 
 	private function shouldCancelLink($link)
