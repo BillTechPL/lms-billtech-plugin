@@ -19,11 +19,11 @@ class BillTechLinksManager
 	{
 		global $DB;
 		$rows = $DB->GetAll("select bpl.*, c.docid
-                                from billtech_payment_links bpl
-                                         left join cash c on c.id = bpl.src_cash_id
-                                         left join billtech_payments bp on bpl.token = bp.token
-                                where bp.id is null
-                                  and customer_id = ?", array($customerId));
+				from billtech_payment_links bpl
+					left join cash c on c.id = bpl.src_cash_id
+					left join billtech_payments bp on bpl.token = bp.token
+				where bp.id is null
+				  and customer_id = ?", array($customerId));
 		if (!is_array($rows)) {
 			return array();
 		}
@@ -213,6 +213,24 @@ class BillTechLinksManager
 		$DB->Execute("delete from billtech_payment_links where id = ?", array($link->id));
 	}
 
+	/**
+	 * @return array
+	 */
+	private function getPaymentLinksToCancel()
+	{
+		global $DB;
+		return $DB->GetCol("select token from billtech_payment_links where src_cash_id is null and src_document_id is null");
+	}
+
+	/**
+	 * @var $linkToken String
+	 */
+	private function deletePaymentLinkByToken($linkToken)
+	{
+		global $DB;
+		$DB->Execute("delete from billtech_payment_links where token = ?", array($linkToken));
+	}
+
 	private function shouldCancelLink($link)
 	{
 		global $DB;
@@ -227,6 +245,15 @@ class BillTechLinksManager
 	public static function intToMoney($value)
 	{
 		return $value / 100.0;
+	}
+
+	public function cancelPaymentLinksIfManuallyDeletedLiability() {
+		$paymentLinkTokensToCancel = $this->getPaymentLinksToCancel();
+		foreach($paymentLinkTokensToCancel as $linkToken){
+			BillTechLinkApiService::cancelPaymentLink($linkToken);
+			$this->deletePaymentLinkByToken($linkToken);
+		}
+		echo "Cancelled " . count($paymentLinkTokensToCancel) . " links for manually deleted liability\n";
 	}
 
 	/**
