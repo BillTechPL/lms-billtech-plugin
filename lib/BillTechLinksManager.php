@@ -248,7 +248,7 @@ class BillTechLinksManager
 	}
 
 	public function cancelPaymentLinksIfManuallyDeletedLiability() {
-		$paymentLinkTokensToCancel = $this->getPaymentLinksToCancel() ? $this->getPaymentLinksToCancel() : array();
+		$paymentLinkTokensToCancel = $this->getPaymentLinksToCancel() ?: array();
 		foreach($paymentLinkTokensToCancel as $linkToken){
 			BillTechLinkApiService::cancelPaymentLink($linkToken);
 			$this->deletePaymentLinkByToken($linkToken);
