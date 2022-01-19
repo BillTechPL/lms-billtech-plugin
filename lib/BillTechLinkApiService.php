@@ -159,8 +159,7 @@ class BillTechLinkApiService
 		global $DB;
 
 		$alternativeBankAccounts =
-			$DB->GetAll('SELECT contact FROM customercontacts
-								WHERE customerid = ? AND  (type & ?) = ?',
+			$DB->GetAll('SELECT contact FROM customercontacts WHERE customerid = ? AND  (type & ?) = ?',
 				array($customerId, (CONTACT_BANKACCOUNT | CONTACT_INVOICES | CONTACT_DISABLED), (CONTACT_BANKACCOUNT | CONTACT_INVOICES)));
 
 		if (!empty($alternativeBankAccounts)) {
