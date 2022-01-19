@@ -219,7 +219,7 @@ class BillTechLinksManager
 	private function getPaymentLinksToCancel()
 	{
 		global $DB;
-		return $DB->GetCol("select token from billtech_payment_links where src_cash_id is null and src_document_id is null");
+		return $DB->GetCol("select token from billtech_payment_links where src_cash_id is null and src_document_id is null")?: array();
 	}
 
 	/**
