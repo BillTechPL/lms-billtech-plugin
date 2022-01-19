@@ -168,10 +168,10 @@ class BillTechLinkApiService
 		);
 
 		if (!empty($alternativeBankAccounts)) {
-			return iban_account('PL',26, $customerId, $alternativeBankAccounts[0]['contact']);
+			return iban_account('PL', 26, $customerId, $alternativeBankAccounts[0]['contact']);
 		}
 
-		return iban_account('PL',26, $customerId, $divisionBankAccount);
+		return iban_account('PL', 26, $customerId, $divisionBankAccount);
 	}
 
 	/**
