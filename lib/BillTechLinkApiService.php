@@ -99,9 +99,8 @@ class BillTechLinkApiService
 		global $DB;
 
 		if ($linkRequest->srcDocumentId) {
-			// TODO: use customercontacts for email
 			$linkData = $DB->GetRow("select" . ($DB->GetDbType() == "postgres" ? " distinct on (c.id)" : "") .
-				" d.customerid, d.number, d.fullnumber, d.comment, d.div_account, d.id, d.name as fullname, c.lastname,
+				" d.customerid, d.number, d.fullnumber, d.comment, COALESCE(NULLIF(d.div_account,''), di.account) as div_account, d.id, d.name as fullname, c.lastname,
 				 c.name, d.cdate, d.paytime, di.id as division_id, di.shortname as division_name, cc.contact as email 
 				 						from documents d
     									left join customers c on d.customerid = c.id
@@ -150,6 +149,27 @@ class BillTechLinkApiService
 		throw new Exception($message);
 	}
 
+    /**
+     * @param $customerId
+     * @param $divisionBankAccount
+     * @return string
+     */
+    private static function getBankAccount($customerId, $divisionBankAccount)
+    {
+        global $DB;
+
+        $alternativeBankAccounts =
+            $DB->GetAll('SELECT contact FROM customercontacts
+                                WHERE customerid = ? AND  (type & ?) = ?',
+                array($customerId, (CONTACT_BANKACCOUNT | CONTACT_INVOICES | CONTACT_DISABLED), (CONTACT_BANKACCOUNT | CONTACT_INVOICES)));
+
+        if (!empty($alternativeBankAccounts)) {
+            return iban_account('PL',26, $customerId, $alternativeBankAccounts[0]['contact']);
+        }
+
+        return iban_account('PL',26, $customerId, $divisionBankAccount);
+    }
+
 	/**
 	 * @param $linkData
 	 * @return array
@@ -161,7 +181,7 @@ class BillTechLinkApiService
 			'userId' => $linkData['customerid'],
 			'operationId' => $linkData['key'],
 			'amount' => $linkData['amount'],
-			'nrb' => ConfigHelper::getConfig('billtech.bankaccount', bankaccount($linkData['customerid'], $linkData['div_account'])),
+			'nrb' => ConfigHelper::getConfig('billtech.bankaccount', self::getBankAccount($linkData['customerid'], $linkData['div_account'])),
 			'paymentDue' => (new DateTime('@' . ($linkData['pdate'] ?: time())))->format('Y-m-d'),
 			'title' => self::getTitle($linkData['title'])
 		);
