@@ -207,7 +207,7 @@ class BillTechLinkInsertHandler
 			'customerid' => $doc['customerid'],
 		));
 
-		$nrb = iban_account('PL',26, $doc_content['customerid'], $doc_content['account']);
+		$nrb = iban_account('PL', 26, $doc_content['customerid'], $doc_content['account']);
 
 		if ($nrb == "" && !empty($doc_content['bankaccounts'])) {
 			$nrb = $doc_content['bankaccounts'][0];
