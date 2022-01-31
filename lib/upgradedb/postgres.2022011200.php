@@ -16,3 +16,5 @@ FOREIGN KEY (src_document_id) REFERENCES documents ON
 DELETE
 SET NULL
 ");
+
+$this->Execute("UPDATE dbinfo SET keyvalue = ? WHERE keytype = ?", array('2022011200', 'dbversion_BillTech'));
