@@ -124,3 +124,7 @@ Nie odnotowaliśmy żadnych skutków ubocznych wśród użytkowników, którzy d
 Więcej informacji na temat naszego API można znaleźć na stronie <https://docs.billtech.pl>. Po dane do połączenia prosimy o wysyłanie wiadomości na adres <admin@billtech.pl>
 
 Jeżeli chciałbyś przetestować wtyczkę, zobaczyć jak wygląda proces płatności, rozpocząć współpracę lub dowiedzieć się więcej, prosimy o wiadomość na adres <sales@billtech.pl>
+
+## Odinstalowanie wtyczki
+
+Proces odinstalowania wtyczki został opisany w oddzielnym pliku [UNINSTALL.md](../blob/master/UNINSTALL.md).

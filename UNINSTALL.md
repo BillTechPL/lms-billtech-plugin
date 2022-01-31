@@ -51,3 +51,12 @@ DELETE FROM uiconfig WHERE section = 'billtech';
 > #### Uwaga
 > Należy sprawdzić także czy w pliku lms.ini nie zostały dodane ręcznie zmienne konfiguracyjne wtyczki.
 > W takim przypadku należy także ręcznie je usunąć.
+
+
+### 2.3. Usunięcie rekordu dbinfo
+
+W tabeli dbinfo znajduje się rekord dotyczący wersji aktualnej bazy danych wtyczki. Należy usunąć rekord dla którego wartość kolumny keytype = 'dbversion_BillTech'.
+
+```
+DELETE FROM dbinfo WHERE keytype = 'dbversion_BillTech';
+```
