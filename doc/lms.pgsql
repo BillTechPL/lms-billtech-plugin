@@ -80,5 +80,5 @@ create table billtech_customer_info
 create index billtech_customer_info__customer_id on billtech_customer_info (customer_id);
 
 
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2020091900');
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2022012000');
 COMMIT;
