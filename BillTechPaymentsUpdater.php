@@ -76,7 +76,7 @@ class BillTechPaymentsUpdater
 		$last_sync = $this->getLastSync();
 
 		$client = BillTechApiClientFactory::getClient();
-		$path = "/pay/v1/payments/search" . "?fromDate=" . (ConfigHelper::checkConfig("billtech.debug") ? 0 : ($last_sync - 60));
+		$path = "/pay/v1/payments/search" . "?fromDate=" . (ConfigHelper::checkConfig("billtech.debug") ? 0 : ($last_sync - 86400));
 
 		$response = $client->get($path);
 
