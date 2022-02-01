@@ -100,13 +100,21 @@ class BillTechLinksManager
 		}
 	}
 
-	private function checkIfCustomerCashIdExists($customerId, $cashId)
-	{
+    /**
+     * @param $customerId integer
+     * @param $cashId integer
+     * @return bool
+     */
+	private function checkIfCustomerCashIdExists(integer $customerId, integer $cashId): bool
+    {
 		global $DB;
 		return $DB->GetOne('select count(*) from cash where customerid = ? and id = ?', array($customerId, $cashId));
 	}
 
-	public function updateCustomerBalance($customerId)
+    /**
+     * @var $customerId integer
+     */
+	public function updateCustomerBalance(integer $customerId)
 	{
 		global $DB;
 		$this->addMissingCustomerInfo();
@@ -423,8 +431,8 @@ class BillTechLinksManager
 	{
 		global $DB;
 		$DB->Execute("update billtech_customer_info bci
-							set last_cash_id = (select max(c.id) from cash c where c.customerid = bci.customer_id)
-							where customer_id in (".implode(',', $customerIds).");");
+		set last_cash_id = (select max(c.id) from cash c where c.customerid = bci.customer_id)
+		where customer_id in (".implode(',', $customerIds).");");
 	}
 
 	/**
