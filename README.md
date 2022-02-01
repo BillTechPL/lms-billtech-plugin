@@ -34,6 +34,9 @@ z wprowadzeniem odpowiednich zmian również do innych wersji.
 * W szablonie wiadomości e-mail z powiadomieniem o wystawieniu nowej faktury dodaj `%billtech_btn` i/lub `%billtech_balance_btn` w miejscu,
   w którym powinny pojawić się przyciski do opłacenia odpowiednio indywidualnej faktury i/lub salda. 
 
+## Odinstalowanie wtyczki
+Proces odinstalowania wtyczki został opisany w oddzielnym pliku [UNINSTALL.md](../blob/master/UNINSTALL.md).
+
 ## Konfiguracja
 W panelu administracyjnym wejdź w zakładkę *Konfiguracja -> BillTech* i wpisz wartości zmiennych konfiguracyjnych otrzymanych od <admin@billtech.pl>. 
 Podane wartości można również wprowadzić w zakładce *Konfiguracja -> Interfejs użytkownika* w sekcji billtech.
@@ -103,7 +106,6 @@ Istnieją 2 możliwości podania danych identyfikujących użytkownika dokonują
 * Dodanie nowych tabel billtech_payment_links, billtech_customer_info oraz aktualizacja istniejących poprzez skrypty migracyjne. 
 * Przeniesienie mechanizmu aktualizowania informacji nt. wpłat łączącego się z BillTech co 5 minut do skryptu cron. 
 * Zmiana możliwych wartości zmiennej `billtech.payment_expiration`. Aby wyłączyć mechanizm automatycznego zamykania się wpłat tymczasowych należy podać wartość `never` zamiast `0`.
-* Dodanie możliwości generowania skróconych linków. Dla wartości zmiennej środowiskowej `billtech.produce_short_links=true` pole shortLink w tabeli billtech_payment_links zawiera skrócony link.
 * Naprawienie błędu wynikającego z korzystania ze starszej wersji systemu zarządzania bazą danych (MySQL lub PostgreSQL) polegającego na tworzeniu rekordów tabeli billtech_payments z niepoprawną wartości pola cashid (wynoszącą 1 dla wszystkich wpisów).
 
 #### Wersja 1.1 (nadchodząca)
@@ -124,7 +126,3 @@ Nie odnotowaliśmy żadnych skutków ubocznych wśród użytkowników, którzy d
 Więcej informacji na temat naszego API można znaleźć na stronie <https://docs.billtech.pl>. Po dane do połączenia prosimy o wysyłanie wiadomości na adres <admin@billtech.pl>
 
 Jeżeli chciałbyś przetestować wtyczkę, zobaczyć jak wygląda proces płatności, rozpocząć współpracę lub dowiedzieć się więcej, prosimy o wiadomość na adres <sales@billtech.pl>
-
-## Odinstalowanie wtyczki
-
-Proces odinstalowania wtyczki został opisany w oddzielnym pliku [UNINSTALL.md](../blob/master/UNINSTALL.md).
