@@ -161,7 +161,7 @@ class BillTechPaymentsUpdater
 					$amount = str_replace(',', '.', $payment->amount);
 
 					$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed) "
-						. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)",
+						. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0) ON CONFLICT DO NOTHING",
 						array($cashid, $ten, $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->paymentReferenceNumber, $payment->paymentDate));
 
 					$customers[$payment->userId] = $payment->userId;
