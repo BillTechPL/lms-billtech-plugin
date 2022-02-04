@@ -1,0 +1,1 @@
+0 0 1 * * bash -c ${sys_dir}/plugins/BillTech/bin/billtech-clear-logs.php
