@@ -17,7 +17,8 @@ CREATE TABLE billtech_payments
 	reference_number VARCHAR(255) DEFAULT '',
 	cdate            INTEGER DEFAULT 0                                           NOT NULL,
 	closed           SMALLINT DEFAULT 0                                          NOT NULL,
-	cashid           INTEGER                                                     NULL
+	cashid           INTEGER                                                     NULL,
+	UNIQUE (reference_number, customerid)
 );
 
 CREATE TABLE billtech_info
