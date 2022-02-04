@@ -33,7 +33,7 @@ Można to wykonać za pomocą poniższego zapytania SQL:
 DROP TABLE IF EXISTS billtech_customer_info,billtech_info,billtech_log,billtech_payment_links,billtech_payments;
 ```
 
-### 2.2. Usunięcie zmiennych konfiguracyjnych
+#### 2.2. Usunięcie zmiennych konfiguracyjnych
 
 W pliku instalacyjnym Readme.md wymieniona jest lista wszystkich zmiennych konfiguracyjnych wykorzystywanych przez wtyczkę.
 Posiadają one prefix 'billtech.' przez co znaduja się w jeden sekcji. Należy je usunąć.
@@ -53,10 +53,24 @@ DELETE FROM uiconfig WHERE section = 'billtech';
 > W takim przypadku należy także ręcznie je usunąć.
 
 
-### 2.3. Usunięcie rekordu dbinfo
+#### 2.3. Usunięcie rekordu dbinfo
 
 W tabeli dbinfo znajduje się rekord dotyczący wersji aktualnej bazy danych wtyczki. Należy usunąć rekord dla którego wartość kolumny keytype = 'dbversion_BillTech'.
 
 ```
 DELETE FROM dbinfo WHERE keytype = 'dbversion_BillTech';
+```
+
+### CRON
+
+Należy usunąć rekordy z crontab'a. Bezpośrednio związane z wtyczką są 3 pliki:
+- billtech-clear-logs.php
+- billtech-update-links.php
+- billtech-update-payments.php
+
+
+Aby edytować crontab, należy wykonać poniższą komendę i usunąć w edytorze linijki powiązane z powyższymi plikami.
+
+```
+crontab -e
 ```
