@@ -48,6 +48,7 @@ INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'append_customer_
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('last_sync', 0);
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('current_sync', 0);
 
+
 create table billtech_payment_links (
     id serial primary key,
     customer_id integer not null references customers(id) on delete cascade,
