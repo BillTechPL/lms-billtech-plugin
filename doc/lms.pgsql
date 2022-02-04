@@ -18,7 +18,7 @@ CREATE TABLE billtech_payments
 	cdate            INTEGER DEFAULT 0                                           NOT NULL,
 	closed           SMALLINT DEFAULT 0                                          NOT NULL,
 	cashid           INTEGER                                                     NULL,
-	UNIQUE (reference_number, customerid)
+	CONSTRAINT billtech_payments_documentnumber_referencenumber_ukey UNIQUE (reference_number, customerid)
 );
 
 CREATE TABLE billtech_info
