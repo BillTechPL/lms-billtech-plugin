@@ -48,6 +48,13 @@ z tabeli *uiconfig*:
 DELETE FROM uiconfig WHERE section = 'billtech';
 ```
 
+Dodatkowo należy usunąć wtyczkę z listy na podstronie panelu LMS Konfiguracja -> Wtyczki. Można to wykonać poniższym
+kodem SQL:
+
+```
+DELETE FROM uiconfig WHERE section = 'phpui' and var = 'plugins' and value = 'BillTech';
+```
+
 > #### Uwaga
 > Należy sprawdzić także czy w pliku lms.ini nie zostały dodane ręcznie zmienne konfiguracyjne wtyczki.
 > W takim przypadku należy także ręcznie je usunąć.
