@@ -39,7 +39,7 @@ W pliku instalacyjnym Readme.md wymieniona jest lista wszystkich zmiennych konfi
 Posiadają one prefix 'billtech.' przez co znaduja się w jeden sekcji. Należy je usunąć.
 
 Możliwe jest usunięcię poszczególnych zmiennych poprzez panel administracyjny LMS w zakładce *Ustawienia->Konfiguracja*.
-Należy wybrać z listy sekcję billteech, a nastepnie zaznaczyć wszystkie wiersze i je usunąć.
+Należy wybrać z listy sekcję billtech, a nastepnie zaznaczyć wszystkie wiersze i je usunąć.
 
 Alternatywna opcja to zapytanie do bazy danych. Poniższy kod SQL usuwa zmienne konfiguracyjne powiązane z wtyczką BillTech
 z tabeli *uiconfig*:

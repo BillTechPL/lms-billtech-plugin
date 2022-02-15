@@ -35,7 +35,9 @@ z wprowadzeniem odpowiednich zmian również do innych wersji.
   w którym powinny pojawić się przyciski do opłacenia odpowiednio indywidualnej faktury i/lub salda. 
 
 ## Odinstalowanie wtyczki
-Proces odinstalowania wtyczki został opisany w oddzielnym pliku [UNINSTALL.md](../blob/master/UNINSTALL.md).
+Proces kompletnego odinstalowania wtyczki został opisany w oddzielnym pliku [UNINSTALL.md](../blob/master/UNINSTALL.md).
+Odinstalowanie jest procesem nieodwracalnym, jeśli potrzebujesz zdezaktywować wtyczkę na pewien okres czasu zalecamy
+skorzystanie z przełącznika aktywności wtyczki BillTech znajdującego się w panelu administracyjnym LMS w zakładce: *Konfiguracja->Wtyczki*.
 
 ## Konfiguracja
 W panelu administracyjnym wejdź w zakładkę *Konfiguracja -> BillTech* i wpisz wartości zmiennych konfiguracyjnych otrzymanych od <admin@billtech.pl>. 
