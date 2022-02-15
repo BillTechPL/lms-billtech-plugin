@@ -31,12 +31,15 @@
  */
 class BillTech extends LMSPlugin
 {
-	const PLUGIN_DBVERSION = 2022012000;
+	const PLUGIN_DB_VERSION = 2022012000;
+	const PLUGIN_DBVERSION = PLUGIN_DB_VERSION; /* Legacy for old LMS versions */
+	const PLUGIN_SOFTWARE_VERSION = 2022012000;
 	const PLUGIN_DIRECTORY_NAME = 'BillTech';
 	const PLUGIN_NAME = 'BillTech';
 	const PLUGIN_DESCRIPTION = 'BillTech - wersja: 20220120';
 	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
 	const CASH_COMMENT = 'Wpłata online';
+	const PLUGIN_REPO_URL = 'https://github.com/BillTechPL/lms-billtech-plugin';
 
 	public function registerHandlers()
 	{
