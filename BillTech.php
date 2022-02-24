@@ -31,11 +31,13 @@
  */
 class BillTech extends LMSPlugin
 {
-	const PLUGIN_DBVERSION = 2018042300;
+	const PLUGIN_DB_VERSION = '2018042300';
 	const PLUGIN_DIRECTORY_NAME = 'BillTech';
 	const PLUGIN_NAME = 'BillTech';
 	const PLUGIN_DESCRIPTION = 'BillTech - wersja: 20180215';
 	const PLUGIN_AUTHOR = 'Michał Kaciuba &lt;michal@billtech.pl&gt;';
+	const PLUGIN_DOC_URL = 'https://github.com/BillTechPL/lms-billtech-plugin/blob/master/README.md';
+	const PLUGIN_REPO_URL = 'https://github.com/BillTechPL/lms-billtech-plugin';
 	const CASH_COMMENT = 'BillTech Payments';
 
 	public function __construct()
