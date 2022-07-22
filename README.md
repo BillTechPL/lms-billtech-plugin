@@ -18,7 +18,7 @@ fakturach pozwalając na wykonanie płatności online poprzez platformę BillTec
 * Dodanie przycisku *Opłać teraz* do ekranu blokady internetu,
 * Przekazanie informacji o płatności wykonanej na platformie BillTech do LMS.
 
-Szczegółowa [dokumnetacja API](https://docs.billtech.pl/) produktu Bill Gateway.
+Szczegółowa [dokumentacja API](https://docs.billtech.pl/) produktu Bill Gateway.
 
 > #### Uwaga
 > Wtyczka do działania wymaga aktualizacji odpowiedniej wersji LMS. W przypadku posiadania najnowszej wersji
@@ -35,7 +35,7 @@ z wprowadzeniem odpowiednich zmian również do innych wersji.
   w którym powinny pojawić się przyciski do opłacenia odpowiednio indywidualnej faktury i/lub salda. 
 
 ## Odinstalowanie wtyczki
-Proces kompletnego odinstalowania wtyczki został opisany w oddzielnym pliku [UNINSTALL.md](../blob/master/UNINSTALL.md).
+Proces kompletnego odinstalowania wtyczki został opisany w oddzielnym pliku [UNINSTALL.md](../master/UNINSTALL.md).
 Odinstalowanie jest procesem nieodwracalnym, jeśli potrzebujesz zdezaktywować wtyczkę na pewien okres czasu zalecamy
 skorzystanie z przełącznika aktywności wtyczki BillTech znajdującego się w panelu administracyjnym LMS w zakładce: *Konfiguracja->Wtyczki*.
 

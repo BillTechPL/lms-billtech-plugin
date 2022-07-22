@@ -14,7 +14,7 @@ if (is_array($bplm) && sizeof($bplm))
 if (is_array($ids) && sizeof($ids)) {
 	$DB->BeginTrans();
 
-	$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, closed, cashid FROM billtech_payments WHERE id IN (" . implode(',', $ids) . ")");
+	$payments = $DB->GetAll("SELECT id, customerid, amount, cdate, title, closed, cashid FROM billtech_payments WHERE id IN (" . implode(',', $ids) . ")");
 
 	foreach ($payments as $payment) {
 		if ($payment['closed']) {
@@ -23,7 +23,7 @@ if (is_array($ids) && sizeof($ids)) {
 				'type' => 100,
 				'userid' => Auth::GetCurrentUser(),
 				'customerid' => $payment['customerid'],
-				'comment' => BillTech::CASH_COMMENT,
+				'comment' => BillTech::CASH_COMMENT.' za: '.$payment['title'],
 				'time' => $payment['cdate']
 			);
 
