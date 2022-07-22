@@ -161,8 +161,8 @@ class BillTechLinkInsertHandler
 
 				foreach ($balancelist['list'] as &$item) {
 					/* @var $link BillTechLink */
-					$link = $paymentLinksMap[$item['docid']];
-					if (!isset($link)) {
+					$link = isset($paymentLinksMap[$item['docid']]) ? $paymentLinksMap[$item['docid']] : null;
+					if (!isset($link) && isset($paymentLinksMap['cash_' . $item['id']])) {
 						$link = $paymentLinksMap['cash_' . $item['id']];
 					}
 					if (isset($link)) {
