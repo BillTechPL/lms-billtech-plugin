@@ -125,12 +125,13 @@ class BillTechPaymentsUpdater
 				$cashid = $this->addBalanceReturnCashIdOrFalse($addbalance);
 				if ($cashid) {
 					$title = $payment->title ? $payment->title : '';
+					$invoiceNumber = $payment->invoiceNumber ? $payment->invoiceNumber : '';
 
 					$amount = str_replace(',', '.', $payment->amount);
 
 					$DB->Execute("INSERT INTO billtech_payments (cashid, ten, document_number, customerid, amount, title, reference_number, cdate, closed, token) "
 						. "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)",
-						array($cashid, '', $payment->invoiceNumber, $payment->userId, $amount, $title, $payment->referenceNumber, $payment->paidAt, $payment->token));
+						array($cashid, '', $invoiceNumber, $payment->userId, $amount, $title, $payment->referenceNumber, $payment->paidAt, $payment->token));
 
 					$customers[$payment->userId] = $payment->userId;
 				}
@@ -207,7 +208,7 @@ class BillTechPaymentsUpdater
 			}
 
 			$expiration = ConfigHelper::getConfig('billtech.payment_expiration', 5);
-			$new_cutoffstop = time() + $expiration * 86400;
+			$new_cutoffstop = time() + (int)$expiration * 86400;
 
 			if ($new_cutoffstop > $cutoffstop) {
 				$DB->Execute("UPDATE customers SET cutoffstop = ? WHERE id = ?", array($new_cutoffstop, $customerid));
