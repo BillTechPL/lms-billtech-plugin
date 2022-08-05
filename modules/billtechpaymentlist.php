@@ -1,6 +1,6 @@
 <?php
 
-function GetBillTtechPaymentsList($search = NULL, $cat = NULL, $hideclosed = NULL, $order, $pagelimit = 100, $page = NULL)
+function GetBillTtechPaymentsList($search = NULL, $cat = NULL, $hideclosed = NULL, $order = '', $pagelimit = 100, $page = NULL)
 {
 	global $DB;
 
