@@ -159,8 +159,8 @@ $LMS->setPluginManager($plugin_manager);
 
 $linksManager = new BillTechLinksManager(!$quiet);
 
-BillTech::measureTime(function () use ($linksManager) {
-	BillTech::lock("update-links", function () use ($linksManager) {
+BillTech::measureTime(function () use ($linksManager, $CONFIG) {
+	BillTech::lock("update-links-".$CONFIG['database']['database'], function () use ($linksManager) {
 		$linksManager->cancelPaymentLinksIfManuallyDeletedLiability();
 		$linksManager->updateForAll();
 	});

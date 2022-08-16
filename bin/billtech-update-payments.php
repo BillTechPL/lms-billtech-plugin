@@ -163,8 +163,8 @@ $LMS->setPluginManager($plugin_manager);
 
 $paymentsUpdater = new BillTechPaymentsUpdater(!$quiet);
 
-BillTech::measureTime(function () use ($paymentsUpdater) {
-	BillTech::lock("update-payments", function () use ($paymentsUpdater) {
+BillTech::measureTime(function () use ($paymentsUpdater, $CONFIG) {
+	BillTech::lock("update-payments-".$CONFIG['database']['database'], function () use ($paymentsUpdater) {
 		$paymentsUpdater->checkForUpdate();
 	});
 }, !$quiet);
