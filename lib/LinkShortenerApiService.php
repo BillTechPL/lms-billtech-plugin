@@ -32,5 +32,5 @@ class LinkShortenerApiService
             $error = $e->getResponse();
             echo "Unable to add parameters to the link. Server reseponse: ".$error;
         }
-	}
+    }
 }
