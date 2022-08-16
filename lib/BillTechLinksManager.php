@@ -334,7 +334,7 @@ class BillTechLinksManager
 				}
 			} catch (Exception $e) {
 				$errorCount++;
-				if ($this->debug) {
+				if ($this->verbose) {
 					echo $e->getMessage();
 				}
 			}
