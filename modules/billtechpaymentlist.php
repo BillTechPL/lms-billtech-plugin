@@ -1,6 +1,6 @@
 <?php
 
-function GetBillTtechPaymentsList($search = NULL, $cat = NULL, $hideclosed = NULL, $order, $pagelimit = 100, $page = NULL)
+function GetBillTtechPaymentsList($order, $search = NULL, $cat = NULL, $hideclosed = NULL, $pagelimit = 100, $page = NULL)
 {
 	global $DB;
 
@@ -158,7 +158,7 @@ if ($c == 'cdate' && $s && preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/', $s)) {
 $pagelimit = ConfigHelper::getConfig('phpui.billtechpaymentlist_pagelimit', 100);
 $page = !isset($_GET['page']) ? 0 : intval($_GET['page']);
 
-$paymentlist = GetBillTtechPaymentsList($s, $c, $h, $o, $pagelimit, $page);
+$paymentlist = GetBillTtechPaymentsList($o, $s, $c, $h, $pagelimit, $page);
 
 $SESSION->restore('bplc', $listdata['cat']);
 $SESSION->restore('bpls', $listdata['search']);
