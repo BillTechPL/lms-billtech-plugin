@@ -87,7 +87,13 @@ class BillTechLinkInsertHandler
 		$amount = sprintf('%01.2f', -$hook_data['data']['balance']);
 		$btnPatterns = ['/%billtech_balance_btn/', '/'.$amount.'illtech_balance_btn/'];
 
-		if ($hook_data['data']['phone']) {
+        if(isset($hook_data['data']['phone'])) {
+            $phone = $hook_data['data']['phone'];
+        }else if(isset($hook_data['data']['phones'])) {
+            $phone = $hook_data['data']['phones'];
+        }
+
+		if (isset($phone)) {
 			$link = self::getShortPaymentLink('balance', $customerid);
 			if ($appendCustomerInfoEnabled) {
 				$hook_data['body'] = preg_replace($btnPatterns, $link, $hook_data['body']);
