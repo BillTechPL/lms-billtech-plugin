@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
     $logDirectory = '/var/log/billtech/';
 
     $fileSystemIterator = new FilesystemIterator($logDirectory);

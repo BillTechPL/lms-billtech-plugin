@@ -25,6 +25,10 @@ Szczegółowa [dokumentacja API](https://docs.billtech.pl/) produktu Bill Gatewa
 lmsgit nie jest konieczne dodatkowe działanie. W przeciwnym wypadku zapraszamy do kontaktu, chętnie pomożemy 
 z wprowadzeniem odpowiednich zmian również do innych wersji.
 
+## Licencja
+Wtyczka udostepniana jest na licencji MPL (Mozilla Public License) z klauzulą Creative Commons. 
+Firma Billtech prowadzi odpłatną pomoc techniczną - jeśli jesteś zainteresowany wykup konstultację w aplikacji rezerwacyjnej https://billtech.trafft.com/ lub skontaktuj się z nami mailowo lms@billtech.pl.
+
 ## Instalacja
 * Umieść zawartość tego repozytorium w katalogu *plugins/BillTech* w katalogu instalacyjnym LMSa,
 * W katalogu projektu uruchom skrypt install.sh. W celu jego poprawnego działania plik lms.ini powinien znajdować się w katalogu `/etc/lms` i mieć wypełnione pole `sys_dir`,
@@ -53,12 +57,12 @@ Istnieją 3 możliwości rozliczania wpłat tymczasowych:
    
         Aby włączyć automatyczne rozliczanie opłat tymczasowych poprzez cashimport, należy ustawić wartość zmiennej `billtech.cashimport_enabled=true`.
 
-   1. Po upływie określonej liczby dni (domyślnie jest to 5 dni), wpłaty tymczasowe są automatycznie zamykane jako rozliczone. Odpowiada za to zmienna środowiskowa `billtech.payment_expiration`. 
+   2. Po upływie określonej liczby dni (domyślnie jest to 5 dni), wpłaty tymczasowe są automatycznie zamykane jako rozliczone. Odpowiada za to zmienna środowiskowa `billtech.payment_expiration`. 
     
         Aby wpłaty tymczasowe nigdy nie wygasały po upływie zadanego czasu, należy ustawić zmienną `billtech.payment_expiration=never`. 
     Takie ustawienie jest wskazane, gdy rozliczanie wpłat tymczasowych poprzez cashimport jest włączone (punkt pierwszy).
     
-   1. Wpłaty tymczasowe można rozliczać manualnie poprzez panel Płatności BillTech. 
+   3. Wpłaty tymczasowe można rozliczać manualnie poprzez panel Płatności BillTech. 
    
         W tym celu należy zaznaczyć opłaty do rozliczenia i kliknąć przycisk *Zaznacz/Odznacz jako rozliczone*. 
    W przypadku pomyłki, proces ten jest w pełni odwracalny poprzez wskazanie wyszarzonych (rozliczonych) wpłat tymczasowych, a następnie kliknięcie przycisku *Zaznacz/Odznacz jako rozliczone*. 
