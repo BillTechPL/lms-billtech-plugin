@@ -21,16 +21,31 @@ class LinkShortenerApiService
 
 	public function addParameters($url, $params = array())
 	{
-		try {
-			$response = $this->client->post('/encode', [
-				'query' => $params,
-				'json' => [
-					'url' => $url
-				]]);
-			return "" . $response->getBody();
-		}catch(\Exception $e) {
-			$error = $e->getResponse();
-			echo "Unable to add parameters to the link. Server reseponse: ".$error;
-		}
+		$retryLimit = 3;
+		$retryCount = 0;
+
+		do {
+			try {
+				return $this->postEncodeUrl($url, $params);
+			} catch (Exception $e) {
+				$retryCount++;
+				sleep(1);
+				if($retryCount === $retryLimit) {
+					$error = $e->getResponse();
+					echo "Unable to add parameters to the link. Server reseponse: ".$error;
+				}
+				continue;
+			}
+		} while($retryCount < $retryLimit);
+	}
+
+	private function postEncodeUrl($url, $params)
+	{
+		$response = $this->client->post('/encode', [
+			'query' => $params,
+			'json' => [
+				'url' => $url
+			]]);
+		return "" . $response->getBody();
 	}
 }
