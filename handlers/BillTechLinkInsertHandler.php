@@ -73,6 +73,11 @@ class BillTechLinkInsertHandler
 		$customerid = $hook_data['customer']['id'];
 		$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
 
+        if($hook_data['customer']['phone'] && $hook_data['customer']['phone'] != '') {
+            $shortLink = self::getShortPaymentLink('balance', $customerid);
+            $link = $shortLink != '' ? $shortLink : $link;
+        }
+
 		$hook_data['data'] = preg_replace('/%billtech_balance_btn/',
 			$this->createEmailButton('html', $link), $data);
 
