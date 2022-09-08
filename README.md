@@ -26,8 +26,8 @@ lmsgit nie jest konieczne dodatkowe działanie. W przeciwnym wypadku zapraszamy 
 z wprowadzeniem odpowiednich zmian również do innych wersji.
 
 ## Licencja
-Wtyczka udostepniana jest na licencji MPL (Mozilla Public License) z klauzulą Creative Commons. 
-Firma Billtech prowadzi odpłatną pomoc techniczną - jeśli jesteś zainteresowany wykup konstultację w aplikacji rezerwacyjnej https://billtech.trafft.com/ lub skontaktuj się z nami mailowo lms@billtech.pl.
+Wtyczka udostepniana jest na licencji MPL (Mozilla Public License) z klauzulą Commons Clause. Więcej informacji znajduje się w pliku license.md.
+Firma Billtech prowadzi odpłatną pomoc techniczną - jeśli jesteś zainteresowany wykup konstultację w aplikacji rezerwacyjnej https://billtech.trafft.com/ lub skontaktuj się z nami mailowo pod adresem <lms@billtech.pl>.
 
 ## Instalacja
 * Umieść zawartość tego repozytorium w katalogu *plugins/BillTech* w katalogu instalacyjnym LMSa,
@@ -44,7 +44,7 @@ Odinstalowanie jest procesem nieodwracalnym, jeśli potrzebujesz zdezaktywować 
 skorzystanie z przełącznika aktywności wtyczki BillTech znajdującego się w panelu administracyjnym LMS w zakładce: *Konfiguracja->Wtyczki*.
 
 ## Konfiguracja
-W panelu administracyjnym wejdź w zakładkę *Konfiguracja -> BillTech* i wpisz wartości zmiennych konfiguracyjnych otrzymanych od <admin@billtech.pl>. 
+W panelu administracyjnym wejdź w zakładkę *Konfiguracja -> BillTech* i wpisz wartości zmiennych konfiguracyjnych otrzymanych od <lms@billtech.pl>. 
 Podane wartości można również wprowadzić w zakładce *Konfiguracja -> Interfejs użytkownika* w sekcji billtech.
 
 ## Dodatkowe informacje
@@ -129,6 +129,6 @@ W przypadku gdy problem się pojawi, zalecamy ustawienie zmiennej `mail.backend=
 Nie odnotowaliśmy żadnych skutków ubocznych wśród użytkowników, którzy dokonali zmiany silnika pocztowego na PHPMailer.
 
 ## Kontakt
-Więcej informacji na temat naszego API można znaleźć na stronie <https://docs.billtech.pl>. Po dane do połączenia prosimy o wysyłanie wiadomości na adres <admin@billtech.pl>
+Więcej informacji na temat naszego API można znaleźć na stronie <https://docs.billtech.pl>. Po dane do połączenia prosimy o wysyłanie wiadomości na adres <lms@billtech.pl>
 
 Jeżeli chciałbyś przetestować wtyczkę, zobaczyć jak wygląda proces płatności, rozpocząć współpracę lub dowiedzieć się więcej, prosimy o wiadomość na adres <sales@billtech.pl>
