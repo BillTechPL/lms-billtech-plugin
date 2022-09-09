@@ -22,9 +22,9 @@ class LinkShortenerApiService
 	public function addParameters($url, $params = array())
 	{
 		$retryLimit = 3;
-		$retryCount = 0;
+		$retryCount = 1;
 
-		do {
+		while($retryCount <= $retryLimit) {
 			try {
 				return $this->postEncodeUrl($url, $params);
 			} catch (Exception $e) {
@@ -32,11 +32,13 @@ class LinkShortenerApiService
 				sleep(1);
 				if($retryCount === $retryLimit) {
 					$error = $e->getResponse();
-					echo "Unable to add parameters to the link. Server reseponse: ".$error;
+					echo "Unable to add parameters to the link. Server response: ".$error;
 				}
 				continue;
 			}
-		} while($retryCount < $retryLimit);
+		}
+
+		return "";
 	}
 
 	private function postEncodeUrl($url, $params)
