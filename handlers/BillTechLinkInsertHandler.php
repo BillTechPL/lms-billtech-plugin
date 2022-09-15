@@ -76,7 +76,7 @@ class BillTechLinkInsertHandler
 		$phone = '';
 		if($hook_data['customer']['phone'] && $hook_data['customer']['phone'] != '') {
 			$phone = $hook_data['customer']['phone'];
-		}else if($hook_data['customer']['phones'] && $hook_data['customer']['phones'] != ''){
+		}else if($hook_data['customer']['phones'] && $hook_data['customer']['phones'] != '') {
 			$phone = $hook_data['customer']['phones'];
 		}
 
