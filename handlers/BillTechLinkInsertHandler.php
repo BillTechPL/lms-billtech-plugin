@@ -73,12 +73,12 @@ class BillTechLinkInsertHandler
 		$customerid = $hook_data['customer']['id'];
 		$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
 
-        $phone = '';
-        if($hook_data['customer']['phone'] && $hook_data['customer']['phone'] != '') {
-            $phone = $hook_data['customer']['phone'];
-        }else if($hook_data['customer']['phones'] && $hook_data['customer']['phones'] != ''){
-            $phone = $hook_data['customer']['phones'];
-        }
+		$phone = '';
+		if($hook_data['customer']['phone'] && $hook_data['customer']['phone'] != '') {
+			$phone = $hook_data['customer']['phone'];
+		}else if($hook_data['customer']['phones'] && $hook_data['customer']['phones'] != ''){
+			$phone = $hook_data['customer']['phones'];
+		}
 
 		if($phone != '') {
 			$shortLink = self::getShortPaymentLink('balance', $customerid);
