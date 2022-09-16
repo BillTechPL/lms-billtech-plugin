@@ -74,9 +74,9 @@ class BillTechLinkInsertHandler
 		$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
 
 		$phone = '';
-		if($hook_data['customer']['phone'] && $hook_data['customer']['phone'] != '') {
+		if (isset($hook_data['customer']['phone']) && $hook_data['customer']['phone'] != '') {
 			$phone = $hook_data['customer']['phone'];
-		}else if($hook_data['customer']['phones'] && $hook_data['customer']['phones'] != '') {
+		} elseif (isset($hook_data['customer']['phones']) && $hook_data['customer']['phones'] != '') {
 			$phone = $hook_data['customer']['phones'];
 		}
 
