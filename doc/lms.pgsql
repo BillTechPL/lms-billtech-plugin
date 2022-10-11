@@ -38,7 +38,7 @@ INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_url', ''
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_url', '');
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_key', '');
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_secret', '');
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_expiration', 5);
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_expiration', 'never');
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'private_key', 'plugins/BillTech/lms.pem');
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'cashimport_enabled', true);
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'manage_cutoff', true);
