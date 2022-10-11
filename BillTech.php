@@ -12,7 +12,7 @@
 
 class BillTech extends LMSPlugin
 {
-	const PLUGIN_DB_VERSION = '2022012000';
+	const PLUGIN_DB_VERSION = '2022100400';
 	const PLUGIN_DBVERSION = BillTech::PLUGIN_DB_VERSION; /* Legacy for old LMS versions */
 	const PLUGIN_SOFTWARE_VERSION = '2022012000';
 	const PLUGIN_DIRECTORY_NAME = 'BillTech';
