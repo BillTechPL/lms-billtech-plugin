@@ -284,7 +284,7 @@ class BillTechLinksManager
 				}
 			} catch (Exception $e) {
 				$errorCount++;
-				if ($this->debug) {
+				if (ConfigHelper::checkConfig("billtech.debug")) {
 					echo $e->getMessage();
 				}
 			}
@@ -309,7 +309,7 @@ class BillTechLinksManager
 				}
 			} catch (Exception $e) {
 				$errorCount++;
-				if ($this->debug) {
+				if (ConfigHelper::checkConfig("billtech.debug")) {
 					echo $e->getMessage();
 				}
 			}
