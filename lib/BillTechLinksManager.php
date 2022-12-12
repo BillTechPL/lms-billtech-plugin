@@ -368,17 +368,15 @@ class BillTechLinksManager
 		}, $existingLinks);
 
 		foreach ($targetLinks as $targetLink) {
-			/* @var $existingLink BillTechLink */
-			$existingLink = $existingLinkMap[$targetLink->getKey()];
-			if (isset($existingLink) && self::moneyToInt($existingLink->amount) != self::moneyToInt($targetLink->amount)) {
-				$existingLink->amount = $targetLink->amount;
-				array_push($actions['update'], $existingLink);
-			} else if (!isset($existingLink) && self::moneyToInt($targetLink->amount) > 0) {
-				array_push($actions['add'], $targetLink);
-			}
-
-			if (isset($existingLink)) {
+			if(isset($existingLinkMap[$targetLink->getKey()])) {
+				$existingLink = $existingLinkMap[$targetLink->getKey()];
+				if(self::moneyToInt($existingLink->amount) != self::moneyToInt($targetLink->amount)) {
+					$existingLink->amount = $targetLink->amount;
+					array_push($actions['update'], $existingLink);
+				}
 				unset($existingLinkMap[$targetLink->getKey()]);
+			} else if (self::moneyToInt($targetLink->amount) > 0){
+				array_push($actions['add'], $targetLink);
 			}
 		}
 
