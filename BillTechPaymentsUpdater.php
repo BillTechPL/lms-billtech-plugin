@@ -124,8 +124,8 @@ class BillTechPaymentsUpdater
 
 				$cashid = $this->addBalanceReturnCashIdOrFalse($addbalance);
 				if ($cashid) {
-					$title = $payment->title ? $payment->title : '';
-					$invoiceNumber = $payment->invoiceNumber ? $payment->invoiceNumber : '';
+					$title = isset($payment->title) ? $payment->title : '';
+					$invoiceNumber = isset($payment->invoiceNumber) ? $payment->invoiceNumber : '';
 
 					$amount = str_replace(',', '.', $payment->amount);
 
