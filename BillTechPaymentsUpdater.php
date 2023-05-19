@@ -119,7 +119,8 @@ class BillTechPaymentsUpdater
 					'userid' => null,
 					'customerid' => $payment->userId,
 					'comment' => BillTech::CASH_COMMENT.' za: '.$payment->title,
-					'time' => $payment->paidAt
+					'time' => $payment->paidAt,
+					'currency' => 'PLN',
 				);
 
 				$cashid = $this->addBalanceReturnCashIdOrFalse($addbalance);
