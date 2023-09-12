@@ -32,19 +32,6 @@ CREATE TABLE billtech_log (
   description TEXT NOT NULL
 );
 
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'isp_id', '');
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_url', '');
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_url', '');
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_key', '');
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_secret', '');
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_expiration', 'never');
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'private_key', 'plugins/BillTech/lms.pem');
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'cashimport_enabled', true);
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'manage_cutoff', true);
-INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'append_customer_info', true);
-INSERT INTO billtech_info (keytype, keyvalue) VALUES ('last_sync', 0);
-INSERT INTO billtech_info (keytype, keyvalue) VALUES ('current_sync', 0);
-
 CREATE TABLE billtech_payment_links (
   id serial PRIMARY KEY, 
   customer_id integer NOT NULL REFERENCES customers(id) ON DELETE CASCADE, 
@@ -66,6 +53,19 @@ CREATE INDEX billtech_payments__closed_cdate ON billtech_payments(closed, cdate)
 CREATE INDEX billtech_payments__token ON billtech_payments(token);
 CREATE TABLE billtech_customer_info (customer_id integer PRIMARY KEY, last_cash_id integer);
 CREATE INDEX billtech_customer_info__customer_id ON billtech_customer_info (customer_id);
+
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'isp_id', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_url', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_url', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_key', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'api_secret', '');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'payment_expiration', 'never');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'private_key', 'plugins/BillTech/lms.pem');
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'cashimport_enabled', true);
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'manage_cutoff', true);
+INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'append_customer_info', true);
+INSERT INTO billtech_info (keytype, keyvalue) VALUES ('last_sync', 0);
+INSERT INTO billtech_info (keytype, keyvalue) VALUES ('current_sync', 0);
 
 INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2022012000');
 
