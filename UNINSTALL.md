@@ -32,6 +32,15 @@ Można to wykonać za pomocą poniższego zapytania SQL:
 ```
 DROP TABLE IF EXISTS billtech_customer_info,billtech_info,billtech_log,billtech_payment_links,billtech_payments;
 ```
+Należy również usunąć sekwencje:
+- billtech_payments_id_seq,
+- billtech_payment_links_id_seq
+
+Można to wykonać za pomocą poniższego zapytania SQL:
+
+```
+DROP SEQUENCE IF EXISTS billtech_payments_id_seq, billtech_payment_links_id_seq;
+```
 
 #### 2.2. Usunięcie zmiennych konfiguracyjnych
 
