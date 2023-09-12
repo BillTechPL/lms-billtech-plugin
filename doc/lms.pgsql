@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS billtech_log;
 DROP TABLE IF EXISTS billtech_payment_links;
 
 DROP SEQUENCE IF EXISTS billtech_payments_id_seq;
-CREATE SEQUENCE billtech_payments_id_seq;
+DROP SEQUENCE IF EXISTS billtech_payment_links_id_seq;
 
 CREATE TABLE billtech_payments (
   id serial PRIMARY KEY, 
