@@ -1,4 +1,5 @@
 /* $Id$ */
+
 BEGIN;
 DROP TABLE IF EXISTS billtech_payments;
 DROP TABLE IF EXISTS billtech_info;
