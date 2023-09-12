@@ -47,7 +47,7 @@ INSERT INTO billtech_info (keytype, keyvalue) VALUES ('current_sync', 0);
 
 CREATE TABLE billtech_payment_links (
   id serial PRIMARY KEY, 
-  customer_id integer NOT NULL REFERENCES customers(id) ON DELETE SET CASCADE, 
+  customer_id integer NOT NULL REFERENCES customers(id) ON DELETE CASCADE, 
   src_cash_id integer REFERENCES cash(id) ON DELETE SET NULL, 
     src_document_id integer REFERENCES documents(id) ON DELETE SET NULL, 
     type varchar(255) NOT NULL, 
