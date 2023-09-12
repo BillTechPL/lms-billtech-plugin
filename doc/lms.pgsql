@@ -20,7 +20,8 @@ CREATE TABLE billtech_payments (
   reference_number varchar(255) DEFAULT '',
   cdate integer DEFAULT 0 NOT NULL,
   closed smallint DEFAULT 0 NOT NULL,
-  cashid integer,
+  cashid integer ON DELETE SET NULL
+      CONSTRAINT billtech_payment__cashid_fkey REFERENCES cash(id),
   token varchar(1000)
 );
 
@@ -37,9 +38,12 @@ CREATE TABLE billtech_log (
 
 CREATE TABLE billtech_payment_links (
   id serial PRIMARY KEY,
-  customer_id integer NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-  src_cash_id integer REFERENCES cash(id) ON DELETE SET NULL,
-  src_document_id integer REFERENCES documents(id) ON DELETE SET NULL,
+  customer_id integer NOT NULL ON DELETE CASCADE
+      CONSTRAINT billtech_payment_links__customer_id_fkey REFERENCES customers(id),
+  src_cash_id integer ON DELETE SET NULL
+      CONSTRAINT billtech_payment_links__src_cash_id_fkey REFERENCES cash(id),
+  src_document_id integer ON DELETE SET NULL
+      CONSTRAINT billtech_payment_links__src_document_id_fkey REFERENCES documents(id),
   type varchar(255) NOT NULL,
   link varchar(2000) NOT NULL,
   short_link varchar(160),
@@ -59,6 +63,7 @@ CREATE INDEX billtech_payment_links__token ON billtech_payment_links (token);
 CREATE INDEX billtech_payments__reference_number ON billtech_payments(reference_number);
 CREATE INDEX billtech_payments__closed_cdate ON billtech_payments(closed, cdate);
 CREATE INDEX billtech_payments__token ON billtech_payments(token);
+
 CREATE INDEX billtech_customer_info__customer_id ON billtech_customer_info (customer_id);
 
 INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'isp_id', '');
