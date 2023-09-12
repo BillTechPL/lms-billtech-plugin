@@ -69,6 +69,6 @@ INSERT INTO uiconfig (section, var, value) VALUES ('billtech', 'append_customer_
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('last_sync', 0);
 INSERT INTO billtech_info (keytype, keyvalue) VALUES ('current_sync', 0);
 
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2022012000');
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion_BillTech', '2023091200');
 
 COMMIT;
