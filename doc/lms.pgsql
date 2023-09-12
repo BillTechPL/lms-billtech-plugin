@@ -17,7 +17,8 @@ CREATE TABLE billtech_payments (
   reference_number VARCHAR(255) DEFAULT '', 
   cdate INTEGER DEFAULT 0 NOT NULL, 
   closed SMALLINT DEFAULT 0 NOT NULL, 
-  cashid INTEGER
+  cashid INTEGER,
+  token varchar(1000)
 );
 
 CREATE TABLE billtech_info (
@@ -63,8 +64,6 @@ CREATE TABLE billtech_payment_links (
 CREATE INDEX billtech_payment_links__customer_id ON billtech_payment_links (customer_id);
 CREATE INDEX billtech_payment_links__src_cash_id ON billtech_payment_links (src_cash_id);
 CREATE INDEX billtech_payment_links__token ON billtech_payment_links (token);
-
-ALTER TABLE billtech_payments ADD COLUMN token varchar(1000);
 
 CREATE INDEX billtech_payments__reference_number ON billtech_payments(reference_number);
 CREATE INDEX billtech_payments__closed_cdate ON billtech_payments(closed, cdate);
