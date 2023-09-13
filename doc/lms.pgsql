@@ -20,8 +20,8 @@ CREATE TABLE billtech_payments (
   reference_number varchar(255) DEFAULT '',
   cdate integer DEFAULT 0 NOT NULL,
   closed smallint DEFAULT 0 NOT NULL,
-  cashid integer ON DELETE SET NULL
-      CONSTRAINT billtech_payment__cashid_fkey REFERENCES cash(id),
+  cashid integer
+      CONSTRAINT billtech_payment__cashid_fkey REFERENCES cash(id) ON DELETE SET NULL,
   token varchar(1000)
 );
 
@@ -38,12 +38,12 @@ CREATE TABLE billtech_log (
 
 CREATE TABLE billtech_payment_links (
   id serial PRIMARY KEY,
-  customer_id integer NOT NULL ON DELETE CASCADE
-      CONSTRAINT billtech_payment_links__customer_id_fkey REFERENCES customers(id),
-  src_cash_id integer ON DELETE SET NULL
-      CONSTRAINT billtech_payment_links__src_cash_id_fkey REFERENCES cash(id),
-  src_document_id integer ON DELETE SET NULL
-      CONSTRAINT billtech_payment_links__src_document_id_fkey REFERENCES documents(id),
+  customer_id integer NOT NULL
+      CONSTRAINT billtech_payment_links__customer_id_fkey REFERENCES customers(id) ON DELETE CASCADE,
+  src_cash_id integer
+      CONSTRAINT billtech_payment_links__src_cash_id_fkey REFERENCES cash(id) ON DELETE SET NULL,
+  src_document_id integer
+      CONSTRAINT billtech_payment_links__src_document_id_fkey REFERENCES documents(id) ON DELETE SET NULL,
   type varchar(255) NOT NULL,
   link varchar(2000) NOT NULL,
   short_link varchar(160),
