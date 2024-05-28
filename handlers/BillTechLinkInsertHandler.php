@@ -70,6 +70,7 @@ class BillTechLinkInsertHandler
 	public function notifyCustomerDataParse(array $hook_data = array())
 	{
 		$data = $hook_data['data'];
+		$format = isset($hook_data['format']) && $hook_data['format'] == 'html' ? 'html' : 'text';
 		$customerid = $hook_data['customer']['id'];
 		$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
 
@@ -86,7 +87,7 @@ class BillTechLinkInsertHandler
 		}
 
 		$hook_data['data'] = preg_replace('/%billtech_balance_btn/',
-			$this->createEmailButton('html', $link), $data);
+			$this->createEmailButton($format, $link), $data);
 
 		return $hook_data;
 	}
