@@ -119,14 +119,68 @@ Istnieją 2 możliwości podania danych identyfikujących użytkownika dokonują
 * Generowanie linków przez API tylko dla użytkowników, którzy są w ekosystemie.
 Dla pozostałych użytkowników dane o saldzie zakodowane są w parametrach zapytania - przekazanie danych następuje dopiero w momencie kliknięcia w link.
 
-## Znane problemy
-* Spontaniczne dodawanie spacji oraz znaku nowej linii w treści wiadomości z fakturą, skutkujące załączaniem niepoprawnego linku (niepotrzebne znaki występują w treści linku).
+# FAQ
 
-    Wskazany problem występuje rzadko, natomiast gdy ma miejsce, to wynika z korzystania z silnika pocztowego Pear. 
-LMS ma możliwość korzystania z dwóch silników pocztowch służących do wysyłania wiadomości z fakturą i notyfikacji. 
-Stosowany silnik można wskazać poprzez wartość zmiennej środowiskowej `mail.backend`. Obsługiwane wartości to `pear` lub `phpmailer`.
-W przypadku gdy problem się pojawi, zalecamy ustawienie zmiennej `mail.backend=phpmailer`. 
-Nie odnotowaliśmy żadnych skutków ubocznych wśród użytkowników, którzy dokonali zmiany silnika pocztowego na PHPMailer.
+## Brak linków do opłacenia na wygenerowanych fakturach
+<details>
+  <summary>Sprawdzenie CRONów</summary>
+
+Należy zweryfikować, czy CRONy odpowiedzialne za generowanie wtyczki są uruchomione (komenda `crontab -e`). Poprawnie powinny być uruchomione trzy crony:
+
+  ```bash
+  0 0 1 * * bash -c ${sys_dir}/plugins/BillTech/bin/billtech-clear-logs.php
+  0,5,10,15,20,25,30,35,40,45,50,55 * * * * bash -c ${sys_dir}/plugins/BillTech/bin/billtech-update-links.php | ${sys_dir}/plugins/BillTech/bin/timestamp.sh >> /var/log/billtech/`date +%Y%m%d`-update-links.log 2>&1
+  * * * * * bash -c ${sys_dir}/plugins/BillTech/bin/billtech-update-payments.php | ${sys_dir}/plugins/BillTech/bin/timestamp.sh >> /var/log/billtech/`date +%Y%m%d`-update-payments.log 2>&1
+  ```
+</details>
+
+<details>
+  <summary>Sprawdzenie logów</summary>
+
+Należy sprawdzić logi odpowiadające za generowanie faktur: `/var/log/billtech/*-update-links.log`. Najczęstsze błędy to:
+
+- **"Could not acquire lock. Another process is running."**
+    - Jeśli błąd widoczny jest dłużej niż kilka minut, oznacza to, że istnieje inny proces uruchomiony przez CRON, który nie został zamknięty.
+    - Rozwiązanie: Znalezienie procesu na maszynie, zabicie go oraz usunięcie pliku `/tmp/billtech-lock-update-links-*`.
+
+- **"Validation of the request failed"**
+    - Błędy mogą wynikać z niepoprawnych danych przesyłanych do systemu, np.:
+        - Nieprawidłowe znaki w tytułach faktur
+        - Puste lub za długie tytuły faktur
+        - Pusty numer konta
+
+Aby debugować błąd, można dodać linię `print_r($apiRequests);` w pliku `lib/BilltechLinkApiService.php` w funkcji `generatePaymentLinks`. Jeśli w LMS dane są poprawne, może być konieczna edycja zapytań SQL w `getLinkData()`.
+</details>
+
+## Brak linku w wiadomości e-mail/SMS
+<details>
+  <summary>Sprawdzenie opóźnień</summary>
+
+Poza sprawdzeniem problemów opisanych w punkcie 1, należy uwzględnić odstęp czasowy od generowania faktur do wysyłki.
+- Wtyczka generuje maksymalnie 100 linków na minutę.
+- Przy generowaniu kilku tysięcy linków proces może potrwać dłużej.
+</details>
+
+## Duplikaty wpłat bankowych na liście użytkowników
+<details>
+  <summary>Sprawdzenie mechanizmu mapowania</summary>
+
+Każdy przelew tymczasowy posiada `reference_number`, który służy do mapowania z realną wpłatą bankową.
+
+- Należy zweryfikować działanie funkcji `processCashImport` w pliku `handlers/BillTechPaymentCashImportHandler.php`.
+- Jeśli stosowane są indywidualne mechanizmy importu, trzeba sprawdzić ich kompatybilność ze standardowym systemem `cashimport`.
+- Zmienna konfiguracyjna `billtech.cashimport_enabled` powinna być ustawiona na `true`.
+</details>
+
+## Brak wpłat tymczasowych użytkowników
+<details>
+  <summary>Sprawdzenie CRONów i logów</summary>
+
+- Sprawdzić poprawne uruchomienie CRONów (`crontab -e`).
+- Przejrzeć logi `/var/log/billtech/*-update-payments.log`.
+- Jeśli pojawia się błąd **"Could not acquire lock. Another process is running."**, oznacza to, że inny proces CRON nie został zamknięty.
+    - Rozwiązanie: Znalezienie procesu na maszynie, zabicie go oraz usunięcie pliku `/tmp/billtech-lock-update-payments-*`.
+</details>
 
 ## Kontakt
 Więcej informacji na temat naszego API można znaleźć na stronie <https://docs.billtech.pl>. Po dane do połączenia prosimy o wysyłanie wiadomości na adres <lms@billtech.pl>
