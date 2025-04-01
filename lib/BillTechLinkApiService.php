@@ -36,10 +36,10 @@ class BillTechLinkApiService
 					'providerCode' => ConfigHelper::getConfig('billtech.isp_id'),
 					'payments' => $apiRequests
 				],
-				'exceptions' => FALSE
+				'http_errors' => FALSE
 			]);
 		} catch (ClientException $e) {
-			$response = $e->GetResponse();
+			$response = $e->getResponse();
 			if ($response) {
 				self::handleBadResponse($response, self::BASE_PATH);
 			} else {
@@ -82,7 +82,7 @@ class BillTechLinkApiService
 			"json" => [
 				"resolution" => $resolution
 			],
-			"exceptions" => FALSE
+			"http_errors" => FALSE
 		]);
 
 		if (!in_array($response->getStatusCode(), [204, 404, 409])) {
