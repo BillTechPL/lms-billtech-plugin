@@ -194,7 +194,7 @@ class BillTechLinkApiService
 			$request = array_merge_recursive($request, array(
 				'name' => self::getNameOrSurname($linkData['name']),
 				'surname' => self::getNameOrSurname($linkData['lastname']),
-				'email' => $linkData['email'] ? trim($linkData['email']) : null,,
+				'email' => $linkData['email'] ? trim($linkData['email']) : null,
 			));
 		}
 
