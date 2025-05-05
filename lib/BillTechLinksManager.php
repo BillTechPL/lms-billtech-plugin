@@ -68,7 +68,6 @@ class BillTechLinksManager
 
 	public function updateForAll()
 	{
-		global $DB;
 		$actions = array(
 			'add' => array(),
 			'update' => array(),
@@ -85,8 +84,6 @@ class BillTechLinksManager
 			return;
 		}
 
-		$maxCashId = $DB->GetOne("select max(id) from cash");
-
 		foreach ($customerIds as $idx => $customerId) {
 			echo "Collecting actions for customer " . ($idx + 1) . " of " . count($customerIds) . "\n";
 			$actions = array_merge_recursive($actions, $this->getCustomerUpdateBalanceActions($customerId));
@@ -99,11 +96,25 @@ class BillTechLinksManager
 		}
 
 		if ($this->performActions($actions)) {
-			$this->updateCustomerInfos($customerIds, $maxCashId);
+			$this->updateCustomerInfos($customerIds);
 		}
 	}
 
-	public function updateCustomerBalance($customerId)
+    /**
+     * @param $customerId integer
+     * @param $cashId integer
+     * @return bool
+     */
+	private function checkIfCustomerCashIdExists(integer $customerId, integer $cashId): bool
+    {
+		global $DB;
+		return $DB->GetOne('select count(*) from cash where customerid = ? and id = ?', array($customerId, $cashId));
+	}
+
+    /**
+     * @var $customerId integer
+     */
+	public function updateCustomerBalance(integer $customerId)
 	{
 		global $DB;
 		$this->addMissingCustomerInfo();
@@ -113,7 +124,7 @@ class BillTechLinksManager
 										where bci.customer_id = ?
 										group by bci.customer_id", array($customerId));
 
-		if ($customerInfo['new_last_cash_id'] > $customerInfo['last_cash_id']) {
+		if ($customerInfo['new_last_cash_id'] > $customerInfo['last_cash_id'] || ($customerInfo['new_last_cash_id'] < $customerInfo['last_cash_id'] && !$this->checkIfCustomerCashIdExists($customerId, $customerInfo['last_cash_id']))) {
 			$actions = $this->getCustomerUpdateBalanceActions($customerId);
 			if ($this->performActions($actions)) {
 				$DB->Execute("update billtech_customer_info set last_cash_id = ? where customer_id = ?", array($customerInfo['new_last_cash_id'], $customerId));
@@ -408,19 +419,18 @@ class BillTechLinksManager
 												 left join billtech_customer_info bci on bci.customer_id = cu.id
 												 left join cash ca on ca.customerid = cu.id
 										group by bci.customer_id, bci.last_cash_id
-										having bci.last_cash_id <= coalesce(max(ca.id), 0);");
+										having bci.last_cash_id != coalesce(max(ca.id), 0);")?: array();
 	}
 
 	/**
 	 * @param array $customerIds
-	 * @param $maxCashId
 	 */
-	private function updateCustomerInfos(array $customerIds, $maxCashId)
+	private function updateCustomerInfos(array $customerIds)
 	{
 		global $DB;
-		$params = $customerIds;
-		array_unshift($params, $maxCashId);
-		$DB->Execute("update billtech_customer_info set last_cash_id = ? where customer_id in (" . BillTech::repeatWithSeparator("?", ",", count($customerIds)) . ")", $params);
+		$DB->Execute("update billtech_customer_info bci
+		set last_cash_id = (select max(c.id) from cash c where c.customerid = bci.customer_id)
+		where customer_id in (".implode(',', $customerIds).");");
 	}
 
 	/**
