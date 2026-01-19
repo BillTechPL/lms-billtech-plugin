@@ -48,6 +48,6 @@ class LinkShortenerApiService
 			'json' => [
 				'url' => $url
 			]]);
-		return "" . $response->getBody();
+        return $response->getBody()->getContents();
 	}
 }
