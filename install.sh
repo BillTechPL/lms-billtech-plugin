@@ -7,7 +7,7 @@ if [ ! -e ${sys_dir}/plugins/BillTech/lms.pem ]; then
 fi
 
 cd ../../
-composer require guzzlehttp/guzzle:^6.0
+composer require guzzlehttp/guzzle:^7.0
 composer dump-autoload
 
 cd plugins/BillTech
