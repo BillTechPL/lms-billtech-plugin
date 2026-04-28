@@ -47,6 +47,8 @@ skorzystanie z przełącznika aktywności wtyczki BillTech znajdującego się w 
 W panelu administracyjnym wejdź w zakładkę *Konfiguracja -> BillTech* i wpisz wartości zmiennych konfiguracyjnych otrzymanych od <lms@billtech.pl>. 
 Podane wartości można również wprowadzić w zakładce *Konfiguracja -> Interfejs użytkownika* w sekcji billtech.
 
+Jeżeli w ramach jednego LMS obsługiwanych jest wiele firm skonfigurowanych jako oddziały, należy ustawić flagę `billtech.branding_enabled=true`.
+
 ## Dodatkowe informacje
 ### Obsługa płatności po stronie klienta
 Operacje kasowe, które powstają po wykonaniu płatności BillTech, to tzw. wpłaty tymczasowe. Są tworzone po to, aby użytkownik oraz administrator systemu widzieli wykonaną płatność. Wpłaty tymczasowe umożliwiają natychmiastowe odblokowanie usług w przypadku blokady z powodu nieuregulowania opłat.
@@ -89,6 +91,7 @@ Istnieją 3 możliwości rozliczania wpłat tymczasowych:
 | bankaccount         	  	| string     	| 61109010140000071219812874 	| Opcjonalny parametr. Odpowiada za globalny numer rachunku bankowego wykorzystywany do generowania linków dla wszystkich klientów. W przypadku niepodania tego parametru linki są tworzone na podstawie indywidualnych rachunków bankowych klientów.               |
 | manage_cutoff 	      	| boolean    	| true                       	| Opcjonalny parametr. Powinien być ustawiony na wartość true w przypadku włączonego mechanizmu blokady usług w LMS (dla niepłacących klientów). Wartość początkowa: true                                                                                           |
 | append_customer_info 	  	| boolean    	| true                       	| Opcjonalny parametr. Odpowiada za dodanie danych osobowych podczas procesu tworzenia linków. Skutkuje wygenerowaniem skróconych linków do płatności, które mogą mieć zastosowanie np. w wiadomościach SMS. Wartość początkowa: true                               |
+| branding_enabled      	  	| boolean    	| true                       	| Opcjonalny parametr. Należy ustawić na wartość true, gdy w ramach jednego LMS obsługiwanych jest wiele firm skonfigurowanych jako oddziały. Wartość początkowa: false                                                                                         |
 | cashimport_enabled  	  	| boolean    	| true                       	| Opcjonalny parametr. Umożliwia automatyczne rozliczanie opłat tymczasowych poprzez wyciąg bankowy. Wartość początkowa: true                                                                                                                                	    |
 | balance_button_disabled  	| boolean    	| true                       	| Opcjonalny parametr. Umożliwia schowanie przycisku opłacenia salda w panelu klienta. Wartość początkowa: false                                                                                                                                	                |
 | row_buttons_disabled    	| boolean    	| true                       	| Opcjonalny parametr. Umożliwia schowanie przycisków opłacenia przy każdej fakturze w panelu klienta. Wartość początkowa: false                                                                                                                                	|
