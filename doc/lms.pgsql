@@ -17,7 +17,8 @@ CREATE TABLE billtech_payments (
   amount numeric(9, 2) DEFAULT 0 NOT NULL,
   title text DEFAULT '' NOT NULL,
   document_number varchar(255) DEFAULT '',
-  reference_number varchar(255) DEFAULT '',
+  reference_number varchar(255) DEFAULT ''
+      CONSTRAINT billtech_payments__reference_number_ukey UNIQUE (reference_number),
   cdate integer DEFAULT 0 NOT NULL,
   closed smallint DEFAULT 0 NOT NULL,
   cashid integer
