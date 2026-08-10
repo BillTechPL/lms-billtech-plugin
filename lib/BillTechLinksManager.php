@@ -106,7 +106,7 @@ class BillTechLinksManager
 	public function updateCustomerBalance($customerId)
 	{
 		global $DB;
-		$this->addMissingCustomerInfo();
+		$this->addMissingCustomerInfo($customerId);
 
 		$customerInfo = $DB->GetRow("select bci.*, max(c.id) as new_last_cash_id from billtech_customer_info bci 
 										left join cash c on c.customerid = bci.customer_id
@@ -387,14 +387,15 @@ class BillTechLinksManager
 		return $actions;
 	}
 
-	private function addMissingCustomerInfo()
+	private function addMissingCustomerInfo($customerId = null)
 	{
 		global $DB;
 		$DB->Execute("insert into billtech_customer_info (customer_id, last_cash_id)
 					select cu.id, 0
 					from customers cu
 							 left join billtech_customer_info bci on bci.customer_id = cu.id
-					where bci.customer_id is null;");
+					where bci.customer_id is null" . ($customerId ? " and cu.id = ?" : "") . ";",
+			$customerId ? array($customerId) : null);
 	}
 
 	/**
