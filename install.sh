@@ -9,7 +9,7 @@ fi
 cd ../../
 composer require guzzlehttp/guzzle:^6.0
 composer dump-autoload
-git status && git commit composer.json -m 'BILLTECH: updated requirements for billtech'
+git status && git commit composer.json composer.lock -m 'BILLTECH: updated requirements for billtech'
 
 cd plugins/BillTech
 chmod 0644 cron/*
