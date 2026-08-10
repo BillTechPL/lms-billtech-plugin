@@ -262,31 +262,16 @@ class BillTechLinksManager
 	 */
 	public function performActions($actions)
 	{
-		global $DB;
 		$addBatches = array_chunk($actions['add'], $this->batchSize);
 		$errorCount = 0;
 		foreach ($addBatches as $idx => $links) {
 			if ($this->verbose) {
 				echo "Adding batch " . ($idx + 1) . " of " . count($addBatches) . "\n";
 			}
-			try {
-				$DB->BeginTrans();
+			if (!$this->executeInTransaction(function () use ($links) {
 				$this->addPayments($links);
-				if (!$DB->GetErrors()) {
-					$DB->CommitTrans();
-				} else {
-					foreach ($DB->GetErrors() as $error) {
-						echo $error['query'] . PHP_EOL;
-						echo $error['error'] . PHP_EOL;
-					}
-					$errorCount++;
-					$DB->RollbackTrans();
-				}
-			} catch (Exception $e) {
+			})) {
 				$errorCount++;
-				if (ConfigHelper::checkConfig("billtech.debug")) {
-					echo $e->getMessage();
-				}
 			}
 		}
 
@@ -294,24 +279,10 @@ class BillTechLinksManager
 			if ($this->verbose) {
 				echo "Updating link " . ($idx + 1) . " of " . count($actions['update']) . "\n";
 			}
-			try {
-				$DB->BeginTrans();
+			if (!$this->executeInTransaction(function () use ($link) {
 				$this->updatePaymentAmount($link);
-				if (!$DB->GetErrors()) {
-					$DB->CommitTrans();
-				} else {
-					foreach ($DB->GetErrors() as $error) {
-						echo $error['query'] . PHP_EOL;
-						echo $error['error'] . PHP_EOL;
-					}
-					$errorCount++;
-					$DB->RollbackTrans();
-				}
-			} catch (Exception $e) {
+			})) {
 				$errorCount++;
-				if (ConfigHelper::checkConfig("billtech.debug")) {
-					echo $e->getMessage();
-				}
 			}
 		}
 
@@ -319,28 +290,40 @@ class BillTechLinksManager
 			if ($this->verbose) {
 				echo "Closing link " . ($idx + 1) . " of " . count($actions['close']) . "\n";
 			}
-			try {
-				$DB->BeginTrans();
+			if (!$this->executeInTransaction(function () use ($link) {
 				$this->closePayment($link);
-				if (!$DB->GetErrors()) {
-					$DB->CommitTrans();
-				} else {
-					foreach ($DB->GetErrors() as $error) {
-						echo $error['query'] . PHP_EOL;
-						echo $error['error'] . PHP_EOL;
-					}
-					$errorCount++;
-					$DB->RollbackTrans();
-				}
-			} catch (Exception $e) {
+			})) {
 				$errorCount++;
-				if ($this->verbose) {
-					echo $e->getMessage();
-				}
 			}
 		}
 
 		return $errorCount == 0;
+	}
+
+	private function executeInTransaction($callback)
+	{
+		global $DB;
+		$errorCountBefore = count($DB->GetErrors());
+		try {
+			$DB->BeginTrans();
+			$callback();
+			$errors = array_slice($DB->GetErrors(), $errorCountBefore);
+			if (!$errors) {
+				$DB->CommitTrans();
+				return true;
+			}
+			foreach ($errors as $error) {
+				echo $error['query'] . PHP_EOL;
+				echo $error['error'] . PHP_EOL;
+			}
+			$DB->RollbackTrans();
+		} catch (Exception $e) {
+			$DB->RollbackTrans();
+			if ($this->verbose || ConfigHelper::checkConfig("billtech.debug")) {
+				echo $e->getMessage();
+			}
+		}
+		return false;
 	}
 
 	/**
