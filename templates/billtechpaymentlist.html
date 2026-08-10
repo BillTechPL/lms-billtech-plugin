@@ -82,6 +82,15 @@
 					<OPTION value="name"{if $listdata.cat == "name"} SELECTED{/if}>{trans("customer name")}</OPTION>
 					<OPTION value="customerid"{if $listdata.cat == "customerid"} SELECTED{/if}>{trans("customer ID")}</OPTION>
 				</SELECT>&nbsp;
+				{if $divisions|@count > 1}
+				<B>Firma: </B>
+				<SELECT size="1" name="divisionid">
+					<OPTION value="">{trans("- all -")}</OPTION>
+					{foreach from=$divisions item=division}
+					<OPTION value="{$division.id}"{if $listdata.divisionid == $division.id} SELECTED{/if}>{$division.shortname}</OPTION>
+					{/foreach}
+				</SELECT>&nbsp;
+				{/if}
 				<INPUT type="checkbox" name="hideclosed" id="hideclosed"{if $listdata.hideclosed} CHECKED{/if}><label for="hideclosed">{trans("hide accounted<!plural>")}</label>
 				&nbsp;<A href="javascript:filter();">&raquo;&raquo;&raquo;</A>
 			</TD>
