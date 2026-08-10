@@ -1,6 +1,6 @@
 <?php
 
-function GetBillTtechPaymentsList($order, $search = NULL, $cat = NULL, $hideclosed = NULL, $pagelimit = 100, $page = NULL)
+function GetBillTtechPaymentsList($order, $search = NULL, $cat = NULL, $hideclosed = NULL, $divisionid = NULL, $pagelimit = 100, $page = NULL)
 {
 	global $DB;
 
@@ -61,6 +61,9 @@ function GetBillTtechPaymentsList($order, $search = NULL, $cat = NULL, $hideclos
 	if ($hideclosed)
 		$where .= ' AND closed = 0';
 
+	if ($divisionid)
+		$where .= ' AND c.divisionid = ' . intval($divisionid);
+
 	if ($res = $DB->Exec("SELECT p.id, p.customerid as customerid, p.amount, p.title, p.document_number, p.reference_number, p.cdate, p.closed,  
 				" . $DB->Concat('c.lastname', "' '", 'c.name') . " as name
 			FROM billtech_payments p LEFT JOIN customers c ON c.id = p.customerid 
@@ -105,7 +108,7 @@ function isExpired($date)
 	return $date < time() - ConfigHelper::getConfig('billtech.payment_expiration_warning', 7) * 86400;
 }
 
-global $SESSION, $LMS, $SMARTY;
+global $DB, $SESSION, $LMS, $SMARTY;
 
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 
@@ -147,6 +150,12 @@ elseif (($h = $SESSION->get('bplh')) === NULL)
 	$h = ConfigHelper::checkConfig('billtech.hide_closed_payments');
 $SESSION->save('bplh', $h);
 
+if (isset($_POST['search']))
+	$d = isset($_POST['divisionid']) ? intval($_POST['divisionid']) : 0;
+else
+	$SESSION->restore('bpld', $d);
+$SESSION->save('bpld', $d);
+
 if ($c == 'cdate' && $s && preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/', $s)) {
 	list($year, $month, $day) = explode('/', $s);
 	$s = mktime(0, 0, 0, $month, $day, $year);
@@ -158,11 +167,12 @@ if ($c == 'cdate' && $s && preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/', $s)) {
 $pagelimit = ConfigHelper::getConfig('phpui.billtechpaymentlist_pagelimit', 100);
 $page = !isset($_GET['page']) ? 0 : intval($_GET['page']);
 
-$paymentlist = GetBillTtechPaymentsList($o, $s, $c, $h, $pagelimit, $page);
+$paymentlist = GetBillTtechPaymentsList($o, $s, $c, $h, $d, $pagelimit, $page);
 
 $SESSION->restore('bplc', $listdata['cat']);
 $SESSION->restore('bpls', $listdata['search']);
 $SESSION->restore('bplh', $listdata['hideclosed']);
+$SESSION->restore('bpld', $listdata['divisionid']);
 
 
 $listdata['order'] = $paymentlist['order'];
@@ -182,6 +192,7 @@ $hook_data = $LMS->ExecuteHook('billtechpaymentlist_before_display',
 );
 $paymentlist = $hook_data['paymentlist'];
 
+$SMARTY->assign('divisions', $DB->GetAll("SELECT id, shortname FROM divisions ORDER BY shortname") ?: array());
 $SMARTY->assign('listdata', $listdata);
 $SMARTY->assign('pagelimit', $pagelimit);
 $SMARTY->assign('start', ($page - 1) * $pagelimit);
