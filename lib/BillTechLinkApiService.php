@@ -58,9 +58,9 @@ class BillTechLinkApiService
 		foreach ($json as $idx => $link) {
 			$linkData = $linkDataList[$idx];
 			$link->link = $link->link .
-				'?email=' . urlencode($linkData['email']) .
-				'&name=' . urlencode(self::getNameOrSurname($linkData['name'])) .
-				'&surname=' . urlencode(self::getNameOrSurname($linkData['lastname'])) .
+				'?email=' . urlencode((string) $linkData['email']) .
+				'&name=' . urlencode((string) self::getNameOrSurname($linkData['name'])) .
+				'&surname=' . urlencode((string) self::getNameOrSurname($linkData['lastname'])) .
 				'&utm_content=' . urlencode($isp_id) .
 				'&utm_source=isp';
 			array_push($result, $link);
@@ -221,7 +221,7 @@ class BillTechLinkApiService
 
 	private static function getNameOrSurname($nameOrSurname)
 	{
-		return substr(preg_replace("/[^ A-Za-z0-9\-,.\x{00c0}-\x{02c0}]/u", " ", $nameOrSurname), 0, 100) ?: null;
+		return substr(preg_replace("/[^ A-Za-z0-9\-,.\x{00c0}-\x{02c0}]/u", " ", (string) $nameOrSurname), 0, 100) ?: null;
 	}
 
 	private static function getRecipientName($divisionName)
