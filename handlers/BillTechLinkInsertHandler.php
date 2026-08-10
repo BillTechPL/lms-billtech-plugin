@@ -91,10 +91,10 @@ class BillTechLinkInsertHandler
 
 	public function messageaddCustomerDataParse(array $hook_data = array())
 	{
-		$customerid = $hook_data['data']['id'];
+		$customerid = $hook_data['data']['id'] ?? null;
 		$appendCustomerInfoEnabled = ConfigHelper::getConfig('billtech.append_customer_info', true);
 
-		$amount = sprintf('%01.2f', -$hook_data['data']['balance']);
+		$amount = sprintf('%01.2f', -($hook_data['data']['balance'] ?? 0));
 		$btnPatterns = ['/%billtech_balance_btn/', '/'.$amount.'illtech_balance_btn/'];
 
 		if(isset($hook_data['data']['phone'])) {

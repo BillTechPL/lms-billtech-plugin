@@ -97,6 +97,9 @@ function GetBillTtechPaymentsList($order, $search = NULL, $cat = NULL, $hideclos
 		$result['page'] = $page > 0 ? $page : ceil($id / $pagelimit);
 	}
 
+	if (!isset($result['page']))
+		$result['page'] = 1;
+
 	$result['order'] = $order;
 	$result['direction'] = $direction;
 
