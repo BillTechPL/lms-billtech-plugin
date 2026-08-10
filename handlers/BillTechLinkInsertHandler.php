@@ -20,7 +20,6 @@ class BillTechLinkInsertHandler
 
 	private function getPaymentLink($doc, $customerId, $params = array())
 	{
-		global $DB;
 		$linksManager = $this->getLinksManager();
 
 		if ($doc == 'balance') {
@@ -34,7 +33,6 @@ class BillTechLinkInsertHandler
 
 	private function getShortPaymentLink($doc, $customerId, $params = array())
 	{
-		global $DB;
 		$linksManager = $this->getLinksManager();
 
 		if ($doc == 'balance') {
@@ -48,7 +46,6 @@ class BillTechLinkInsertHandler
 
 	public function addButtonToInvoiceEmail(array $hook_data = array())
 	{
-		global $DB;
 		$linksManager = $this->getLinksManager();
 
 		$linksManager->updateCustomerBalance($hook_data['doc']['customerid']);
