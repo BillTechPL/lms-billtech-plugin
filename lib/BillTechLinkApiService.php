@@ -30,6 +30,12 @@ class BillTechLinkApiService
 			array_push($apiRequests, self::createApiRequest($linkData));
 		}
 
+		array_walk_recursive($apiRequests, function (&$value) {
+			if (is_string($value)) {
+				$value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+			}
+		});
+
 		try {
 			$response = $client->post(self::BASE_PATH, [
 				'json' => [
