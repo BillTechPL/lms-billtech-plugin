@@ -30,6 +30,10 @@ class BillTechLinkApiService
 			array_push($apiRequests, self::createApiRequest($linkData));
 		}
 
+		array_walk_recursive($apiRequests, function (&$value) {
+			$value = self::toUtf8($value);
+		});
+
 		try {
 			$response = $client->post(self::BASE_PATH, [
 				'json' => [
@@ -126,7 +130,18 @@ class BillTechLinkApiService
 		$linkData['key'] = $linkRequest->getKey();
 		$linkData['amount'] = $linkRequest->amount;
 		$linkData['pdate'] = $linkData['cdate'] + ($linkData['paytime'] * 86400);
-		return $linkData;
+		return array_map(array(self::class, 'toUtf8'), $linkData);
+	}
+
+	private static function toUtf8($value)
+	{
+		if (!is_string($value) || mb_check_encoding($value, 'UTF-8')) {
+			return $value;
+		}
+		// 0x80-0x9F to drukowalne znaki w cp1250, a niewystepujace w latin2
+		$encoding = preg_match('/[\x80-\x9F]/', $value) ? 'CP1250' : 'ISO-8859-2';
+		$converted = @iconv($encoding, 'UTF-8//IGNORE', $value);
+		return $converted === false ? mb_convert_encoding($value, 'UTF-8', 'ISO-8859-2') : $converted;
 	}
 
 	private static function getDocumentTitle($fullnumber, $comment, $name)
