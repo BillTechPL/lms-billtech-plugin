@@ -45,14 +45,14 @@ class BillTechLinkApiService
 		} catch (ClientException $e) {
 			$response = $e->getResponse();
 			if ($response) {
-				self::handleBadResponse($response, self::BASE_PATH);
+				self::handleBadResponse($response, self::BASE_PATH, $apiRequests);
 			} else {
 				throw $e;
 			}
 		}
 
 		if ($response->getStatusCode() != 201) {
-			self::handleBadResponse($response, self::BASE_PATH);
+			self::handleBadResponse($response, self::BASE_PATH, $apiRequests);
 		}
 
 		$json = json_decode($response->getBody());
@@ -157,9 +157,12 @@ class BillTechLinkApiService
 	 * @param $response
 	 * @throws Exception
 	 */
-	public static function handleBadResponse($response, $path)
+	public static function handleBadResponse($response, $path, $requestBody = null)
 	{
 		$message = $path . " returned code " . $response->getStatusCode() . "\n" . $response->getBody();
+		if ($requestBody !== null) {
+			$message .= "\nRequest: " . json_encode($requestBody, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+		}
 		echo $message;
 		throw new Exception($message);
 	}
