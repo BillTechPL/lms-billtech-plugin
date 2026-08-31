@@ -231,17 +231,17 @@ class BillTechLinkApiService
 	 */
 	private static function getTitle($title)
 	{
-		return substr(preg_replace("/[^ A-Za-z0-9#&_\-',.\\/\x{00c0}-\x{02c0}]/u", " ", $title), 0, 105) ?: "";
+		return mb_substr(preg_replace("/[^ A-Za-z0-9#&_\-',.\\/\x{00c0}-\x{02c0}]/u", " ", $title), 0, 105, 'UTF-8') ?: "";
 	}
 
 	private static function getNameOrSurname($nameOrSurname)
 	{
-		return substr(preg_replace("/[^ A-Za-z0-9\-,.\x{00c0}-\x{02c0}]/u", " ", (string) $nameOrSurname), 0, 100) ?: null;
+		return mb_substr(preg_replace("/[^ A-Za-z0-9\-,.\x{00c0}-\x{02c0}]/u", " ", (string) $nameOrSurname), 0, 100, 'UTF-8') ?: null;
 	}
 
 	private static function getRecipientName($divisionName)
 	{
-		return substr(preg_replace("/[^ A-Za-z0-9\-,.\x{00c0}-\x{02c0}]+/u", " ", $divisionName), 0, 35);
+		return mb_substr(preg_replace("/[^ A-Za-z0-9\-,.\x{00c0}-\x{02c0}]+/u", " ", $divisionName), 0, 35, 'UTF-8');
 	}
 }
 
