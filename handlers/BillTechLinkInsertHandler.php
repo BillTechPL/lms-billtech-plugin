@@ -103,6 +103,9 @@ class BillTechLinkInsertHandler
 
 		if (isset($phone)) {
 			$link = self::getShortPaymentLink('balance', $customerid);
+			if ($link == '') {
+				$link = self::getPaymentLink('balance', $customerid, ['utm_medium' => 'email']);
+			}
 			if ($appendCustomerInfoEnabled) {
 				$hook_data['body'] = preg_replace($btnPatterns, $link, $hook_data['body']);
 			} else {
