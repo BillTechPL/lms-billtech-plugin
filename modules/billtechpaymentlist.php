@@ -43,8 +43,9 @@ function GetBillTtechPaymentsList($order, $search = NULL, $cat = NULL, $hideclos
 				$where = ' AND p.cdate >= ' . intval($search) . ' AND cdate < ' . (intval($search) + 86400);
 				break;
 			case 'month':
+				$search = intval($search);
 				$last = mktime(23, 59, 59, date('n', $search) + 1, 0, date('Y', $search));
-				$where = ' AND p.cdate >= ' . intval($search) . ' AND cdate <= ' . $last;
+				$where = ' AND p.cdate >= ' . $search . ' AND cdate <= ' . $last;
 				break;
 			case 'customerid':
 				$where = ' AND p.customerid = ' . intval($search);

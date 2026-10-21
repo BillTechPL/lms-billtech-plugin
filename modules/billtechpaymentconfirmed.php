@@ -9,7 +9,7 @@ if (is_array($_POST['marks']) && sizeof($_POST['marks']))
 
 if (is_array($bplm) && sizeof($bplm))
 	foreach ($bplm as $mark)
-		$ids[] = $mark;
+		$ids[] = intval($mark);
 
 if (is_array($ids) && sizeof($ids)) {
 	$DB->BeginTrans();
