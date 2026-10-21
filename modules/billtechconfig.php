@@ -29,6 +29,8 @@ switch ($action) {
 			curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+			curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 15);
+			curl_setopt($curl, CURLOPT_TIMEOUT, 60);
 			$result = curl_exec($curl);
 
 			$api_secret = json_decode($result)->data->apiSecret;

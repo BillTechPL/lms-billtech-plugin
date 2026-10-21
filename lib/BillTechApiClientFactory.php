@@ -11,7 +11,9 @@ class BillTechApiClientFactory {
 			'auth' => [
 				ConfigHelper::getConfig('billtech.api_key'),
 				ConfigHelper::getConfig('billtech.api_secret')
-			]
+			],
+			'connect_timeout' => 15,
+			'timeout' => 120,
 		]);
 	}
 
