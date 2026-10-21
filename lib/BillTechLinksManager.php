@@ -414,7 +414,9 @@ class BillTechLinksManager
 	 */
 	private function addParamsToLink(array $params, BillTechLink $link, $withShortLink)
 	{
-		$link->link .= http_build_query($params);
+		if ($params) {
+			$link->link .= (strpos($link->link, '?') === false ? '?' : '&') . http_build_query($params);
+		}
 
 		if ($withShortLink && $link->shortLink) {
 			$link->shortLink = $this->linkShortener->addParameters($link->shortLink, $params);
