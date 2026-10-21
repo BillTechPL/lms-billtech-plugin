@@ -16,25 +16,24 @@ class LinkShortenerApiService
 	{
 		$this->client = new Client([
 			'base_uri' => 'https://zapl.ac',
+			'connect_timeout' => 15,
+			'timeout' => 60,
 		]);
 	}
 
 	public function addParameters($url, $params = array())
 	{
 		$retryLimit = 3;
-		$retryCount = 1;
 
-		while($retryCount <= $retryLimit) {
+		for ($attempt = 1; $attempt <= $retryLimit; $attempt++) {
 			try {
 				return $this->postEncodeUrl($url, $params);
 			} catch (Exception $e) {
-				$retryCount++;
-				sleep(1);
-				if($retryCount === $retryLimit) {
-					$error = $e->getResponse();
-					echo "Unable to add parameters to the link. Server response: ".$error;
+				if ($attempt < $retryLimit) {
+					sleep(1);
+				} else {
+					echo "Unable to add parameters to the link: " . $e->getMessage() . "\n";
 				}
-				continue;
 			}
 		}
 
