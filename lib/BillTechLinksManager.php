@@ -32,7 +32,7 @@ class BillTechLinksManager
 		}, $rows);
 	}
 
-	public function getCashLinkByDocumentId($documentId, $params)
+	public function getCashLinkByDocumentId($documentId, $params, $withShortLink = false)
 	{
 		global $DB;
 		$row = $DB->GetRow("select bpl.* from billtech_payment_links bpl
@@ -45,11 +45,11 @@ class BillTechLinksManager
 		}
 		$link = BillTechLink::fromRow($row);
 
-		$this->addParamsToLink($params, $link);
+		$this->addParamsToLink($params, $link, $withShortLink);
 		return $link;
 	}
 
-	public function getBalanceLink($customerId, $params)
+	public function getBalanceLink($customerId, $params, $withShortLink = false)
 	{
 		global $DB;
 		$row = $DB->GetRow("select l.*, c.docid from billtech_payment_links l
@@ -61,7 +61,7 @@ class BillTechLinksManager
 			return null;
 		} else {
 			$balanceLink = BillTechLink::fromRow($row);
-			$this->addParamsToLink(array_merge($params, ['type' => 'balance']), $balanceLink);
+			$this->addParamsToLink(array_merge($params, ['type' => 'balance']), $balanceLink, $withShortLink);
 			return $balanceLink;
 		}
 	}
@@ -410,12 +410,13 @@ class BillTechLinksManager
 	/**
 	 * @param array $params
 	 * @param BillTechLink $link
+	 * @param bool $withShortLink
 	 */
-	private function addParamsToLink(array $params, BillTechLink $link)
+	private function addParamsToLink(array $params, BillTechLink $link, $withShortLink)
 	{
 		$link->link .= http_build_query($params);
 
-		if ($link->shortLink) {
+		if ($withShortLink && $link->shortLink) {
 			$link->shortLink = $this->linkShortener->addParameters($link->shortLink, $params);
 		}
 	}

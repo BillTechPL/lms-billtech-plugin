@@ -36,9 +36,9 @@ class BillTechLinkInsertHandler
 		$linksManager = $this->getLinksManager();
 
 		if ($doc == 'balance') {
-			$link = $linksManager->getBalanceLink($customerId, $params);
+			$link = $linksManager->getBalanceLink($customerId, $params, true);
 		} else {
-			$link = $linksManager->getCashLinkByDocumentId($doc, $params);
+			$link = $linksManager->getCashLinkByDocumentId($doc, $params, true);
 		}
 
 		return $link ? $link->shortLink : '';
