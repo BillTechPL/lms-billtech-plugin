@@ -36,9 +36,9 @@ class BillTechLinkInsertHandler
 		$linksManager = $this->getLinksManager();
 
 		if ($doc == 'balance') {
-			$link = $linksManager->getBalanceLink($customerId, $params);
+			$link = $linksManager->getBalanceLink($customerId, $params, true);
 		} else {
-			$link = $linksManager->getCashLinkByDocumentId($doc, $params);
+			$link = $linksManager->getCashLinkByDocumentId($doc, $params, true);
 		}
 
 		return $link ? $link->shortLink : '';
@@ -168,6 +168,9 @@ class BillTechLinkInsertHandler
 		$linksManager->updateCustomerBalance($customerId);
 
 		$style = ConfigHelper::getConfig('userpanel.style', 'default');
+		if (!$smarty->templateExists('button' . DIRECTORY_SEPARATOR . $style . DIRECTORY_SEPARATOR . 'billtechbalancebutton.html')) {
+			$style = 'default';
+		}
 
 		if (!ConfigHelper::checkConfig('billtech.row_buttons_disabled')) {
 			$balancelist = $smarty->getTemplateVars('balancelist');
