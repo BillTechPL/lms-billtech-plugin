@@ -11,7 +11,7 @@ Software: lms-billtech-plugin
 
 License: Mozilla Public License with Commons Clause
 
-Licensor: BillTech sp. z o.o.
+Licensor: BillTech Group sp. z o.o.
 
 Mozilla Public License Version 2.0
 ==================================
