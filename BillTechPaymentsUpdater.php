@@ -73,6 +73,7 @@ class BillTechPaymentsUpdater
 		}
 
 		$now = time();
+		$this->ensureBillTechInfoKeys();
 		$last_sync = $this->getLastSync();
 
 		$client = BillTechApiClientFactory::getClient();
@@ -266,7 +267,25 @@ class BillTechPaymentsUpdater
 	private function getLastSync()
 	{
 		$billTechInfo = $this->readBillTechInfo();
-		return $billTechInfo['last_sync'];
+		return isset($billTechInfo['last_sync']) ? $billTechInfo['last_sync'] : 0;
+	}
+
+	/**
+	 * Without the 'last_sync' row the UPDATE at the end of updatePayments() matches nothing,
+	 * so every run fetches the whole payment history (fromDate=-3600) and never moves forward.
+	 * Recreate missing rows with the same values as the install script.
+	 */
+	private function ensureBillTechInfoKeys()
+	{
+		global $DB;
+
+		foreach (array('last_sync', 'current_sync') as $keytype) {
+			if ($DB->GetOne("SELECT COUNT(*) FROM billtech_info WHERE keytype = ?", array($keytype)) == 0) {
+				$DB->Execute("INSERT INTO billtech_info (keytype, keyvalue) VALUES (?, ?)", array($keytype, 0));
+				$DB->Execute("INSERT INTO billtech_log (cdate, type, description)  VALUES (?NOW?, ?, ?)",
+					array('ERROR', "billtech_info: missing '$keytype' row, recreated"));
+			}
+		}
 	}
 
 	public static function addBalanceReturnCashIdOrFalse($addbalance) {
