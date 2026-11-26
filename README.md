@@ -1,24 +1,24 @@
 # Wtyczka Bill Gateway dla LMS od BillTech
 
 ## Opis
-Bill Gateway to usługa, która pozwala Dostawcom na wygodne pobieranie należności od swoich klientów. 
+Bill Gateway to usługa, która przekazuje klientom Dostawcy informacje o należnościach i kieruje ich do płatności. 
 Po wystawieniu faktury Dostawca generuje link do płatności, który może dostarczyć swoim klientom różnymi kanałami,
  np. wysłać w wiadomości e-mail, sms lub pokazać w panelu klienta (userpanel). 
-Klient (użytkownik) po kliknięciu w taki link, zostaje przekierowany na ekran podsumowania płatności.
-Informacja o wykonanej płatności natychmiast trafia do Dostawcy,
+Klient (użytkownik) po kliknięciu w taki link widzi podsumowanie należności i wybiera, gdzie zapłaci: w bramce płatniczej albo w banku lub aplikacji korzystającej z usługi BillTech Bill Presentment.
+Informacja o płatności natychmiast trafia do Dostawcy,
  dzięki czemu możliwe jest szybkie uregulowanie salda klienta oraz ewentualne zdjęcie blokady usług.
  
 Więcej o korzyściach [Bill Gateway na stronie BillTech](https://billtech.pl/bill-gateway/).
  
 Wtyczka umożliwia integrację z usługą Bill Gateway poprzez:
 * Dodanie przycisku *Opłać teraz* do panelu klienta w sekcji finanse przy saldzie oraz indywidualnych 
-fakturach pozwalając na wykonanie płatności online poprzez platformę BillTech,
+fakturach, prowadzącego do podsumowania należności w Bill Gateway,
 * Dodanie przycisku *Opłać teraz* do wiadomości e-mail z fakturą oraz notyfikacji,
 * Wstawienie informacji o płatności do nagłówków wiadomości e-mail z fakturą,
 * Dodanie przycisku *Opłać teraz* do ekranu blokady internetu,
-* Przekazanie informacji o płatności wykonanej na platformie BillTech do LMS.
+* Przekazanie do LMS informacji o płatnościach z linków Bill Gateway.
 
-Szczegółowa [dokumentacja API](https://docs.billtech.pl/) produktu Bill Gateway.
+Szczegółowa [dokumentacja API](https://developer.billtech.pl/bill-gateway/latest) produktu Bill Gateway.
 
 > #### Uwaga
 > Wtyczka do działania wymaga aktualizacji odpowiedniej wersji LMS. W przypadku posiadania najnowszej wersji
@@ -27,7 +27,7 @@ z wprowadzeniem odpowiednich zmian również do innych wersji.
 
 ## Licencja
 Wtyczka udostepniana jest na licencji MPL (Mozilla Public License) z klauzulą Commons Clause. Więcej informacji znajduje się w pliku license.md.
-Firma Billtech prowadzi odpłatną pomoc techniczną - jeśli jesteś zainteresowany wykup konstultację w aplikacji rezerwacyjnej https://billtech.trafft.com/ lub skontaktuj się z nami mailowo pod adresem <lms@billtech.pl>.
+BillTech Group sp. z o.o. prowadzi odpłatną pomoc techniczną - jeśli jesteś zainteresowany wykup konstultację w aplikacji rezerwacyjnej https://billtech.trafft.com/ lub skontaktuj się z nami mailowo pod adresem <lms@billtech.pl>.
 
 ## Instalacja
 * Umieść zawartość tego repozytorium w katalogu *plugins/BillTech* w katalogu instalacyjnym LMSa,
@@ -51,7 +51,7 @@ Jeżeli w ramach jednego LMS obsługiwanych jest wiele firm skonfigurowanych jak
 
 ## Dodatkowe informacje
 ### Obsługa płatności po stronie klienta
-Operacje kasowe, które powstają po wykonaniu płatności BillTech, to tzw. wpłaty tymczasowe. Są tworzone po to, aby użytkownik oraz administrator systemu widzieli wykonaną płatność. Wpłaty tymczasowe umożliwiają natychmiastowe odblokowanie usług w przypadku blokady z powodu nieuregulowania opłat.
+Operacje kasowe, które powstają po otrzymaniu informacji o płatności z linku Bill Gateway, to tzw. wpłaty tymczasowe. Są tworzone po to, aby użytkownik oraz administrator systemu widzieli wykonaną płatność. Wpłaty tymczasowe umożliwiają natychmiastowe odblokowanie usług w przypadku blokady z powodu nieuregulowania opłat.
 Wpłaty tymczasowe przestają być potrzebne w momencie zaksięgowania opłat z wykazu bankowego - mogą wtedy zostać rozliczone (zamknięte), po czym przestają być widoczne (znikają zarówno w panelu administracyjnym jak i w panelu klienta).
 Istnieją 3 możliwości rozliczania wpłat tymczasowych:
 
@@ -71,7 +71,7 @@ Istnieją 3 możliwości rozliczania wpłat tymczasowych:
 
 ### Spis zmiennych konfiguracyjnych w sekcji billtech (billtech.<nazwa_zmiennej>):
 
-##### Zmienne związane z łączeniem się z BillTech (umożliwiające dostęp do API systemu płatności BillTech)
+##### Zmienne związane z łączeniem się z BillTech (umożliwiające dostęp do API Bill Gateway)
 
 | nazwa zmiennej 	| wartości 	| przykład                         	| opis                                                                                                                                                                                        	|
 |----------------	|----------	|----------------------------------	|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
@@ -86,7 +86,7 @@ Istnieją 3 możliwości rozliczania wpłat tymczasowych:
 
 | nazwa zmiennej      	  	| wartości   	| przykład                   	| opis                                                                                                                                                                                                                                                          	|
 |-------------------------	|------------	|----------------------------	|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
-| payment_expiration  	  	| int/string 	| 5                          	| Liczba dni po których wpłata tymczasowa BillTech znika z systemu. Dla wartości  `never`  mechanizm ten zostaje wyłączony -- taka powinna być wartość w przypadku korzystania z rozliczania wpłat tymczasowych poprzez cashimport (`cashimport_enabled=true`). 	|
+| payment_expiration  	  	| int/string 	| 5                          	| Liczba dni po których wpłata tymczasowa z Bill Gateway znika z systemu. Dla wartości  `never`  mechanizm ten zostaje wyłączony -- taka powinna być wartość w przypadku korzystania z rozliczania wpłat tymczasowych poprzez cashimport (`cashimport_enabled=true`). 	|
 | isp_id              	  	| string     	| nazwa_dostawcy             	| Id dostawcy w systemie BillTech.                                                                                                                                                                                                                              	|
 | bankaccount         	  	| string     	| 61109010140000071219812874 	| Opcjonalny parametr. Odpowiada za globalny numer rachunku bankowego wykorzystywany do generowania linków dla wszystkich klientów. W przypadku niepodania tego parametru linki są tworzone na podstawie indywidualnych rachunków bankowych klientów.               |
 | manage_cutoff 	      	| boolean    	| true                       	| Opcjonalny parametr. Powinien być ustawiony na wartość true w przypadku włączonego mechanizmu blokady usług w LMS (dla niepłacących klientów). Wartość początkowa: true                                                                                           |
@@ -106,12 +106,7 @@ Istnieją 2 możliwości podania danych identyfikujących użytkownika dokonują
     * dane mogą zostać podane przy tworzeniu linku do płatności w body zapytania.
     Wtedy dane zostaną zapisane w bazie BillTech oraz umożliwią utworzenie skróconego linku. 
 * Przechowywanie linków do płatności w bazie powoduje wyeliminowanie problemów ze spójnością salda.
-* Integracja z ekosystemem BillTech (poprzez alternatywne metody płatności na bramce płatniczej):
-    * połączenia z bankami i aplikacjami,
-    * przypomnienia o nadchodzących i przeterminowanych płatnościach,
-    * płatności jednym kliknięciem z zapisanej karty,
-    * autopłatności,
-    * odraczanie płatności.
+* Integracja z ekosystemem BillTech: klient może połączyć konto u Dostawcy z bankiem lub aplikacją korzystającą z usługi BillTech Bill Presentment, która przypomina o nadchodzących i przeterminowanych płatnościach i pozwala opłacić kolejne faktury.
 * Dodanie nowych tabel billtech_payment_links, billtech_customer_info oraz aktualizacja istniejących poprzez skrypty migracyjne. 
 * Przeniesienie mechanizmu aktualizowania informacji nt. wpłat łączącego się z BillTech co 5 minut do skryptu cron. 
 * Zmiana możliwych wartości zmiennej `billtech.payment_expiration`. Aby wyłączyć mechanizm automatycznego zamykania się wpłat tymczasowych należy podać wartość `never` zamiast `0`.
@@ -186,6 +181,6 @@ Każdy przelew tymczasowy posiada `reference_number`, który służy do mapowani
 </details>
 
 ## Kontakt
-Więcej informacji na temat naszego API można znaleźć na stronie <https://docs.billtech.pl>. Po dane do połączenia prosimy o wysyłanie wiadomości na adres <lms@billtech.pl>
+Więcej informacji na temat naszego API można znaleźć na stronie <https://developer.billtech.pl/bill-gateway/latest>. Po dane do połączenia prosimy o wysyłanie wiadomości na adres <lms@billtech.pl>
 
 Jeżeli chciałbyś przetestować wtyczkę, zobaczyć jak wygląda proces płatności, rozpocząć współpracę lub dowiedzieć się więcej, prosimy o wiadomość na adres <sales@billtech.pl>
